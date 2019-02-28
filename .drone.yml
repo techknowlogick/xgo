@@ -19,9 +19,8 @@ steps:
     username:
       from_secret: docker_username
   when:
-    event:
-      exclude:
-      - pull_request
+    branch:
+    - master
 
 - name: build-go-1.12.x
   pull: always
@@ -35,9 +34,8 @@ steps:
     username:
       from_secret: docker_username
   when:
-    event:
-      exclude:
-      - pull_request
+    branch:
+    - master
 
 - name: build-go-1.11.5
   pull: always
@@ -51,9 +49,8 @@ steps:
     username:
       from_secret: docker_username
   when:
-    event:
-      exclude:
-      - pull_request
+    branch:
+    - master
 
 - name: build-go-1.11.x
   pull: always
@@ -67,9 +64,8 @@ steps:
     username:
       from_secret: docker_username
   when:
-    event:
-      exclude:
-      - pull_request
+    branch:
+    - master
 
 - name: build-go-latest
   pull: always
@@ -83,8 +79,7 @@ steps:
     username:
       from_secret: docker_username
   when:
-    event:
-      exclude:
-      - pull_request
+    branch:
+    - master
 
 ...

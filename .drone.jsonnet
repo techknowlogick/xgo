@@ -14,10 +14,7 @@ local BuildWithDiffTags(version='go-latest', tags='latest') = {
     tags: tags
   },
   when: {
-    event: {
-      exclude: [
-        'pull_request',
-      ]}
+    branch: ['master']
   }
 };
 
