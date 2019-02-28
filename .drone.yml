@@ -21,6 +21,9 @@ steps:
   when:
     branch:
     - master
+    event:
+      exclude:
+      - pull_request
 
 - name: build-go-1.12.x
   pull: always
@@ -36,6 +39,9 @@ steps:
   when:
     branch:
     - master
+    event:
+      exclude:
+      - pull_request
 
 - name: build-go-1.11.5
   pull: always
@@ -51,6 +57,9 @@ steps:
   when:
     branch:
     - master
+    event:
+      exclude:
+      - pull_request
 
 - name: build-go-1.11.x
   pull: always
@@ -66,6 +75,9 @@ steps:
   when:
     branch:
     - master
+    event:
+      exclude:
+      - pull_request
 
 - name: build-go-latest
   pull: always
@@ -81,5 +93,8 @@ steps:
   when:
     branch:
     - master
+    event:
+      exclude:
+      - pull_request
 
 ...
