@@ -3,8 +3,7 @@ local BuildWithDiffTags(version='go-latest', tags='latest') = {
   pull: 'always',
   image: 'plugins/docker',
   settings: {
-    dry_run: true,
-    dockerfile: 'docker/' +version+'/Dockerfile',
+    dockerfile: 'docker/' + version + '/Dockerfile',
     password: {
       from_secret: 'docker_password'
     },
@@ -13,6 +12,12 @@ local BuildWithDiffTags(version='go-latest', tags='latest') = {
     },
     repo: 'techknowlogick/xgo',
     tags: tags
+  },
+  when: {
+    event: {
+      exclude: [
+        'pull_request',
+      ]}
   }
 };
 
