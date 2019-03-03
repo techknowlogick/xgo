@@ -31,22 +31,22 @@ echo "Bootstrapping linux/386..."
 GOOS=linux GOARCH=386 CGO_ENABLED=1 go install std
 
 echo "Bootstrapping linux/arm64..."
-GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc-5 go install std
+GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc-6 go install std
 
 if [ $GO_VERSION -ge 170 ]; then
   echo "Bootstrapping linux/mips64..."
-  GOOS=linux GOARCH=mips64 CGO_ENABLED=1 CC=mips64-linux-gnuabi64-gcc-5 go install std
+  GOOS=linux GOARCH=mips64 CGO_ENABLED=1 CC=mips64-linux-gnuabi64-gcc-6 go install std
 
   echo "Bootstrapping linux/mips64le..."
-  GOOS=linux GOARCH=mips64le CGO_ENABLED=1 CC=mips64el-linux-gnuabi64-gcc-5 go install std
+  GOOS=linux GOARCH=mips64le CGO_ENABLED=1 CC=mips64el-linux-gnuabi64-gcc-6 go install std
 fi
 
 if [ $GO_VERSION -ge 180 ]; then
   echo "Bootstrapping linux/mips..."
-  GOOS=linux GOARCH=mips CGO_ENABLED=1 CC=mips-linux-gnu-gcc-5 go install std
+  GOOS=linux GOARCH=mips CGO_ENABLED=1 CC=mips-linux-gnu-gcc-6 go install std
 
   echo "Bootstrapping linux/mipsle..."
-  GOOS=linux GOARCH=mipsle CGO_ENABLED=1 CC=mipsel-linux-gnu-gcc-5 go install std
+  GOOS=linux GOARCH=mipsle CGO_ENABLED=1 CC=mipsel-linux-gnu-gcc-6 go install std
 fi
 
 echo "Bootstrapping windows/amd64..."
@@ -65,3 +65,9 @@ GOOS=darwin GOARCH=386 CGO_ENABLED=1 CC=o32-clang go install std
 echo "Installing xgo-in-xgo..."
 go get -u github.com/karalabe/xgo
 ln -s /go/bin/xgo /usr/bin/xgo
+
+# Install gomobile tool for android/ios frameworks
+echo "Installing gomobile..."
+go get -u golang.org/x/mobile/cmd/gomobile
+/go/bin/gomobile init -ndk /usr/local/android-ndk-r13b/
+/go/bin/gomobile version
