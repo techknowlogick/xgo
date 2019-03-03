@@ -4,6 +4,7 @@ local BuildSwitchDryRun(version='go-latest', tags='latest', dry=false) = {
   image: 'plugins/docker',
   settings: {
     dockerfile: 'docker/' + version + '/Dockerfile',
+    context: 'docker/' + version,
     password: {
       from_secret: 'docker_password'
     },
