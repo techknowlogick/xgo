@@ -35,10 +35,7 @@ name: 'default',
 steps: [
   BuildStepDry('base'),
   BuildStepDry('go-1.12.0'),
-  BuildStepDry('go-1.12.x'),
   BuildStepDry('go-1.11.5'),
-  BuildStepDry('go-1.11.x'),
-  BuildWithDiffTagsDry(),
 
   BuildStep('base'),
   BuildStep('go-1.12.0'),

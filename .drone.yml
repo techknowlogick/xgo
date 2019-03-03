@@ -41,23 +41,6 @@ steps:
     event:
     - pull_request
 
-- name: dry-run-go-1.12.x
-  pull: always
-  image: plugins/docker
-  settings:
-    context: docker/go-1.12.x
-    dockerfile: docker/go-1.12.x/Dockerfile
-    dry_run: true
-    password:
-      from_secret: docker_password
-    repo: techknowlogick/xgo
-    tags: go-1.12.x
-    username:
-      from_secret: docker_username
-  when:
-    event:
-    - pull_request
-
 - name: dry-run-go-1.11.5
   pull: always
   image: plugins/docker
@@ -69,40 +52,6 @@ steps:
       from_secret: docker_password
     repo: techknowlogick/xgo
     tags: go-1.11.5
-    username:
-      from_secret: docker_username
-  when:
-    event:
-    - pull_request
-
-- name: dry-run-go-1.11.x
-  pull: always
-  image: plugins/docker
-  settings:
-    context: docker/go-1.11.x
-    dockerfile: docker/go-1.11.x/Dockerfile
-    dry_run: true
-    password:
-      from_secret: docker_password
-    repo: techknowlogick/xgo
-    tags: go-1.11.x
-    username:
-      from_secret: docker_username
-  when:
-    event:
-    - pull_request
-
-- name: dry-run-go-latest
-  pull: always
-  image: plugins/docker
-  settings:
-    context: docker/go-latest
-    dockerfile: docker/go-latest/Dockerfile
-    dry_run: true
-    password:
-      from_secret: docker_password
-    repo: techknowlogick/xgo
-    tags: latest
     username:
       from_secret: docker_username
   when:
