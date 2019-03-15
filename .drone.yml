@@ -7,15 +7,15 @@ platform:
   arch: amd64
 
 steps:
-- name: build-go-1.12.0
+- name: build-go-1.12.1
   pull: always
   image: plugins/docker
   settings:
-    dockerfile: docker/go-1.12.0/Dockerfile
+    dockerfile: docker/go-1.12.1/Dockerfile
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.12.0
+    tags: go-1.12.1
     username:
       from_secret: docker_username
   when:
@@ -43,15 +43,15 @@ steps:
       exclude:
       - pull_request
 
-- name: build-go-1.11.5
+- name: build-go-1.11.6
   pull: always
   image: plugins/docker
   settings:
-    dockerfile: docker/go-1.11.5/Dockerfile
+    dockerfile: docker/go-1.11.6/Dockerfile
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.11.5
+    tags: go-1.11.6
     username:
       from_secret: docker_username
   when:

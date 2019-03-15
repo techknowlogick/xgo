@@ -25,9 +25,9 @@ local BuildStep(version='go-latest') = BuildWithDiffTags(version, version);
 kind: 'pipeline',
 name: 'default',
 steps: [
-  BuildStep('go-1.12.0'),
+  BuildStep('go-1.12.1'),
   BuildStep('go-1.12.x'),
-  BuildStep('go-1.11.5'),
+  BuildStep('go-1.11.6'),
   BuildStep('go-1.11.x'),
   BuildWithDiffTags(),
 ]
