@@ -1,9 +1,10 @@
-local BuildWithDiffTags(version='go-latest', tags='latest') = {
-  name: 'build-' + version,
+local BuildSwitchDryRun(version='go-latest', tags='latest', dry=false) = {
+  name: if dry then 'dry-run-' + version else 'build-' + version,
   pull: 'always',
   image: 'plugins/docker',
   settings: {
     dockerfile: 'docker/' + version + '/Dockerfile',
+    context: 'docker/' + version,
     password: {
       from_secret: 'docker_password'
     },
@@ -11,20 +12,32 @@ local BuildWithDiffTags(version='go-latest', tags='latest') = {
       from_secret: 'docker_username'
     },
     repo: 'techknowlogick/xgo',
-    tags: tags
+    tags: tags,
+    dry_run: dry
   },
-  when: {
+  [if !dry then 'when']: {
     branch: ['master'],
     event: {exclude: ['pull_request']}
-  }
+  },
+  [if dry then 'when']: {
+    event: {include: ['pull_request']}
+  },
 };
 
+local BuildWithDiffTags(version='go-latest', tags='latest') = BuildSwitchDryRun(version, tags, false);
+local BuildWithDiffTagsDry(version='go-latest', tags='latest') = BuildSwitchDryRun(version, tags, true);
 local BuildStep(version='go-latest') = BuildWithDiffTags(version, version);
+local BuildStepDry(version='go-latest') = BuildSwitchDryRun(version, version, true);
 
 {
 kind: 'pipeline',
 name: 'default',
 steps: [
+  BuildStepDry('base'),
+  BuildStepDry('go-1.12.1'),
+  BuildStepDry('go-1.11.6'),
+
+  BuildStep('base'),
   BuildStep('go-1.12.1'),
   BuildStep('go-1.12.x'),
   BuildStep('go-1.11.6'),
