@@ -3,6 +3,6 @@
 #
 # Released under the MIT license.
 
-FROM karalabe/xgo-1.11.6
+FROM techknowlogicx/xgo:go-1.11.6
 
-MAINTAINER Péter Szilágyi <peterke@gmail.com>
+LABEL maintainer="Péter Szilágyi <peterke@gmail.com>"
