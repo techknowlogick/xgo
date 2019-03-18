@@ -5,7 +5,7 @@
 
 FROM techknowlogick/xgo:base
 
-MAINTAINER Péter Szilágyi <peterke@gmail.com>
+LABEL maintainer="Péter Szilágyi <peterke@gmail.com>"
 
 # Configure the root Go distribution and bootstrap based on it
 ENV GO_VERSION 1120
