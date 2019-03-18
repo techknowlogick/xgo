@@ -1,11 +1,11 @@
 # Go cross compiler (xgo): Go 1.11.5
-# Copyright (c) 2018 Péter Szilágyi. All rights reserved.
+# Copyright (c) 2019 Péter Szilágyi. All rights reserved.
 #
 # Released under the MIT license.
 
-FROM karalabe/xgo-base
+FROM techknowlogick/xgo:base
 
-MAINTAINER Péter Szilágyi <peterke@gmail.com>
+LABEL maintainer="Péter Szilágyi <peterke@gmail.com>"
 
 # Configure the root Go distribution and bootstrap based on it
 ENV GO_VERSION 1115
