@@ -5,4 +5,4 @@
 
 FROM techknowlogick/xgo:go-1.12.1
 
-MAINTAINER Péter Szilágyi <peterke@gmail.com>
+LABEL maintainer="Péter Szilágyi <peterke@gmail.com>"
