@@ -3,4 +3,6 @@
 #
 # Released under the MIT license.
 
-FROM techknowlogick/xgo:go-1.11.6
+FROM karalabe/xgo-1.11.6
+
+MAINTAINER Péter Szilágyi <peterke@gmail.com>
