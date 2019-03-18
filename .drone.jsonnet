@@ -40,8 +40,15 @@ steps: [
   BuildStep('base'),
   BuildStep('go-1.12.1'),
   BuildStep('go-1.12.x'),
+  BuildWithDiffTags(),
   BuildStep('go-1.11.6'),
   BuildStep('go-1.11.x'),
-  BuildWithDiffTags(),
+  BuildStep('go-1.12.0'),
+  BuildStep('go-1.11.5'),
+  BuildStep('go-1.11.4'),
+  BuildStep('go-1.11.3'),
+  BuildStep('go-1.11.2'),
+  BuildStep('go-1.11.1'),
+  BuildStep('go-1.11.0'),
 ]
 }
