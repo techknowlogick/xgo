@@ -38,7 +38,7 @@ steps: [
   BuildStepDry('go-1.11.9'),
 
   BuildStep('base'),
-  BuildStep('go-1.12.3'),
+  BuildStep('go-1.12.4'),
   BuildStep('go-1.12.x'),
   BuildWithDiffTags(),
   BuildStep('go-1.11.9'),

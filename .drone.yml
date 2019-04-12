@@ -77,16 +77,16 @@ steps:
       exclude:
       - pull_request
 
-- name: build-go-1.12.3
+- name: build-go-1.12.4
   pull: always
   image: plugins/docker
   settings:
-    context: docker/go-1.12.3
-    dockerfile: docker/go-1.12.3/Dockerfile
+    context: docker/go-1.12.4
+    dockerfile: docker/go-1.12.4/Dockerfile
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.12.3
+    tags: go-1.12.4
     username:
       from_secret: docker_username
   when:
