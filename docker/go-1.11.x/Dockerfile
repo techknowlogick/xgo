@@ -3,6 +3,6 @@
 #
 # Released under the MIT license.
 
-FROM techknowlogick/xgo:go-1.11.8
+FROM techknowlogick/xgo:go-1.11.9
 
 LABEL maintainer="Péter Szilágyi <peterke@gmail.com>"
