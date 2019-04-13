@@ -49,12 +49,5 @@ steps: [
   BuildStep('go-1.12.0'),
   BuildStep('go-1.11.8'),
   BuildStep('go-1.11.7'),
-  BuildStep('go-1.11.6'),
-  BuildStep('go-1.11.5'),
-  BuildStep('go-1.11.4'),
-  BuildStep('go-1.11.3'),
-  BuildStep('go-1.11.2'),
-  BuildStep('go-1.11.1'),
-  BuildStep('go-1.11.0'),
 ]
 }
