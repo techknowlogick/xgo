@@ -63,7 +63,7 @@ GOOS=darwin GOARCH=386 CGO_ENABLED=1 CC=o32-clang go install std
 
 # Install xgo within the container to enable internal cross compilation
 echo "Installing xgo-in-xgo..."
-go get -u github.com/techknowlogick/xgo
+go get -u src.techknowlogick.com/xgo
 ln -s /go/bin/xgo /usr/bin/xgo
 
 # Install gomobile tool for android/ios frameworks
