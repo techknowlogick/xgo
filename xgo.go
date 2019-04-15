@@ -4,7 +4,7 @@
 // Released under the MIT license.
 
 // Wrapper around the GCO cross compiler docker container.
-package main
+package main // import "src.techknowlogick.com/xgo"
 
 import (
 	"bytes"
