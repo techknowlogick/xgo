@@ -68,4 +68,4 @@ fi
 
 # Install xgo within the container to enable internal cross compilation
 echo "Installing xgo-in-xgo..."
-go get -u github.com/techknowlogick/xgo
+go get -u src.techknowlogick.com/xgo
