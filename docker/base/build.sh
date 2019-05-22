@@ -161,7 +161,10 @@ NAME=`basename $1/$PACK`
 
 # Go module-based builds error with 'cannot find main module'
 # when $PACK is defined
-if [[ "$USEMODULES" = true ]]; then
+if [[ "$EXT_GOPATH" != "" ]] && [[ "$USEMODULES" = true ]]; then
+  PACK_RELPATH=""
+  NAME=`sed -n 's/module\ \(.*\)/\1/p' $EXT_GOPATH/go.mod`
+elif [[ "$USEMODULES" = true ]]; then
   PACK_RELPATH=""
   NAME=`sed -n 's/module\ \(.*\)/\1/p' /source/go.mod`
 else
