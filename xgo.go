@@ -342,13 +342,14 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 // to be used for cross compilation already from within an xgo image, allowing the
 // inheritance and bundling of the root xgo images.
 func compileContained(config *ConfigFlags, flags *BuildFlags, folder string) error {
+
+	usesModules := usesGoModules(config)
+
 	// If a local build was requested, resolve the import path
 	local := strings.HasPrefix(config.Repository, string(filepath.Separator)) || strings.HasPrefix(config.Repository, ".")
 	if local {
 		config.Repository = resolveImportPath(config.Repository)
 	}
-
-	usesModules := usesGoModules(config)
 
 	// Fine tune the original environment variables with those required by the build script
 	env := []string{
