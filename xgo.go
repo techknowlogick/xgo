@@ -239,9 +239,7 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 		config.Repository = resolveImportPath(config.Repository)
 
 		// Determine if this is a module-based repository
-		var modFile = config.Repository + "/go.mod"
-		_, err := os.Stat(modFile)
-		usesModules = !os.IsNotExist(err)
+		usesModules = usesGoModules(config)
 
 		// Iterate over all the local libs and export the mount points
 		if os.Getenv("GOPATH") == "" && !usesModules {
@@ -349,6 +347,9 @@ func compileContained(config *ConfigFlags, flags *BuildFlags, folder string) err
 	if local {
 		config.Repository = resolveImportPath(config.Repository)
 	}
+
+	usesModules := usesGoModules(config)
+
 	// Fine tune the original environment variables with those required by the build script
 	env := []string{
 		"REPO_REMOTE=" + config.Remote,
@@ -365,9 +366,27 @@ func compileContained(config *ConfigFlags, flags *BuildFlags, folder string) err
 		fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
 		"TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
 	}
-	if local {
+	if local && !usesModules {
 		env = append(env, "EXT_GOPATH=/non-existent-path-to-signal-local-build")
 	}
+
+	if usesModules {
+		fmt.Printf("Enabled Go module support\n")
+		env = append(env, "GO111MODULE=on")
+
+		// Check whether it has a vendor folder, and if so, use it
+		absRepository, err := filepath.Abs(config.Repository)
+		if err != nil {
+			log.Fatalf("Failed to locate requested module repository: %v.", err)
+		}
+		vendorPath := absRepository + "/vendor"
+		vendorfolder, err := os.Stat(vendorPath)
+		if !os.IsNotExist(err) && vendorfolder.Mode().IsDir() {
+			env = append(env, "FLAG_MOD=vendor")
+			fmt.Printf("Using vendored Go module dependencies\n")
+		}
+	}
+
 	// Assemble and run the local cross compilation command
 	fmt.Printf("Cross compiling %s...\n", config.Repository)
 
@@ -375,6 +394,13 @@ func compileContained(config *ConfigFlags, flags *BuildFlags, folder string) err
 	cmd.Env = append(os.Environ(), env...)
 
 	return run(cmd)
+}
+
+// Determine if this is a module-based repository
+func usesGoModules(config *ConfigFlags) bool {
+	var modFile = config.Repository + "/go.mod"
+	_, err := os.Stat(modFile)
+	return !os.IsNotExist(err)
 }
 
 // resolveImportPath converts a package given by a relative path to a Go import

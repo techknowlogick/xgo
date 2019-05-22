@@ -54,7 +54,7 @@ if [[ "$GO111MODULE" == "on" || "$GO111MODULE" == "auto" ]]; then
 fi
 
 # Either set a local build environemnt, or pull any remote imports
-if [ "$EXT_GOPATH" != "" ]; then
+if [[ "$EXT_GOPATH" != "" ]] && [[ $USEMODULES == false ]]; then
   # If local builds are requested, inject the sources
   echo "Building locally $1..."
   export GOPATH=$GOPATH:$EXT_GOPATH
@@ -63,6 +63,19 @@ if [ "$EXT_GOPATH" != "" ]; then
   # Find and change into the package folder
   cd `go list -e -f {{.Dir}} $1`
   export GOPATH=$GOPATH:`pwd`/Godeps/_workspace
+elif [[ "$EXT_GOPATH" != "" ]] && [[ "$USEMODULES" == true ]]; then
+  # Go module builds should assume a local repository
+  # at mapped to $EXT_GOPATH containing at least a go.mod file.
+  if [[ ! -d $EXT_GOPATH ]]; then
+    echo "Go modules are enabled but go.mod was not found in the source folder."
+    exit 10
+  fi
+  # Change into the repo/source folder
+  echo "Building locally $1 with go modules..."
+  export GOPATH=$GOPATH:$EXT_GOPATH
+  set -e
+  cd $EXT_GOPATH
+
 elif [[ "$USEMODULES" == true ]]; then
   # Go module builds should assume a local repository
   # at mapped to /source containing at least a go.mod file.
