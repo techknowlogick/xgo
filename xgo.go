@@ -366,7 +366,7 @@ func compileContained(config *ConfigFlags, flags *BuildFlags, folder string) err
 		fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
 		"TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
 	}
-	if local && !usesModules {
+	if local {
 		env = append(env, "EXT_GOPATH=/non-existent-path-to-signal-local-build")
 	}
 
