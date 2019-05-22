@@ -75,7 +75,6 @@ elif [[ "$EXT_GOPATH" != "" ]] && [[ "$USEMODULES" == true ]]; then
   export GOPATH=$GOPATH:$EXT_GOPATH
   set -e
   cd $EXT_GOPATH
-
 elif [[ "$USEMODULES" == true ]]; then
   # Go module builds should assume a local repository
   # at mapped to /source containing at least a go.mod file.
