@@ -65,9 +65,3 @@ GOOS=darwin GOARCH=386 CGO_ENABLED=1 CC=o32-clang go install std
 echo "Installing xgo-in-xgo..."
 go get -u src.techknowlogick.com/xgo
 ln -s /go/bin/xgo /usr/bin/xgo
-
-# Install gomobile tool for android/ios frameworks
-#echo "Installing gomobile..."
-#go get -u golang.org/x/mobile/cmd/gomobile
-#/go/bin/gomobile init -ndk /usr/local/android-ndk-r13b/
-#/go/bin/gomobile version
