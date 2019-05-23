@@ -34,7 +34,7 @@ function extension {
   elif [ "$FLAG_BUILDMODE" == "shared" ] || [ "$FLAG_BUILDMODE" == "c-shared" ]; then
     if [ "$1" == "windows" ]; then
       echo ".dll"
-    elif [ "$1" == "darwin" ] || [ "$1" == "ios" ]; then
+    elif [ "$1" == "darwin" ]; then
       echo ".dylib"
     else
       echo ".so"
@@ -180,13 +180,6 @@ for TARGET in $TARGETS; do
   XGOOS=`echo $TARGET | cut -d '/' -f 1`
   XGOARCH=`echo $TARGET | cut -d '/' -f 2`
 
-  # Check and build for Android targets
-  if ([ $XGOOS == "." ] || [[ $XGOOS == android* ]]); then
-    # Ignore android versions etc. build only archive and sources
-    # Android api will be 21 for arm64, 16 for arm-a7v
-    # Archive will be for both amd64,x86 and arm64, arm 7
-    $GOMOBILE bind --target=android/arm64,android/arm,android/amd64,android/386 $X $V "${T[@]}" --ldflags="$V $LD" -o "/build/$NAME.aar" $PACK_RELPATH
-  fi
   # Check and build for Linux targets
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "amd64" ]); then
     echo "Compiling for linux/amd64..."
@@ -401,17 +394,6 @@ for TARGET in $TARGETS; do
     fi
     # Remove any automatically injected deployment target vars
     unset MACOSX_DEPLOYMENT_TARGET
-  fi
-  # Check and build for iOS targets
-  if [ $XGOOS == "." ] || [[ $XGOOS == ios* ]]; then
-    # Split the platform version and configure the deployment target
-    PLATFORM=`echo $XGOOS | cut -d '-' -f 2`
-    if [ "$PLATFORM" == "" ] || [ "$PLATFORM" == "." ] || [ "$PLATFORM" == "ios" ]; then
-      PLATFORM=10.3 #min ios version to build for
-    fi
-
-    $GOMOBILE bind --target=ios/arm64 -iosversion=$PLATFORM $X $V "${T[@]}" --ldflags="$V $LD" -o "/build/$NAME.framework" $PACK_RELPATH
-
   fi
 done
 
