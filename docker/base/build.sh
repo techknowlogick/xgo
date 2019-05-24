@@ -54,16 +54,7 @@ if [[ "$GO111MODULE" == "on" || "$GO111MODULE" == "auto" ]]; then
 fi
 
 # Either set a local build environemnt, or pull any remote imports
-if [[ "$EXT_GOPATH" != "" ]] && [[ $USEMODULES == false ]]; then
-  # If local builds are requested, inject the sources
-  echo "Building locally $1..."
-  export GOPATH=$GOPATH:$EXT_GOPATH
-  set -e
-
-  # Find and change into the package folder
-  cd `go list -e -f {{.Dir}} $1`
-  export GOPATH=$GOPATH:`pwd`/Godeps/_workspace
-elif [[ "$EXT_GOPATH" != "" ]] && [[ "$USEMODULES" == true ]]; then
+if [[ "$EXT_GOPATH" != "" ]] && [[ "$USEMODULES" == true ]]; then
   # Go module builds should assume a local repository
   # at mapped to $EXT_GOPATH containing at least a go.mod file.
   if [[ ! -d $EXT_GOPATH ]]; then
@@ -75,6 +66,15 @@ elif [[ "$EXT_GOPATH" != "" ]] && [[ "$USEMODULES" == true ]]; then
   export GOPATH=$GOPATH:$EXT_GOPATH
   set -e
   cd $EXT_GOPATH
+elif [[ "$EXT_GOPATH" != "" ]] && [[ $USEMODULES == false ]]; then
+  # If local builds are requested, inject the sources
+  echo "Building locally $1..."
+  export GOPATH=$GOPATH:$EXT_GOPATH
+  set -e
+
+  # Find and change into the package folder
+  cd `go list -e -f {{.Dir}} $1`
+  export GOPATH=$GOPATH:`pwd`/Godeps/_workspace
 elif [[ "$USEMODULES" == true ]]; then
   # Go module builds should assume a local repository
   # at mapped to /source containing at least a go.mod file.
@@ -161,10 +161,10 @@ NAME=`basename $1/$PACK`
 
 # Go module-based builds error with 'cannot find main module'
 # when $PACK is defined
-if [[ "$EXT_GOPATH" != "" ]] && [[ "$USEMODULES" = true ]]; then
+if [[ "$EXT_GOPATH" != "" ]] && [[ "$USEMODULES" == true ]]; then
   PACK_RELPATH=""
   NAME=`sed -n 's/module\ \(.*\)/\1/p' $EXT_GOPATH/go.mod`
-elif [[ "$USEMODULES" = true ]]; then
+elif [[ "$USEMODULES" == true ]]; then
   PACK_RELPATH=""
   NAME=`sed -n 's/module\ \(.*\)/\1/p' /source/go.mod`
 else
