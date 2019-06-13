@@ -4,5 +4,3 @@
 # Released under the MIT license.
 
 FROM techknowlogick/xgo:go-1.11.10
-
-LABEL maintainer="Péter Szilágyi <peterke@gmail.com>"
