@@ -27,7 +27,7 @@ var layers = []struct {
 	dir string
 }{
 	{"techknowlogick/xgo:base", "base"},
-	{"techknowlogick/xgo:1.12.5", "go-1.12.5"},
+	{"techknowlogick/xgo:1.12.6", "go-1.12.6"},
 	{"techknowlogick/xgo:1.12.x", "go-1.12.x"},
 	{"techknowlogick/xgo:latest", "go-latest"},
 }
@@ -60,7 +60,9 @@ func main() {
 		log.Fatalf("Failed to locate docker image: %v", err)
 	}
 	// Assemble the multi-layered xgo docker image
+	log.Println("Building layers...")
 	for _, layer := range layers {
+		log.Printf("Building layer %s...\n", layer.tag)
 		cmd := exec.Command("docker", "build", "--tag", layer.tag, filepath.Join(pwd, "docker", layer.dir))
 
 		cmd.Stdout = os.Stdout
@@ -70,8 +72,11 @@ func main() {
 			log.Fatalf("Failed to build xgo layer: %v", err)
 		}
 	}
+
 	// Iterate over each of the test cases and run them
+	log.Println("Start running tests...")
 	for i, test := range tests {
+		log.Printf("Testing %s...\n", test.path)
 		cmd := exec.Command("docker", append([]string{"run", "--entrypoint", "xgo", layers[len(layers)-1].tag, "-v"}, append(test.args, test.path)...)...)
 
 		cmd.Stdout = os.Stdout
