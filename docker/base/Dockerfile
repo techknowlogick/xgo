@@ -79,11 +79,12 @@ ENV LD_LIBRARY_PATH=/osxcross/target/lib
 
 # Download the osx sdk and build the osx toolchain
 # We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
-ADD patch.tar.xz $OSX_SDK/usr/include/c++
+ADD patch.tar.xz patch.tar.xz
 RUN \
   OSX_SDK_PATH=https://s3.dockerproject.org/darwin/v2/$OSX_SDK.tar.xz && \
   $FETCH $OSX_SDK_PATH dd228a335194e3392f1904ce49aff1b1da26ca62 && \
   tar -xf `basename $OSX_SDK_PATH` && rm -f `basename $OSX_SDK_PATH` && \
+  mv  patch.tar.xz $OSX_SDK/usr/include/c++ && \
   tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 
 # Actually bsuilding the toolchain
@@ -91,8 +92,7 @@ RUN \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
   sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
   UNATTENDED=yes OSX_VERSION_MIN=10.10 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh && \
-  mv /osxcross/target $OSX_NDK_X86 && \
-  rm -rf /osxcross
+  mv /osxcross/target $OSX_NDK_X86
 
 ENV PATH $OSX_NDK_X86/bin:$PATH
 
