@@ -76,16 +76,11 @@ RUN  \
 
 ENV PATH $OSX_NDK_X86/bin:$PATH
 
-# Install xar since the macos compiler needs that
-RUN apt-get install build-essential libxml2-dev libssl1.0-dev zlib1g-dev -y && \
-  wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/xar/xar-1.5.2.tar.gz && \
-  tar -zxvf xar-1.5.2.tar.gz  && \
-  cd xar-1.5.2 && \
-  ./configure && \
-  make && \
-  make install && \
-  cd .. && \
-  rm -rf xar-1.5.2
+# Clone and build libxar
+RUN apt update && apt install -yq automake libxml2-dev libtool libssl1.0-dev && rm -rf /var/lib/apt/lists/* && git clone https://github.com/mackyle/xar.git /tmp/xar && cd /tmp/xar/xar && ./autogen.sh --prefix=/osxcross/target && make -j8 && make install && ./autogen.sh --prefix=/usr && make -j8 && make install && cd / && rm -rf /tmp/xar
+
+# Make libxar known to the ld64 and cctools build
+ENV LD_LIBRARY_PATH=/osxcross/target/lib
 
 # Inject the old Go package downloader and tool-chain bootstrapper
 ADD bootstrap.sh /bootstrap.sh
