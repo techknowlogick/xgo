@@ -87,12 +87,14 @@ RUN \
   mv  patch.tar.xz $OSX_SDK/usr/include/c++ && \
   tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 
-# Actually bsuilding the toolchain
+# Actually build the toolchain
 RUN \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
-  sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
+  OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib ./build.sh && \
   UNATTENDED=yes OSX_VERSION_MIN=10.10 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh && \
   mv /osxcross/target $OSX_NDK_X86
+
+#  sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
 
 ENV PATH $OSX_NDK_X86/bin:$PATH
 
