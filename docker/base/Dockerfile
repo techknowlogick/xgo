@@ -43,7 +43,7 @@ RUN \
     gcc-6-mips64el-linux-gnuabi64 g++-6-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
     gcc-6-multilib gcc-7-multilib g++-6-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev \
     libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch          \
-    make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake     \
+    make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake libxar-dev \
     --no-install-recommends
 
 # Fix any stock package issues
