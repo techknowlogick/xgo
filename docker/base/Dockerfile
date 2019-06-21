@@ -56,30 +56,42 @@ ADD patches /patches
 ENV OSX_SDK     MacOSX10.11.sdk
 ENV OSX_NDK_X86 /usr/local/osx-ndk-x86
 
-RUN \
-  OSX_SDK_PATH=https://s3.dockerproject.org/darwin/v2/$OSX_SDK.tar.xz && \
-  $FETCH $OSX_SDK_PATH dd228a335194e3392f1904ce49aff1b1da26ca62       && \
-  tar -xf `basename $OSX_SDK_PATH` && rm -f `basename $OSX_SDK_PATH`
-
-ADD patch.tar.xz $OSX_SDK/usr/include/c++
-
-RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
-
-RUN  \
-  git clone https://github.com/tpoechtrager/osxcross.git && \
-  mv  $OSX_SDK.tar.xz /osxcross/tarballs/                && \
-  sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
-  UNATTENDED=yes OSX_VERSION_MIN=10.10 /osxcross/build.sh                            && \
-  mv /osxcross/target $OSX_NDK_X86                                                   && \
-  rm -rf /osxcross
-
-ENV PATH $OSX_NDK_X86/bin:$PATH
-
 # Clone and build libxar
-RUN apt update && apt install -yq automake libxml2-dev libtool libssl1.0-dev && rm -rf /var/lib/apt/lists/* && git clone https://github.com/mackyle/xar.git /tmp/xar && cd /tmp/xar/xar && ./autogen.sh --prefix=/osxcross/target && make -j8 && make install && ./autogen.sh --prefix=/usr && make -j8 && make install && cd / && rm -rf /tmp/xar
+RUN apt-get update && \
+  apt install -yq automake libxml2-dev libtool libssl1.0-dev && \
+  rm -rf /var/lib/apt/lists/* &&  \
+  git clone https://github.com/tpoechtrager/xar.git /tmp/xar && \
+  cd /tmp/xar/xar && \
+  ./autogen.sh --prefix=/osxcross/target && \
+  make -j8 && \
+  make install && \
+  ./autogen.sh --prefix=/usr && \
+  make -j8 && \
+  make install && \
+  cd / && \
+  rm -rf /tmp/xar
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
+
+# Download the osx sdk and build the osx toolchain
+# We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
+ADD patch.tar.xz $OSX_SDK/usr/include/c++
+RUN \
+  OSX_SDK_PATH=https://s3.dockerproject.org/darwin/v2/$OSX_SDK.tar.xz && \
+  $FETCH $OSX_SDK_PATH dd228a335194e3392f1904ce49aff1b1da26ca62 && \
+  tar -xf `basename $OSX_SDK_PATH` && rm -f `basename $OSX_SDK_PATH` && \
+  tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
+
+RUN \
+  git clone https://github.com/tpoechtrager/osxcross.git && \
+  mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
+  sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
+  UNATTENDED=yes OSX_VERSION_MIN=10.10 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh && \
+  mv /osxcross/target $OSX_NDK_X86 && \
+  rm -rf /osxcross
+
+ENV PATH $OSX_NDK_X86/bin:$PATH
 
 # Inject the old Go package downloader and tool-chain bootstrapper
 ADD bootstrap.sh /bootstrap.sh
