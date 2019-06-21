@@ -56,6 +56,9 @@ ADD patches /patches
 ENV OSX_SDK     MacOSX10.11.sdk
 ENV OSX_NDK_X86 /usr/local/osx-ndk-x86
 
+# Clone the initial osxcross repo to have the directory ready
+RUN git clone https://github.com/tpoechtrager/osxcross.git
+
 # Clone and build libxar
 RUN apt-get update && \
   apt install -yq automake libxml2-dev libtool libssl1.0-dev && \
@@ -83,8 +86,8 @@ RUN \
   tar -xf `basename $OSX_SDK_PATH` && rm -f `basename $OSX_SDK_PATH` && \
   tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 
+# Actually bsuilding the toolchain
 RUN \
-  git clone https://github.com/tpoechtrager/osxcross.git && \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
   sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
   UNATTENDED=yes OSX_VERSION_MIN=10.10 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh && \
