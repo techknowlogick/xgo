@@ -77,6 +77,17 @@ RUN  \
 
 ENV PATH $OSX_NDK_X86/bin:$PATH
 
+# Install xar since the macos compiler needs that
+RUN apt-get install build-essential libxml2-dev libssl1.0-dev zlib1g-dev -y && \
+  wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/xar/xar-1.5.2.tar.gz && \
+  tar -zxvf xar-1.5.2.tar.gz  && \
+  cd xar-1.5.2 && \
+  ./configure && \
+  make && \
+  make install && \
+  cd .. && \
+  rm -rf xar-1.5.2
+
 # Inject the old Go package downloader and tool-chain bootstrapper
 ADD bootstrap.sh /bootstrap.sh
 ENV BOOTSTRAP /bootstrap.sh
