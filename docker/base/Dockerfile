@@ -68,11 +68,11 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 RUN  \
   git clone https://github.com/tpoechtrager/osxcross.git && \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/                && \
+  sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
   /osxcross/build_clang.sh                                                           && \
   UNATTENDED=1 OSX_VERSION_MIN=10.10 /osxcross/build.sh                              && \
   mv /osxcross/target $OSX_NDK_X86                                                   && \
   rm -rf /osxcross
-#  sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
 
 ENV PATH $OSX_NDK_X86/bin:$PATH
 
