@@ -90,7 +90,7 @@ RUN \
 # Actually build the toolchain
 RUN \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
-  OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib ./build.sh && \
+  OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh && \
   mv /osxcross/target $OSX_NDK_X86
 
 #  UNATTENDED=yes OSX_VERSION_MIN=10.10 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh && \
