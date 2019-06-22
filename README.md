@@ -1,5 +1,7 @@
 # xgo - Go CGO cross compiler
 
+[![Build Status](https://cloud.drone.io/api/badges/techknowlogick/xgo/status.svg)](https://cloud.drone.io/techknowlogick/xgo)
+
 Although Go strives to be a cross platform language, cross compilation from one
 platform to another is not as simple as it could be, as you need the Go sources
 bootstrapped to each platform and architecture.

@@ -10,17 +10,14 @@ MAINTAINER Péter Szilágyi <peterke@gmail.com>
 # Mark the image as xgo enabled to support xgo-in-xgo
 ENV XGO_IN_XGO 1
 
-
 # Configure the Go environment, since it's not going to change
 ENV PATH   /usr/local/go/bin:$PATH
 ENV GOPATH /go
-
 
 # Inject the remote file fetcher and checksum verifier
 ADD fetch.sh /fetch.sh
 ENV FETCH /fetch.sh
 RUN chmod +x $FETCH
-
 
 # Make sure apt-get is up to date and dependent packages are installed
 RUN \
@@ -80,20 +77,10 @@ RUN \
 
 ENV PATH /osxcross/target/bin:$PATH
 
-# Inject the old Go package downloader and tool-chain bootstrapper
-ADD bootstrap.sh /bootstrap.sh
-ENV BOOTSTRAP /bootstrap.sh
-RUN chmod +x $BOOTSTRAP
-
 # Inject the new Go root distribution downloader and bootstrapper
 ADD bootstrap_pure.sh /bootstrap_pure.sh
 ENV BOOTSTRAP_PURE /bootstrap_pure.sh
 RUN chmod +x $BOOTSTRAP_PURE
-
-# Inject the Go source distribution downloader and bootstrapper
-ADD bootstrap_repo.sh /bootstrap_repo.sh
-ENV BOOTSTRAP_REPO /bootstrap_repo.sh
-RUN chmod +x $BOOTSTRAP_REPO
 
 # Inject the C dependency cross compiler
 ADD build_deps.sh /build_deps.sh
