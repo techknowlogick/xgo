@@ -75,7 +75,7 @@ RUN git clone https://github.com/tpoechtrager/xar.git /tmp/xar && \
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
 
 # Clone and build libtapi
-RUN git clone https://github.com/tpoechtrager/apple-libtapi.git -b 2.0.0 /tmp/tapi && \
+RUN git clone https://github.com/tpoechtrager/apple-libtapi.git /tmp/tapi && \
     cd /tmp/tapi && \
     INSTALLPREFIX=/osxcross/target JOBS=8 ./build.sh && \
     ./install.sh && \
