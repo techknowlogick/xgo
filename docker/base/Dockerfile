@@ -42,7 +42,7 @@ RUN \
     gcc-6-mips64-linux-gnuabi64 g++-6-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
     gcc-6-mips64el-linux-gnuabi64 g++-6-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
     gcc-6-multilib gcc-7-multilib g++-6-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev \
-    libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch          \
+    libtool libxml2-dev uuid-dev libssl-dev libssl1.0-dev swig openjdk-8-jdk pkg-config patch \
     make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake     \
     --no-install-recommends
 
@@ -60,10 +60,7 @@ ENV OSX_NDK_X86 /usr/local/osx-ndk-x86
 RUN git clone https://github.com/tpoechtrager/osxcross.git
 
 # Clone and build libxar
-RUN apt-get update && \
-  apt install -yq automake libxml2-dev libtool libssl1.0-dev && \
-  rm -rf /var/lib/apt/lists/* &&  \
-  git clone https://github.com/tpoechtrager/xar.git /tmp/xar && \
+RUN git clone https://github.com/tpoechtrager/xar.git /tmp/xar && \
   cd /tmp/xar/xar && \
   ./autogen.sh --prefix=/osxcross/target && \
   make -j8 && \
@@ -76,6 +73,14 @@ RUN apt-get update && \
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
+
+# Clone and build libtapi
+RUN git clone https://github.com/tpoechtrager/apple-libtapi.git -b 2.0.0 /tmp/tapi && \
+    cd /tmp/tapi && \
+    INSTALLPREFIX=/osxcross/target JOBS=8 ./build.sh && \
+    ./install.sh && \
+    cd / && \
+    rm -rf /tmp/tapi
 
 # Download the osx sdk and build the osx toolchain
 # We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
