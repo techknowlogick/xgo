@@ -54,30 +54,13 @@ ADD patches /patches
 
 #########################################
 #  Darwin Toolchain build starts here   #
-#                                       #
-# We need to build libxar, libtapi and  #
-# cctools seperately, otherwise the osx #
-# compiler does not find these.         #
 #########################################
 
 # Configure the container for OSX cross compilation
 ENV OSX_SDK     MacOSX10.11.sdk
-ENV OSX_NDK_X86 /usr/local/osx-ndk-x86
 
 # Clone the initial osxcross repo to have the directory ready
 RUN git clone https://github.com/tpoechtrager/osxcross.git
-
-# Clone and build libxar
-#RUN git clone https://github.com/tpoechtrager/xar.git /tmp/xar && \
-#  cd /tmp/xar/xar && \
-#  ./autogen.sh --prefix=/osxcross/target && \
-#  make -j8 && \
-#  make install && \
-#  ./autogen.sh --prefix=/usr && \
-#  make -j8 && \
-#  make install && \
-#  cd / && \
-#  rm -rf /tmp/xar
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
@@ -96,7 +79,7 @@ RUN \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
   OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
 
-ENV PATH /osxcross/target/bin:$OSX_NDK_X86/bin:$PATH
+ENV PATH /osxcross/target/bin:$PATH
 
 # Inject the old Go package downloader and tool-chain bootstrapper
 ADD bootstrap.sh /bootstrap.sh
