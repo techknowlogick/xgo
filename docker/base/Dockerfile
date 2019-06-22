@@ -68,27 +68,19 @@ ENV OSX_NDK_X86 /usr/local/osx-ndk-x86
 RUN git clone https://github.com/tpoechtrager/osxcross.git
 
 # Clone and build libxar
-RUN git clone https://github.com/tpoechtrager/xar.git /tmp/xar && \
-  cd /tmp/xar/xar && \
-  ./autogen.sh --prefix=/osxcross/target && \
-  make -j8 && \
-  make install && \
-  ./autogen.sh --prefix=/usr && \
-  make -j8 && \
-  make install && \
-  cd / && \
-  rm -rf /tmp/xar
+#RUN git clone https://github.com/tpoechtrager/xar.git /tmp/xar && \
+#  cd /tmp/xar/xar && \
+#  ./autogen.sh --prefix=/osxcross/target && \
+#  make -j8 && \
+#  make install && \
+#  ./autogen.sh --prefix=/usr && \
+#  make -j8 && \
+#  make install && \
+#  cd / && \
+#  rm -rf /tmp/xar
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
-
-# Clone and build libtapi
-#RUN git clone https://github.com/tpoechtrager/apple-libtapi.git -b 1000.10.8 /tmp/tapi && \
-#    cd /tmp/tapi && \
-#    INSTALLPREFIX=/osxcross/target JOBS=1 ./build.sh && \
-#    ./install.sh && \
-#    cd / && \
-#    rm -rf /tmp/tapi
 
 # Download the osx sdk and build the osx toolchain
 # We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
