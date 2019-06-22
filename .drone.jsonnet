@@ -41,12 +41,12 @@ steps: [
   BuildStepDry('go-1.11.11', 'dry-run-base'),
 
   BuildStep('base'),
-  BuildStep('go-1.12.6', 'build-base'),
-  BuildStep('go-1.12.x', 'build-base'),
-  BuildWithDiffTags('go-latest', 'latest', 'build-base'),
-  BuildStep('go-1.11.11', 'build-base'),
-  BuildStep('go-1.11.x', 'build-base'),
   BuildStep('go-1.12.5', 'build-base'),
+  BuildStep('go-1.12.6', 'build-base'),
+  BuildStep('go-1.12.x', 'build-go-1.12.6'),
+  BuildWithDiffTags('go-latest', 'latest', 'build-go-1.12.x'),
   BuildStep('go-1.11.10', 'build-base'),
+  BuildStep('go-1.11.11', 'build-base'),
+  BuildStep('go-1.11.x', 'build-go-1.11.11'),
 ]
 }
