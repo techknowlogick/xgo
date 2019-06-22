@@ -52,17 +52,12 @@ RUN ln -s /usr/include/asm-generic /usr/include/asm
 # Add patches directory for patching later
 ADD patches /patches
 
-######################################
-# Darwin Toolchain build starts here #
-######################################
+##########################
+# Darwin Toolchain build #
+##########################
 
 # Configure the container for OSX cross compilation
 ENV OSX_SDK MacOSX10.11.sdk
-
-# Clone the initial osxcross repo to have the directory ready
-RUN git clone https://github.com/tpoechtrager/osxcross.git && \
-  cd osxcross && \
-  git checkout 88cb6e8d0d7675cae7c8a2d66c11f58237101df0
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
@@ -78,6 +73,9 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 
 # Actually build the toolchain
 RUN \
+  git clone https://github.com/tpoechtrager/osxcross.git && \
+  cd osxcross && \
+  git checkout 88cb6e8d0d7675cae7c8a2d66c11f58237101df0 && \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
   OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
 
