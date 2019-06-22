@@ -42,7 +42,7 @@ RUN \
     gcc-6-mips64-linux-gnuabi64 g++-6-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
     gcc-6-mips64el-linux-gnuabi64 g++-6-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
     gcc-6-multilib gcc-7-multilib g++-6-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev \
-    libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch          \
+    libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch \
     make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake     \
     --no-install-recommends
 
@@ -52,30 +52,33 @@ RUN ln -s /usr/include/asm-generic /usr/include/asm
 # Add patches directory for patching later
 ADD patches /patches
 
+##########################
+# Darwin Toolchain build #
+##########################
+
 # Configure the container for OSX cross compilation
-ENV OSX_SDK     MacOSX10.11.sdk
-ENV OSX_NDK_X86 /usr/local/osx-ndk-x86
+ENV OSX_SDK MacOSX10.11.sdk
+ENV OSX_SDK_PATH https://s3.dockerproject.org/darwin/v2/$OSX_SDK.tar.xz
 
+# Make libxar known to the ld64 and cctools build
+ENV LD_LIBRARY_PATH=/osxcross/target/lib
+
+# Download the osx sdk and build the osx toolchain
+# We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
 RUN \
-  OSX_SDK_PATH=https://s3.dockerproject.org/darwin/v2/$OSX_SDK.tar.xz && \
-  $FETCH $OSX_SDK_PATH dd228a335194e3392f1904ce49aff1b1da26ca62       && \
+  $FETCH $OSX_SDK_PATH dd228a335194e3392f1904ce49aff1b1da26ca62 && \
   tar -xf `basename $OSX_SDK_PATH` && rm -f `basename $OSX_SDK_PATH`
-
 ADD patch.tar.xz $OSX_SDK/usr/include/c++
-
 RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 
-RUN  \
+# Actually build the toolchain
+RUN \
   git clone https://github.com/tpoechtrager/osxcross.git && \
-  mv  $OSX_SDK.tar.xz /osxcross/tarballs/        && \
-  \
-  sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
-  UNATTENDED=yes OSX_VERSION_MIN=10.10 /osxcross/build.sh                             && \
-  mv /osxcross/target $OSX_NDK_X86                                                   && \
-  \
-  rm -rf /osxcross
+  cd osxcross && git checkout 88cb6e8d0d7675cae7c8a2d66c11f58237101df0 && cd ../ && \
+  mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
+  OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
 
-ENV PATH $OSX_NDK_X86/bin:$PATH
+ENV PATH /osxcross/target/bin:$PATH
 
 # Inject the old Go package downloader and tool-chain bootstrapper
 ADD bootstrap.sh /bootstrap.sh
