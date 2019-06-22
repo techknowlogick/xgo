@@ -52,6 +52,14 @@ RUN ln -s /usr/include/asm-generic /usr/include/asm
 # Add patches directory for patching later
 ADD patches /patches
 
+#########################################
+#  Darwin Toolchain build starts here   #
+#                                       #
+# We need to build libxar, libtapi and  #
+# cctools seperately, otherwise the osx #
+# compiler does not find these.         #
+#########################################
+
 # Configure the container for OSX cross compilation
 ENV OSX_SDK     MacOSX10.11.sdk
 ENV OSX_NDK_X86 /usr/local/osx-ndk-x86
@@ -75,9 +83,9 @@ RUN git clone https://github.com/tpoechtrager/xar.git /tmp/xar && \
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
 
 # Clone and build libtapi
-RUN git clone https://github.com/tpoechtrager/apple-libtapi.git /tmp/tapi && \
+RUN git clone https://github.com/tpoechtrager/apple-libtapi.git -b 1000.10.8 /tmp/tapi && \
     cd /tmp/tapi && \
-    INSTALLPREFIX=/osxcross/target JOBS=8 ./build.sh && \
+    INSTALLPREFIX=/osxcross/target JOBS=1 ./build.sh && \
     ./install.sh && \
     cd / && \
     rm -rf /tmp/tapi
@@ -94,13 +102,16 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 # Actually build the toolchain
 RUN \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
-  OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh && \
-  mv /osxcross/target $OSX_NDK_X86
+  OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
+
+   #&& \
+
+#  mv /osxcross/target $OSX_NDK_X86
 
 #  UNATTENDED=yes OSX_VERSION_MIN=10.10 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh && \
 #  sed -i -e 's|-march=native||g' /osxcross/build_clang.sh /osxcross/wrapper/build.sh && \
 
-ENV PATH $OSX_NDK_X86/bin:$PATH
+ENV PATH /osxcross/target/bin:$OSX_NDK_X86/bin:$PATH
 
 # Inject the old Go package downloader and tool-chain bootstrapper
 ADD bootstrap.sh /bootstrap.sh
