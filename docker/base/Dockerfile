@@ -83,12 +83,12 @@ RUN git clone https://github.com/tpoechtrager/xar.git /tmp/xar && \
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
 
 # Clone and build libtapi
-RUN git clone https://github.com/tpoechtrager/apple-libtapi.git -b 1000.10.8 /tmp/tapi && \
-    cd /tmp/tapi && \
-    INSTALLPREFIX=/osxcross/target JOBS=1 ./build.sh && \
-    ./install.sh && \
-    cd / && \
-    rm -rf /tmp/tapi
+#RUN git clone https://github.com/tpoechtrager/apple-libtapi.git -b 1000.10.8 /tmp/tapi && \
+#    cd /tmp/tapi && \
+#    INSTALLPREFIX=/osxcross/target JOBS=1 ./build.sh && \
+#    ./install.sh && \
+#    cd / && \
+#    rm -rf /tmp/tapi
 
 # Download the osx sdk and build the osx toolchain
 # We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
