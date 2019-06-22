@@ -40,6 +40,8 @@ steps:
   when:
     event:
     - pull_request
+  depends_on:
+  - dry-run-base
 
 - name: dry-run-go-1.11.11
   pull: always
@@ -57,6 +59,8 @@ steps:
   when:
     event:
     - pull_request
+  depends_on:
+  - dry-run-base
 
 - name: build-base
   pull: always
@@ -95,6 +99,8 @@ steps:
     event:
       exclude:
       - pull_request
+  depends_on:
+  - build-base
 
 - name: build-go-1.12.x
   pull: always
@@ -114,6 +120,8 @@ steps:
     event:
       exclude:
       - pull_request
+  depends_on:
+  - build-base
 
 - name: build-go-latest
   pull: always
@@ -133,6 +141,8 @@ steps:
     event:
       exclude:
       - pull_request
+  depends_on:
+  - build-base
 
 - name: build-go-1.11.11
   pull: always
@@ -152,6 +162,8 @@ steps:
     event:
       exclude:
       - pull_request
+  depends_on:
+  - build-base
 
 - name: build-go-1.11.x
   pull: always
@@ -171,6 +183,8 @@ steps:
     event:
       exclude:
       - pull_request
+  depends_on:
+  - build-base
 
 - name: build-go-1.12.5
   pull: always
@@ -190,6 +204,8 @@ steps:
     event:
       exclude:
       - pull_request
+  depends_on:
+  - build-base
 
 - name: build-go-1.11.10
   pull: always
@@ -209,5 +225,7 @@ steps:
     event:
       exclude:
       - pull_request
+  depends_on:
+  - build-base
 
 ...
