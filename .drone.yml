@@ -24,17 +24,17 @@ steps:
     event:
     - pull_request
 
-- name: dry-run-go-1.12.8
+- name: dry-run-go-1.12.9
   pull: always
   image: plugins/docker
   settings:
-    context: docker/go-1.12.8
-    dockerfile: docker/go-1.12.8/Dockerfile
+    context: docker/go-1.12.9
+    dockerfile: docker/go-1.12.9/Dockerfile
     dry_run: true
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.12.8
+    tags: go-1.12.9
     username:
       from_secret: docker_username
   when:
@@ -81,16 +81,16 @@ steps:
       exclude:
       - pull_request
 
-- name: build-go-1.12.7
+- name: build-go-1.12.8
   pull: always
   image: plugins/docker
   settings:
-    context: docker/go-1.12.7
-    dockerfile: docker/go-1.12.7/Dockerfile
+    context: docker/go-1.12.8
+    dockerfile: docker/go-1.12.8/Dockerfile
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.12.7
+    tags: go-1.12.8
     username:
       from_secret: docker_username
   when:
@@ -102,16 +102,16 @@ steps:
   depends_on:
   - build-base
 
-- name: build-go-1.12.8
+- name: build-go-1.12.9
   pull: always
   image: plugins/docker
   settings:
-    context: docker/go-1.12.8
-    dockerfile: docker/go-1.12.8/Dockerfile
+    context: docker/go-1.12.9
+    dockerfile: docker/go-1.12.9/Dockerfile
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.12.8
+    tags: go-1.12.9
     username:
       from_secret: docker_username
   when:
@@ -142,7 +142,7 @@ steps:
       exclude:
       - pull_request
   depends_on:
-  - build-go-1.12.8
+  - build-go-1.12.9
 
 - name: build-go-latest
   pull: always
