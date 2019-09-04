@@ -4,7 +4,7 @@ FROM techknowlogick/xgo:base
 ENV GO_VERSION 1130
 
 RUN \
-  export ROOT_DIST=https://storage.googleapis.com/golang/go1.13.0.linux-amd64.tar.gz    && \
-  export ROOT_DIST_SHA=ac2a6efcc1f5ec8bdc0db0a988bb1d301d64b6d61b7e8d9e42f662fbb75a2b9b && \
+  export ROOT_DIST=https://dl.google.com/go/go1.13.linux-amd64.tar.gz && \
+  export ROOT_DIST_SHA=68a2297eb099d1a76097905a2ce334e3155004ec08cdea85f24527be3c48e856 && \
   \
 $BOOTSTRAP_PURE
