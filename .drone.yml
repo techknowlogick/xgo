@@ -121,7 +121,7 @@ steps:
       exclude:
       - pull_request
   depends_on:
-  - build-go-1.13.0
+  - build-go-1.13.1
 
 - name: build-go-1.12.10
   pull: always
@@ -163,7 +163,7 @@ steps:
       exclude:
       - pull_request
   depends_on:
-  - build-go-1.12.9
+  - build-go-1.12.10
 
 - name: build-go-latest
   pull: always

@@ -42,9 +42,9 @@ steps: [
 
   BuildStep('base'),
   BuildStep('go-1.13.1', 'build-base'),
-  BuildStep('go-1.13.x', 'build-go-1.13.0'),
+  BuildStep('go-1.13.x', 'build-go-1.13.1'),
   BuildStep('go-1.12.10', 'build-base'),
-  BuildStep('go-1.12.x', 'build-go-1.12.9'),
+  BuildStep('go-1.12.x', 'build-go-1.12.10'),
   BuildWithDiffTags('go-latest', 'latest', 'build-go-1.13.x'),
 ]
 }
