@@ -18,6 +18,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -222,7 +223,23 @@ func checkDockerImage(image string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	return compareOutAndImage(out, image)
+}
+
+// compare output of docker images and image name
+func compareOutAndImage(out []byte, image string) (bool, error) {
+
+	if strings.Contains(image, ":") {
+		// get repository and tag
+		res := strings.SplitN(image, ":", 2)
+		r, t := res[0], res[1]
+		match, _ := regexp.Match(fmt.Sprintf(`%s\s+%s`, r, t), out)
+		return match, nil
+	}
+
+	// default find repository without tag
 	return bytes.Contains(out, []byte(image)), nil
+
 }
 
 // Pulls an image from the docker registry.
