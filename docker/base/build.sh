@@ -314,7 +314,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "s390x" ]); then
-    if [ "$GO_VERSION" -lt 180 ]; then
+    if [ "$GO_VERSION" -lt 170 ]; then
       echo "Go version too low, skipping linux/s390x..."
     else
       echo "Compiling for linux/s390x..."
@@ -328,7 +328,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "ppc64le" ]); then
-    if [ "$GO_VERSION" -lt 180 ]; then
+    if [ "$GO_VERSION" -lt 170 ]; then
       echo "Go version too low, skipping linux/ppc64le..."
     else
       echo "Compiling for linux/ppc64le..."
