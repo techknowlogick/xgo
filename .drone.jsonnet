@@ -59,7 +59,7 @@ steps: [
     environment: {
       GOPROXY: 'off'
     },
-    depends_on: [ 'go-1.13.4' ],
+    depends_on: [ 'dry-run-go-1.13.4' ],
     commands: [
       'go run testsuite.go'
     ]

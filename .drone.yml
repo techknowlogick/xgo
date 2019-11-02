@@ -99,7 +99,7 @@
             "GOPROXY": "off"
          },
          "depends_on": [
-            "go-1.13.4"
+            "dry-run-go-1.13.4"
          ],
          "commands": [
             "go run testsuite.go"
