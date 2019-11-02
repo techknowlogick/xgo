@@ -45,11 +45,11 @@ var tests = []struct {
 	{"src.techknowlogick.com/xgo/tests/embedded_cpp", nil},
 
 	// Baseline projects to ensure minimal requirements
-	{"github.com/ethereum/go-ethereum/cmd/geth", []string{"--branch", "develop"}},
+	{"github.com/ethereum/go-ethereum/cmd/geth", []string{"--branch", "master"}},
 
 	// Third party projects using xgo, smoke test that they don't break
-	{"github.com/rwcarlsen/cyan/cmd/cyan", nil},
 	{"github.com/cockroachdb/cockroach", []string{"--targets", "darwin-10.6/amd64"}},
+	{"code.gitea.io/gitea", nil},
 }
 
 func main() {
