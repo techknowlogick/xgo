@@ -27,8 +27,8 @@ var layers = []struct {
 	dir string
 }{
 	{"techknowlogick/xgo:base", "base"},
-	{"techknowlogick/xgo:1.12.6", "go-1.12.6"},
-	{"techknowlogick/xgo:1.12.x", "go-1.12.x"},
+	{"techknowlogick/xgo:1.12.11", "go-1.12.11"},
+	{"techknowlogick/xgo:1.13.2", "go-1.13.2"},
 	{"techknowlogick/xgo:latest", "go-latest"},
 }
 
