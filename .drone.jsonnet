@@ -59,13 +59,13 @@ steps: [
   {
     name: 'testsuite',
     pull: 'always',
-    image: 'golang:1.13-buster',
+    image: 'docker',
     environment: {
       GOPROXY: 'off'
     },
     depends_on: [ 'dry-run-go-1.13.4' ],
     commands: [
-      'apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common && curl https://get.docker.com | sh',
+      'apk add go git',
       'go run testsuite.go'
     ]
   },
