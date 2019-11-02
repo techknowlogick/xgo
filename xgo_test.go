@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -66,4 +68,160 @@ docker images output:
 %s
 image: %s`, out3, image3)
 	}
+}
+
+func TestBuildCompileCmd(t *testing.T) {
+
+	// Test preparations
+	err := os.Setenv("GOPATH", "/testing/go")
+	assert.NoError(t, err)
+
+	err = os.Setenv("PWD", "/tests")
+	assert.NoError(t, err)
+
+	wd, err := os.Getwd()
+	assert.NoError(t, err)
+
+	t.Run("default", func(t *testing.T) {
+		args, err := buildCompileCmd(
+			"techknowlogick/xgo:latest",
+			&ConfigFlags{
+				Repository: "code.gitea.io/gitea",
+			},
+			&BuildFlags{},
+			".",
+			"/test/.xgo-cache",
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, args, []string{
+			"run", "--rm",
+			"-v", ".:/build",
+			"-v", "/test/.xgo-cache:/deps-cache:ro",
+			"-e", "REPO_REMOTE=",
+			"-e", "REPO_BRANCH=",
+			"-e", "PACK=",
+			"-e", "DEPS=",
+			"-e", "ARGS=",
+			"-e", "OUT=",
+			"-e", "FLAG_V=false",
+			"-e", "FLAG_X=false",
+			"-e", "FLAG_RACE=false",
+			"-e", "FLAG_TAGS=",
+			"-e", "FLAG_LDFLAGS=",
+			"-e", "FLAG_BUILDMODE=",
+			"-e", "FLAG_TRIMPATH=false",
+			"-e", "TARGETS=",
+			"-e", "EXT_GOPATH=",
+			"techknowlogick/xgo:latest",
+			"code.gitea.io/gitea",
+		})
+	})
+	t.Run("no modules", func(t *testing.T) {
+		args, err := buildCompileCmd(
+			"techknowlogick/xgo:latest",
+			&ConfigFlags{
+				Repository: "./tests/nomod",
+			},
+			&BuildFlags{},
+			".",
+			"/test/.xgo-cache",
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, args, []string{
+			"run", "--rm",
+			"-v", ".:/build",
+			"-v", "/test/.xgo-cache:/deps-cache:ro",
+			"-e", "REPO_REMOTE=",
+			"-e", "REPO_BRANCH=",
+			"-e", "PACK=",
+			"-e", "DEPS=",
+			"-e", "ARGS=",
+			"-e", "OUT=",
+			"-e", "FLAG_V=false",
+			"-e", "FLAG_X=false",
+			"-e", "FLAG_RACE=false",
+			"-e", "FLAG_TAGS=",
+			"-e", "FLAG_LDFLAGS=",
+			"-e", "FLAG_BUILDMODE=",
+			"-e", "FLAG_TRIMPATH=false",
+			"-e", "TARGETS=",
+			"-v", "/testing/go/src:/ext-go/1/src:ro",
+			"-e", "EXT_GOPATH=/ext-go/1",
+			"techknowlogick/xgo:latest",
+			"src.techknowlogick.com/xgo/tests/nomod", // Since we put in a relative path, this should now contain the full path
+		})
+	})
+	t.Run("with modules", func(t *testing.T) {
+		args, err := buildCompileCmd(
+			"techknowlogick/xgo:latest",
+			&ConfigFlags{
+				Repository: "./tests/hasmod",
+			},
+			&BuildFlags{},
+			".",
+			"/test/.xgo-cache",
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, args, []string{
+			"run", "--rm",
+			"-v", ".:/build",
+			"-v", "/test/.xgo-cache:/deps-cache:ro",
+			"-e", "REPO_REMOTE=",
+			"-e", "REPO_BRANCH=",
+			"-e", "PACK=",
+			"-e", "DEPS=",
+			"-e", "ARGS=",
+			"-e", "OUT=",
+			"-e", "FLAG_V=false",
+			"-e", "FLAG_X=false",
+			"-e", "FLAG_RACE=false",
+			"-e", "FLAG_TAGS=",
+			"-e", "FLAG_LDFLAGS=",
+			"-e", "FLAG_BUILDMODE=",
+			"-e", "FLAG_TRIMPATH=false",
+			"-e", "TARGETS=",
+			"-e", "GO111MODULE=on",
+			"-v", "/testing/go:/go",
+			"-v", wd + "/tests/hasmod:/source",
+			"techknowlogick/xgo:latest",
+			"src.techknowlogick.com/xgo/tests/hasmod", // Since we put in a relative path, this should now contain the full path
+		})
+	})
+	t.Run("with modules and vendor", func(t *testing.T) {
+		args, err := buildCompileCmd(
+			"techknowlogick/xgo:latest",
+			&ConfigFlags{
+				Repository: "./tests/hasmodandvendor",
+			},
+			&BuildFlags{},
+			".",
+			"/test/.xgo-cache",
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, args, []string{
+			"run", "--rm",
+			"-v", ".:/build",
+			"-v", "/test/.xgo-cache:/deps-cache:ro",
+			"-e", "REPO_REMOTE=",
+			"-e", "REPO_BRANCH=",
+			"-e", "PACK=",
+			"-e", "DEPS=",
+			"-e", "ARGS=",
+			"-e", "OUT=",
+			"-e", "FLAG_V=false",
+			"-e", "FLAG_X=false",
+			"-e", "FLAG_RACE=false",
+			"-e", "FLAG_TAGS=",
+			"-e", "FLAG_LDFLAGS=",
+			"-e", "FLAG_BUILDMODE=",
+			"-e", "FLAG_TRIMPATH=false",
+			"-e", "TARGETS=",
+			"-e", "GO111MODULE=on",
+			"-v", "/testing/go:/go",
+			"-v", wd + "/tests/hasmodandvendor:/source",
+			"-e", "FLAG_MOD=vendor",
+			"techknowlogick/xgo:latest",
+			"src.techknowlogick.com/xgo/tests/hasmodandvendor", // Since we put in a relative path, this should now contain the full path
+		})
+	})
 }

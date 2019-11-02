@@ -248,30 +248,41 @@ func pullDockerImage(image string) error {
 	return run(exec.Command("docker", "pull", image))
 }
 
-// compile cross builds a requested package according to the given build specs
-// using a specific docker cross compilation image.
-func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string) error {
+func buildCompileCmd(image string, config *ConfigFlags, flags *BuildFlags, folder string, depsCache string) (args []string, err error) {
 	// If a local build was requested, find the import path and mount all GOPATH sources
 	locals, mounts, paths := []string{}, []string{}, []string{}
 	var usesModules bool
+	var absRepository string
+
 	if strings.HasPrefix(config.Repository, string(filepath.Separator)) || strings.HasPrefix(config.Repository, ".") {
-		// Resolve the repository import path from the file path
-		config.Repository = resolveImportPath(config.Repository)
 
 		// Determine if this is a module-based repository
+		// This has to happen before resolving the "real" repository path since that may be different
 		var modFile = config.Repository + "/go.mod"
 		_, err := os.Stat(modFile)
 		usesModules = !os.IsNotExist(err)
 
+		// Find the absolute path of the repo
+		absRepository, err = filepath.Abs(config.Repository)
+		if err != nil {
+			log.Fatalf("Failed to locate requested module repository: %v.", err)
+		}
+
+		// Resolve the repository import path from the file path
+		config.Repository = resolveImportPath(config.Repository)
+
 		// Iterate over all the local libs and export the mount points
 		if os.Getenv("GOPATH") == "" && !usesModules {
-			log.Fatalf("No $GOPATH is set or forwarded to xgo")
+			return nil, fmt.Errorf("no $GOPATH is set or forwarded to xgo")
 		}
+
+		// If the repo does not use modules, mount the gopath and all symlinks in the container
 		if !usesModules {
-			for _, gopath := range strings.Split(os.Getenv("GOPATH"), string(os.PathListSeparator)) {
+			gopaths := strings.Split(os.Getenv("GOPATH"), string(os.PathListSeparator))
+			for _, gopath := range gopaths {
 				// Since docker sandboxes volumes, resolve any symlinks manually
 				sources := filepath.Join(gopath, "src")
-				filepath.Walk(sources, func(path string, info os.FileInfo, err error) error {
+				err = filepath.Walk(sources, func(path string, info os.FileInfo, err error) error {
 					// Skip any folders that errored out
 					if err != nil {
 						log.Printf("Failed to access GOPATH element %s: %v", path, err)
@@ -300,6 +311,9 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 					paths = append(paths, filepath.Join("/ext-go", strconv.Itoa(len(locals))))
 					return nil
 				})
+				if err != nil {
+					return nil, err
+				}
 				// Export the main mount point for this GOPATH entry
 				locals = append(locals, sources)
 				mounts = append(mounts, filepath.Join("/ext-go", strconv.Itoa(len(locals)), "src"))
@@ -307,10 +321,9 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 			}
 		}
 	}
-	// Assemble and run the cross compilation command
-	fmt.Printf("Cross compiling %s...\n", config.Repository)
 
-	args := []string{
+	// Assemble and the cross compilation command
+	args = []string{
 		"run", "--rm",
 		"-v", folder + ":/build",
 		"-v", depsCache + ":/deps-cache:ro",
@@ -334,10 +347,6 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 		args = append(args, []string{"-v", os.Getenv("GOPATH") + ":/go"}...)
 
 		// Map this repository to the /source folder
-		absRepository, err := filepath.Abs(config.Repository)
-		if err != nil {
-			log.Fatalf("Failed to locate requested module repository: %v.", err)
-		}
 		args = append(args, []string{"-v", absRepository + ":/source"}...)
 
 		fmt.Printf("Enabled Go module support\n")
@@ -357,6 +366,20 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	}
 
 	args = append(args, []string{image, config.Repository}...)
+	return args, nil
+}
+
+// compile cross builds a requested package according to the given build specs
+// using a specific docker cross compilation image.
+func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string) error {
+
+	log.Printf("Cross compiling %s...\n", config.Repository)
+
+	args, err := buildCompileCmd(image, config, flags, folder, depsCache)
+	if err != nil {
+		return err
+	}
+
 	return run(exec.Command("docker", args...))
 }
 
