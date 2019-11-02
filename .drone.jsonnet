@@ -35,6 +35,10 @@ local BuildStepDry(version='go-latest', depends='') = BuildSwitchDryRun(version,
 {
 kind: 'pipeline',
 name: 'default',
+workspace:{
+  base: '/go',
+  path: 'src.techknowlogick.com/xgo',
+},
 steps: [
   {
     name: 'testing',
