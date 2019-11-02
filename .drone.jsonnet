@@ -65,7 +65,7 @@ steps: [
     },
     depends_on: [ 'dry-run-go-1.13.4' ],
     commands: [
-      'apt-get update && apt-get install apt-transport-https ca-certificates curl gnupg2 software-properties-common && curl https://get.docker.com | sh',
+      'apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common && curl https://get.docker.com | sh',
       'go run testsuite.go'
     ]
   },
