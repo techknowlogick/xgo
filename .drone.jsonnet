@@ -37,7 +37,7 @@ kind: 'pipeline',
 name: 'default',
 workspace:{
   base: '/go',
-  path: 'src/src.techknowlogick.com/xgo',
+  path: 'src.techknowlogick.com/xgo',
 },
 steps: [
   {
