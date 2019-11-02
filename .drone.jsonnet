@@ -48,9 +48,22 @@ steps: [
     ]
   },
 
-  BuildStepDry('base'),
+  BuildStepDry('base', 'testing'),
   BuildStepDry('go-1.13.4', 'dry-run-base'),
   BuildStepDry('go-1.12.13', 'dry-run-base'),
+
+  {
+    name: 'testsuite',
+    pull: 'always',
+    image: 'plugins/docker',
+    environment: {
+      GOPROXY: 'off'
+    },
+    depends_on: [ 'go-1.13.4' ],
+    commands: [
+      'go run testsuite.go'
+    ]
+  },
 
   BuildStep('base'),
   BuildStep('go-1.13.4', 'build-base'),

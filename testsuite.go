@@ -8,6 +8,8 @@
 // that things work as they supposed to.
 //
 // Run as: go run testsuite.go
+//
+// TODO: Move this to "real" go tests
 
 // +build ignore
 
@@ -27,8 +29,6 @@ var layers = []struct {
 	dir string
 }{
 	{"techknowlogick/xgo:base", "base"},
-	{"techknowlogick/xgo:go-1.12.13", "go-1.12.13"},
-	{"techknowlogick/xgo:go-1.12.x", "go-1.12.x"},
 	{"techknowlogick/xgo:go-1.13.4", "go-1.13.4"},
 	{"techknowlogick/xgo:go-1.13.x", "go-1.13.x"},
 	{"techknowlogick/xgo:latest", "go-latest"},

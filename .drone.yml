@@ -30,6 +30,9 @@
             "tags": "base",
             "dry_run": true
          },
+         "depends_on": [
+            "testing"
+         ],
          "when": {
             "event": [
                "pull_request"
@@ -87,6 +90,20 @@
                "pull_request"
             ]
          }
+      },
+      {
+         "name": "testsuite",
+         "pull": "always",
+         "image": "plugins/docker",
+         "environment": {
+            "GOPROXY": "off"
+         },
+         "depends_on": [
+            "go-1.13.4"
+         ],
+         "commands": [
+            "go run testsuite.go"
+         ]
       },
       {
          "name": "build-base",
