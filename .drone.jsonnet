@@ -41,7 +41,7 @@ steps: [
     pull: 'always',
     image: 'golang:1.13',
     environment: {
-      GOPROXY: 'off'
+      GOPROXY: 'direct'
     },
     commands: [
       'go test .'
