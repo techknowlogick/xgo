@@ -3,6 +3,17 @@
    "name": "default",
    "steps": [
       {
+         "name": "testing",
+         "pull": "always",
+         "image": "golang:1.13",
+         "environment": {
+            "GOPROXY": "off"
+         },
+         "commands": [
+            "go test ."
+         ]
+      },
+      {
          "name": "dry-run-base",
          "pull": "always",
          "image": "plugins/docker",

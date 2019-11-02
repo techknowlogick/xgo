@@ -36,6 +36,18 @@ local BuildStepDry(version='go-latest', depends='') = BuildSwitchDryRun(version,
 kind: 'pipeline',
 name: 'default',
 steps: [
+  {
+    name: 'testing',
+    pull: 'always',
+    image: 'golang:1.13',
+    environment: {
+      GOPROXY: 'off'
+    },
+    commands: [
+      'go test .'
+    ]
+  },
+
   BuildStepDry('base'),
   BuildStepDry('go-1.13.4', 'dry-run-base'),
   BuildStepDry('go-1.12.13', 'dry-run-base'),
