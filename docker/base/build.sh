@@ -332,13 +332,13 @@ for TARGET in $TARGETS; do
       echo "Go version too low, skipping linux/ppc64le..."
     else
       echo "Compiling for linux/ppc64le..."
-      CC=ppc64le-linux-gnu-gcc-6 CXX=ppc64le-linux-gnu-g++-6 HOST=ppc64le-linux-gnu PREFIX=/usr/ppc64le-linux-gnu $BUILD_DEPS /deps ${DEPS_ARGS[@]}
+      CC=powerpc64le-linux-gnu-gcc-6 CXX=powerpc64le-linux-gnu-g++-6 HOST=ppc64le-linux-gnu PREFIX=/usr/ppc64le-linux-gnu $BUILD_DEPS /deps ${DEPS_ARGS[@]}
       export PKG_CONFIG_PATH=/usr/ppc64le-linux-gnu/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
-        CC=ppc64le-linux-gnu-gcc-6 CXX=ppc64le-linux-gnu-g++-6 GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 go get $V $X "${T[@]}" --ldflags="$V $LD" -d $PACK_RELPATH
+        CC=powerpc64le-linux-gnu-gcc-6 CXX=powerpc64le-linux-gnu-g++-6 GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 go get $V $X "${T[@]}" --ldflags="$V $LD" -d $PACK_RELPATH
       fi
-      CC=ppc64le-linux-gnu-gcc-6 CXX=ppc64le-linux-gnu-g++-6 GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$V $LD" $BM -o "/build/$NAME-linux-ppc64le`extension linux`" $PACK_RELPATH
+      CC=powerpc64le-linux-gnu-gcc-6 CXX=powerpc64le-linux-gnu-g++-6 GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$V $LD" $BM -o "/build/$NAME-linux-ppc64le`extension linux`" $PACK_RELPATH
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "mipsle" ]); then
