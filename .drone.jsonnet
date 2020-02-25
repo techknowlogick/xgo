@@ -37,14 +37,14 @@ kind: 'pipeline',
 name: 'default',
 steps: [
   BuildStepDry('base'),
+  BuildStepDry('go-1.14.0', 'dry-run-base'),
   BuildStepDry('go-1.13.8', 'dry-run-base'),
-  BuildStepDry('go-1.12.17', 'dry-run-base'),
 
   BuildStep('base'),
+  BuildStep('go-1.14.0', 'build-base'),
+  BuildStep('go-1.14.x', 'build-go-1.14.0'),
   BuildStep('go-1.13.8', 'build-base'),
   BuildStep('go-1.13.x', 'build-go-1.13.8'),
-  BuildStep('go-1.12.17', 'build-base'),
-  BuildStep('go-1.12.x', 'build-go-1.12.17'),
-  BuildWithDiffTags('go-latest', 'latest', 'build-go-1.13.x'),
+  BuildWithDiffTags('go-latest', 'latest', 'build-go-1.14.x'),
 ]
 }
