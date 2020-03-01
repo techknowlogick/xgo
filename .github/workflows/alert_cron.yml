@@ -13,7 +13,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Get hash of current release JSON and exit if value is the same
       run: |
-        curl "https://golang.org/dl/?mode=json" | md5 > current_hash
+        sudo apt install -y ucommon-utils
+        curl "https://golang.org/dl/?mode=json" | md5sum > current_hash
         cat current_hash
         diff .golang_hash current_hash && (rm current_hash && exit 0) || exit 1
         echo "this and the following code won't be run due to above exiting"
