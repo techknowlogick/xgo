@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  schedule:
+    - cron:  '33 * * * *' # every hour at 33 minute past
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get hash of current release JSON and exit if value is the same
+      run: |
+        curl "https://golang.org/dl/?mode=json" | md5 > current_hash
+        cat current_hash
+        diff .golang_hash current_hash && (rm current_hash && exit 0) || exit 1
+        echo "this and the following code won't be run due to above exiting"
+        echo "for now this will fail when new version of golang is released"
+        echo "TODO: for future generate Docker/Drone files to update XGO"
