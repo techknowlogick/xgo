@@ -1,1 +1,1 @@
-FROM techknowlogick/xgo:go-1.14.6
+FROM techknowlogick/xgo:go-1.14.7
