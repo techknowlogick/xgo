@@ -4,6 +4,6 @@
 #
 # Released under the MIT license.
 
-FROM techknowlogick/xgo:go-1.14.x
+FROM techknowlogick/xgo:go-1.15.x
 
 LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
