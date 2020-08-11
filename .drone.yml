@@ -24,6 +24,23 @@ steps:
     event:
     - pull_request
 
+- name: dry-run-go-1.15.0
+  pull: always
+  image: plugins/docker
+  settings:
+    context: docker/go-1.15.0
+    dockerfile: docker/go-1.15.0/Dockerfile
+    dry_run: true
+    password:
+      from_secret: docker_password
+    repo: techknowlogick/xgo
+    tags: go-1.15.0
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - pull_request
+
 - name: dry-run-go-1.14.7
   pull: always
   image: plugins/docker
@@ -40,27 +57,6 @@ steps:
   when:
     event:
     - pull_request
-  depends_on:
-  - dry-run-base
-
-- name: dry-run-go-1.13.15
-  pull: always
-  image: plugins/docker
-  settings:
-    context: docker/go-1.13.15
-    dockerfile: docker/go-1.13.15/Dockerfile
-    dry_run: true
-    password:
-      from_secret: docker_password
-    repo: techknowlogick/xgo
-    tags: go-1.13.15
-    username:
-      from_secret: docker_username
-  when:
-    event:
-    - pull_request
-  depends_on:
-  - dry-run-base
 
 - name: build-base
   pull: always
@@ -80,6 +76,48 @@ steps:
     event:
       exclude:
       - pull_request
+
+- name: build-go-1.15.0
+  pull: always
+  image: plugins/docker
+  settings:
+    context: docker/go-1.15.0
+    dockerfile: docker/go-1.15.0/Dockerfile
+    password:
+      from_secret: docker_password
+    repo: techknowlogick/xgo
+    tags: go-1.15.0
+    username:
+      from_secret: docker_username
+  when:
+    branch:
+    - master
+    event:
+      exclude:
+      - pull_request
+  depends_on:
+  - build-base
+
+- name: build-go-1.15.x
+  pull: always
+  image: plugins/docker
+  settings:
+    context: docker/go-1.15.x
+    dockerfile: docker/go-1.15.x/Dockerfile
+    password:
+      from_secret: docker_password
+    repo: techknowlogick/xgo
+    tags: go-1.15.x
+    username:
+      from_secret: docker_username
+  when:
+    branch:
+    - master
+    event:
+      exclude:
+      - pull_request
+  depends_on:
+  - build-go-1.15.0
 
 - name: build-go-1.14.7
   pull: always
@@ -123,48 +161,6 @@ steps:
   depends_on:
   - build-go-1.14.7
 
-- name: build-go-1.13.15
-  pull: always
-  image: plugins/docker
-  settings:
-    context: docker/go-1.13.15
-    dockerfile: docker/go-1.13.15/Dockerfile
-    password:
-      from_secret: docker_password
-    repo: techknowlogick/xgo
-    tags: go-1.13.15
-    username:
-      from_secret: docker_username
-  when:
-    branch:
-    - master
-    event:
-      exclude:
-      - pull_request
-  depends_on:
-  - build-base
-
-- name: build-go-1.13.x
-  pull: always
-  image: plugins/docker
-  settings:
-    context: docker/go-1.13.x
-    dockerfile: docker/go-1.13.x/Dockerfile
-    password:
-      from_secret: docker_password
-    repo: techknowlogick/xgo
-    tags: go-1.13.x
-    username:
-      from_secret: docker_username
-  when:
-    branch:
-    - master
-    event:
-      exclude:
-      - pull_request
-  depends_on:
-  - build-go-1.13.15
-
 - name: build-go-latest
   pull: always
   image: plugins/docker
@@ -184,6 +180,6 @@ steps:
       exclude:
       - pull_request
   depends_on:
-  - build-go-1.14.x
+  - build-go-1.15.x
 
 ...
