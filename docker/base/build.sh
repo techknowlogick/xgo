@@ -414,14 +414,6 @@ for TARGET in $TARGETS; do
       fi
       CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$LDSTRIP $V $LD" $R $BM -o "/build/$NAME-darwin-$PLATFORM-amd64$R`extension darwin`" $PACK_RELPATH
     fi
-    if [ $XGOARCH == "." ] || [ $XGOARCH == "386" ]; then
-      echo "Compiling for darwin-$PLATFORM/386..."
-      CC=o32-clang CXX=o32-clang++ HOST=i386-apple-darwin15 PREFIX=/usr/local $BUILD_DEPS /deps ${DEPS_ARGS[@]}
-      if [[ "$USEMODULES" == false ]]; then
-        CC=o32-clang CXX=o32-clang++ GOOS=darwin GOARCH=386 CGO_ENABLED=1 go get $V $X "${T[@]}" --ldflags="$LDSTRIP $V $LD" -d $PACK_RELPATH
-      fi
-      CC=o32-clang CXX=o32-clang++ GOOS=darwin GOARCH=386 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$LDSTRIP $V $LD" $BM -o "/build/$NAME-darwin-$PLATFORM-386`extension darwin`" $PACK_RELPATH
-    fi
     # Remove any automatically injected deployment target vars
     unset MACOSX_DEPLOYMENT_TARGET
   fi
