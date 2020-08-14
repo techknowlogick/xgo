@@ -42,7 +42,7 @@ RUN \
     gcc-6-powerpc64le-linux-gnu g++-6-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
     gcc-6-multilib gcc-7-multilib g++-6-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev \
     libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch \
-    make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake     \
+    make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake curl \
     --no-install-recommends
 
 # Fix any stock package issues
