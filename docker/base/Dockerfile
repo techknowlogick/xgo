@@ -3,7 +3,7 @@
 #
 # Released under the MIT license.
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 MAINTAINER Péter Szilágyi <peterke@gmail.com>
 
