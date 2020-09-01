@@ -24,34 +24,34 @@ steps:
     event:
     - pull_request
 
-- name: dry-run-go-1.15.0
+- name: dry-run-go-1.15.1
   pull: always
   image: plugins/docker
   settings:
-    context: docker/go-1.15.0
-    dockerfile: docker/go-1.15.0/Dockerfile
+    context: docker/go-1.15.1
+    dockerfile: docker/go-1.15.1/Dockerfile
     dry_run: true
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.15.0
+    tags: go-1.15.1
     username:
       from_secret: docker_username
   when:
     event:
     - pull_request
 
-- name: dry-run-go-1.14.7
+- name: dry-run-go-1.14.8
   pull: always
   image: plugins/docker
   settings:
-    context: docker/go-1.14.7
-    dockerfile: docker/go-1.14.7/Dockerfile
+    context: docker/go-1.14.8
+    dockerfile: docker/go-1.14.8/Dockerfile
     dry_run: true
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.14.7
+    tags: go-1.14.8
     username:
       from_secret: docker_username
   when:
@@ -77,16 +77,16 @@ steps:
       exclude:
       - pull_request
 
-- name: build-go-1.15.0
+- name: build-go-1.15.1
   pull: always
   image: plugins/docker
   settings:
-    context: docker/go-1.15.0
-    dockerfile: docker/go-1.15.0/Dockerfile
+    context: docker/go-1.15.1
+    dockerfile: docker/go-1.15.1/Dockerfile
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.15.0
+    tags: go-1.15.1
     username:
       from_secret: docker_username
   when:
@@ -117,18 +117,18 @@ steps:
       exclude:
       - pull_request
   depends_on:
-  - build-go-1.15.0
+  - build-go-1.15.1
 
-- name: build-go-1.14.7
+- name: build-go-1.14.8
   pull: always
   image: plugins/docker
   settings:
-    context: docker/go-1.14.7
-    dockerfile: docker/go-1.14.7/Dockerfile
+    context: docker/go-1.14.8
+    dockerfile: docker/go-1.14.8/Dockerfile
     password:
       from_secret: docker_password
     repo: techknowlogick/xgo
-    tags: go-1.14.7
+    tags: go-1.14.8
     username:
       from_secret: docker_username
   when:
@@ -159,7 +159,7 @@ steps:
       exclude:
       - pull_request
   depends_on:
-  - build-go-1.14.7
+  - build-go-1.14.8
 
 - name: build-go-latest
   pull: always
