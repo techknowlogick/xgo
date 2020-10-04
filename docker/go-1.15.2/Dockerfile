@@ -1,7 +1,7 @@
 FROM techknowlogick/xgo:base
 
 # Configure the root Go distribution and bootstrap based on it
-ENV GO_VERSION 1151
+ENV GO_VERSION 1152
 
 RUN \
   export ROOT_DIST=https://dl.google.com/go/go1.15.2.linux-amd64.tar.gz && \
