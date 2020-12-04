@@ -437,3 +437,6 @@ for dir in `ls /usr/local`; do
     rm -rf "/usr/local/$dir"
   fi
 done
+
+# set owner of created executables to owner of the /build direcotry
+chown -R --reference /build /build/*
