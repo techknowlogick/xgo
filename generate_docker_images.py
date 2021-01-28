@@ -7,14 +7,15 @@ from jsonpath_ng import jsonpath, parse
 def generate_image(image):
   version = image["version"].replace("go1","go-1")
   wildcard = version
+  if version.count('.') > 1:
+    wildcard = re.sub("\.\d+$", ".x", version)
+  else:
+    version = version + ".0"
+    wildcard = wildcard + ".x"
   try:
     os.mkdir("docker/"+version)
   except:
     print("version folder already exists")
-  if version.count('.') > 1:
-    wildcard = re.sub("\.\d+$", ".x", version)
-  else:
-    wildcard = wildcard + ".x"
   try:
     os.mkdir("docker/"+wildcard)
   except:
