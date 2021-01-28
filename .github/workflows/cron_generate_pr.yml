@@ -2,7 +2,7 @@ name: Generate PR based on latest golang
 
 on:
   schedule:
-    - cron:  '33 * * * *' # every hour at 33 minute past
+    - cron:  '38 * * * *' # every hour at 38 minute past
 
 jobs:
   generate_template:
