@@ -1,14 +1,12 @@
-name: Generate PR based on latest golang
+name: CI
 
 on:
   schedule:
     - cron:  '* * * * *' # every hour at 54 minute past
 
 jobs:
-  generate:
-
+  build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
       with:
