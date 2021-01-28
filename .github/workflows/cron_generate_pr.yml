@@ -14,28 +14,28 @@ jobs:
       with:
         ref: master
         persist-credentials: false
-    - name: Get hash of current release JSON and exit if value is the same
-      run: |
-        rm -rf docker/go-1*
-        pip3 install jsonpath_ng
-        python3 generate_docker_images.py
-        git config user.name 'tklkbot'
-        git config user.email 'bot@techknowlogick.com'
-        git commit -am "$(cat .golang_version)"
-    - name: Get golang version
-      run: echo ::set-output name=value::$(cat .golang_version)
-      id: golang_version
+#     - name: Get hash of current release JSON and exit if value is the same
+#       run: |
+#         rm -rf docker/go-1*
+#         pip3 install jsonpath_ng
+#         python3 generate_docker_images.py
+#         git config user.name 'tklkbot'
+#         git config user.email 'bot@techknowlogick.com'
+#         git commit -am "$(cat .golang_version)"
+#     - name: Get golang version
+#       run: echo ::set-output name=value::$(cat .golang_version)
+#       id: golang_version
 
-    - name: Create Pull Request
-      id: cpr
-      uses: peter-evans/create-pull-request@v3
-      with:
-        token: ${{ secrets.PAT }}
-        signoff: false
-        branch: golang-${{ hashFiles('.golang_version') }}
-        delete-branch: true
-        title: ${{ steps.golang_version.outputs.value }}
-        assignees: techknowlogick
-        reviewers: techknowlogick
+#     - name: Create Pull Request
+#       id: cpr
+#       uses: peter-evans/create-pull-request@v3
+#       with:
+#         token: ${{ secrets.PAT }}
+#         signoff: false
+#         branch: golang-${{ hashFiles('.golang_version') }}
+#         delete-branch: true
+#         title: ${{ steps.golang_version.outputs.value }}
+#         assignees: techknowlogick
+#         reviewers: techknowlogick
 
 
