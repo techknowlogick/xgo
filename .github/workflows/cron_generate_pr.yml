@@ -3,6 +3,7 @@ name: CI
 on:
   schedule:
     - cron:  '* * * * *' # every hour at 54 minute past
+  workflow_dispatch:
 
 jobs:
   build:
