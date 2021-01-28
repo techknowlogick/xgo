@@ -2,15 +2,18 @@ name: Generate PR based on latest golang
 
 on:
   schedule:
-    - cron:  '38 * * * *' # every hour at 38 minute past
+    - cron:  '54 * * * *' # every hour at 54 minute past
 
 jobs:
   generate_template:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
+      with:
+          ref: master
+          persist-credentials: false
     - name: Get hash of current release JSON and exit if value is the same
       run: |
         rm -rf docker/go-1*
