@@ -1,8 +1,8 @@
 name: Test PR
 on:
   pull_request:
-    paths:
-    - 'docker/**'
+    #paths:
+    #- 'docker/**'
     # TODO: uncomment these later
     #paths-ignore:
     #- 'generate*.py'
