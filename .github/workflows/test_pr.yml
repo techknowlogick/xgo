@@ -1,11 +1,6 @@
 name: Test PR
 on:
   pull_request:
-    #paths:
-    #- 'docker/**'
-    # TODO: uncomment these later
-    #paths-ignore:
-    #- 'generate*.py'
 
 jobs:
   generate-jobs:
@@ -60,9 +55,4 @@ jobs:
           push: false
           file: docker/go-${{ matrix.golang_version.2 }}/Dockerfile
       - name: TODO tests
-        run: echo "TODO: Tests will eventually be added here"
-      # pull latest image so that it is cached
-      # if base has changed then build base
-      # build both golangs that have changed
-      # TODO: Tests
-      # With docker build we'll need to also add in go-latest build too
+        run: echo "TODO - Tests will eventually be added here"
