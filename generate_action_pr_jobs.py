@@ -1,7 +1,7 @@
 import os
 import json
 import sys
-import shlex
+
 from git import Repo
 
 # set cwd as repo
@@ -29,4 +29,4 @@ output['fail-fast'] = False
 output['matrix'] = {}
 output['matrix']['include'] = [{"name":"golang versions","golang_version_1":golang_versions[0],"golang_version_2":golang_versions[1]}]
 
-print( shlex.quote(json.dumps(output)))
+print(json.dumps(output))

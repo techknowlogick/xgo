@@ -18,7 +18,7 @@ jobs:
       run: |
         strategy="$(python generate_action_pr_jobs.py)"
         jq . <<<"$strategy" # sanity check / debugging aid
-        echo "::set-output name=strategy::$strategy"
+        echo "::set-output name=strategy::$(jq <<< $strategy)"
   test:
     needs: generate
     strategy: ${{ fromJson(needs.generate.outputs.strategy) }}
