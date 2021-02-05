@@ -1,8 +1,6 @@
 name: Test PR
 on:
   pull_request:
-    paths:
-    - 'docker/**'
 
 jobs:
   test:
@@ -49,7 +47,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: docker/${{ steps.golang_version_1.outputs.value }}/
-          tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }}
+          tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }},techknowlogick/xgo:latest
           push: false
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
@@ -59,5 +57,9 @@ jobs:
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
           push: false
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
-      - name: TODO tests
-        run: echo "TODO - Tests will eventually be added here"
+      - name: Setup BATS
+        uses: mig4/setup-bats@v1
+        with:
+          bats-version: 1.2.1
+      - name: run BATS tests
+        run: bats xgo.bats
