@@ -27,6 +27,6 @@ f.close()
 output = {}
 output['fail-fast'] = False
 output['matrix'] = {}
-output['matrix']['include'] = [{"name":"golang versions","golang_version":golang_versions}]
+output['matrix']['include'] = [{"name":"golang versions","golang_version_1":golang_versions[0],"golang_version_2":golang_versions[1]}]
 
 print(json.dumps(output))

@@ -40,19 +40,19 @@ jobs:
           tags: techknowlogick/xgo:base
           push: false
           file: docker/go-base/Dockerfile
-      - name: build golang ${{ matrix.golang_version.1 }} image
+      - name: build golang ${{ matrix.golang_version_1 }} image
         uses: docker/build-push-action@v2
         with:
-          context: docker/go-${{ matrix.golang_version.1 }}/
-          tags: techknowlogick/xgo:${{ matrix.golang_version.1 }}
+          context: docker/go-${{ matrix.golang_version_1 }}/
+          tags: techknowlogick/xgo:${{ matrix.golang_version_1 }}
           push: false
-          file: docker/go-${{ matrix.golang_version.1 }}/Dockerfile
-      - name: build golang ${{ matrix.golang_version.2 }} image
+          file: docker/go-${{ matrix.golang_version_1 }}/Dockerfile
+      - name: build golang ${{ matrix.golang_version_2 }} image
         uses: docker/build-push-action@v2
         with:
-          context: docker/go-${{ matrix.golang_version.2 }}/
-          tags: techknowlogick/xgo:${{ matrix.golang_version.2 }}
+          context: docker/go-${{ matrix.golang_version_2 }}/
+          tags: techknowlogick/xgo:${{ matrix.golang_version_2 }}
           push: false
-          file: docker/go-${{ matrix.golang_version.2 }}/Dockerfile
+          file: docker/go-${{ matrix.golang_version_2 }}/Dockerfile
       - name: TODO tests
         run: echo "TODO - Tests will eventually be added here"
