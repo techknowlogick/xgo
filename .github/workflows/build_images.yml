@@ -1,0 +1,76 @@
+name: Build Images
+on:
+  push:
+    branches:
+    - master
+    - main
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: get golang version 1
+        run: |
+          export VERSION=$(cat .golang_version | awk -F',' '{print $1}' | sed 's/go1/go-1/')
+          echo ::set-output name=value::$VERSION
+          DOTS=$(echo -n $VERSION | awk -F"." '{print NF-1}')
+          if [ "$DOTS" == "1" ]; then
+            echo ::set-output name=wildcard::$VERSION.x
+          else
+            echo ::set-output name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')
+          fi
+        id: golang_version_1
+      - name: get golang version 2
+        run: |
+          export VERSION=$(cat .golang_version | awk -F',' '{print $2}' | sed 's/go1/go-1/')
+          echo ::set-output name=value::$VERSION
+          DOTS=$(echo -n $VERSION | awk -F"." '{print NF-1}')
+          if [ "$DOTS" == "1" ]; then
+            echo ::set-output name=wildcard::$VERSION.x
+          else
+            echo ::set-output name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')
+          fi
+        id: golang_version_2
+      - name: get if base should be built
+        run: |
+          echo ::set-output name=value::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/base" | wc -l)
+        id: base_build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: build base image
+        uses: docker/build-push-action@v2
+        if: false
+        with:
+          context: docker/base/
+          tags: techknowlogick/xgo:base
+          push: true
+          file: docker/base/Dockerfile
+      - name: build golang ${{ steps.golang_version_1.outputs.value }} image
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/${{ steps.golang_version_1.outputs.value }}/
+          tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }}
+          push: true
+          file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
+      - name: build golang ${{ steps.golang_version_2.outputs.value }} image
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/${{ steps.golang_version_2.outputs.value }}/
+          tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
+          push: true
+          file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
+      - name: build latest image
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/go-latest/
+          tags: techknowlogick/xgo:latest
+          push: true
+          file: docker/go-latest/Dockerfile
