@@ -18,6 +18,7 @@ jobs:
             echo ::set-output name=wildcard::$VERSION.x
           else
             echo ::set-output name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')
+          fi
         id: golang_version_1
       - name: get golang version 2
         run: |
@@ -28,6 +29,7 @@ jobs:
             echo ::set-output name=wildcard::$VERSION.x
           else
             echo ::set-output name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')
+          fi
         id: golang_version_2
       - name: get if base should be built
         run: |
