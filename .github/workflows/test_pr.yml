@@ -11,11 +11,11 @@ jobs:
           fetch-depth: 2
       - name: get golang version 1
         run: |
-          echo ::set-output name=value::$(cat .golang_version | awk -F',' '{print $1}')
+          echo ::set-output name=value::$(cat .golang_version | awk -F',' '{print $1}' | sed 's/go1/go-1/')
         id: golang_version_1
       - name: get golang version 2
         run: |
-          echo ::set-output name=value::$(cat .golang_version | awk -F',' '{print $2}')
+          echo ::set-output name=value::$(cat .golang_version | awk -F',' '{print $2}' | sed 's/go1/go-1/')
         id: golang_version_2
       - name: get if base should be built
         run: |
@@ -34,16 +34,16 @@ jobs:
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image
         uses: docker/build-push-action@v2
         with:
-          context: docker/go-${{ steps.golang_version_1.outputs.value }}/
+          context: docker/${{ steps.golang_version_1.outputs.value }}/
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}
           push: false
-          file: docker/go-${{ steps.golang_version_1.outputs.value }}/Dockerfile
+          file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
         uses: docker/build-push-action@v2
         with:
-          context: docker/go${{ steps.golang_version_2.outputs.value }}/
+          context: docker/${{ steps.golang_version_2.outputs.value }}/
           tags: techknowlogick/xgo${{ steps.golang_version_2.outputs.value }}
           push: false
-          file: docker/go-${{ steps.golang_version_2.outputs.value }}/Dockerfile
+          file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
       - name: TODO tests
         run: echo "TODO - Tests will eventually be added here"
