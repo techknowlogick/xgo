@@ -33,7 +33,9 @@ jobs:
         id: golang_version_2
       - name: get if base should be built
         run: |
-          echo ::set-output name=value::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/base" | wc -l | awk '{print $1}')
+          export VAL=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/base" | wc -l | awk '{print $1}')
+          echo $VAL
+          echo ::set-output name=value::$(echo -n $VAL)
         id: base_build
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
