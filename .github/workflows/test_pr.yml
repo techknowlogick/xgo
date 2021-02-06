@@ -33,13 +33,13 @@ jobs:
         id: golang_version_2
       - name: get if base should be built
         run: |
-          echo ::set-output name=value::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/base" | wc -l)
+          echo ::set-output name=value::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/base" | wc -l | awk '{print $1}')
         id: base_build
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: build base image
         uses: docker/build-push-action@v2
-        if: false
+        if: ${{ steps.base_build.outputs.value }} != '0'
         with:
           context: docker/base/
           tags: techknowlogick/xgo:base
@@ -53,13 +53,6 @@ jobs:
           push: false
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
           load: true
-      - name: Setup BATS
-        uses: mig4/setup-bats@v1
-        with:
-          bats-version: 1.2.1
-      - name: run BATS tests
-        run: |
-          bats xgo.bats
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
         uses: docker/build-push-action@v2
         with:
@@ -67,4 +60,11 @@ jobs:
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
           push: false
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
+      - name: Setup BATS
+        uses: mig4/setup-bats@v1
+        with:
+          bats-version: 1.2.1
+      - name: run BATS tests
+        run: |
+          bats xgo.bats
       
