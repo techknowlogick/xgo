@@ -59,7 +59,6 @@ jobs:
           bats-version: 1.2.1
       - name: run BATS tests
         run: |
-          docker images
           bats xgo.bats
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
         uses: docker/build-push-action@v2

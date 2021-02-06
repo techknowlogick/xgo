@@ -23,12 +23,17 @@
 }
 
 @test "branches" {
-  go run xgo.go --branch develop github.com/ethereum/go-ethereum/cmd/geth
+  go run xgo.go --branch memprof github.com/rwcarlsen/cyan/cmd/cyan
   [ "$status" -eq 0 ]
 }
 
-@test "cyan smoke" {
-  go run xgo.go github.com/rwcarlsen/cyan/cmd/cyan
+@test "eth smoke" {
+  go run xgo.go github.com/ethereum/go-ethereum/cmd/geth
+  [ "$status" -eq 0 ]
+}
+
+@test "gitea smoke" {
+  go run xgo.go code.gitea.io/gitea
   [ "$status" -eq 0 ]
 }
 
