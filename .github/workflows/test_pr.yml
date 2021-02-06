@@ -52,7 +52,7 @@ jobs:
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }},techknowlogick/xgo:latest
           push: false
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
-          outputs: docker
+          load: true
       - name: Setup BATS
         uses: mig4/setup-bats@v1
         with:
