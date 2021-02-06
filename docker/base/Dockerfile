@@ -5,7 +5,7 @@
 
 FROM ubuntu:18.04
 
-MAINTAINER Péter Szilágyi <peterke@gmail.com>
+LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
 
 # Mark the image as xgo enabled to support xgo-in-xgo
 ENV XGO_IN_XGO 1
@@ -40,10 +40,12 @@ RUN \
     gcc-6-mips64el-linux-gnuabi64 g++-6-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
     gcc-6-s390x-linux-gnu g++-6-s390x-linux-gnu libc6-dev-s390x-cross \
     gcc-6-powerpc64le-linux-gnu g++-6-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
-    gcc-6-multilib gcc-7-multilib g++-6-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev \
-    libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch \
-    make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake curl \
-    --no-install-recommends
+    gcc-6-multilib g++-6-multilib gcc-7-multilib g++-7-multilib gcc-mingw-w64 g++-mingw-w64 \
+    clang llvm-dev libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch \
+    make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake curl mercurial && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+  find /var/log -type f | while read f; do echo -ne '' > $f; done;
 
 # Fix any stock package issues
 RUN ln -s /usr/include/asm-generic /usr/include/asm

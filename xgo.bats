@@ -25,13 +25,11 @@
 
 @test "branches" {
   run go run xgo.go --branch memprof --targets "linux/amd64" github.com/rwcarlsen/cyan/cmd/cyan
-  echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "eth smoke" {
   run go run xgo.go --targets "linux/amd64" github.com/ethereum/go-ethereum/cmd/geth
-  echo "$output"
   [ "$status" -eq 0 ]
 }
 
