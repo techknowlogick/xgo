@@ -256,3 +256,20 @@ Some trivial arguments may be passed to the dependencies' configure script via
 
 Note, that since xgo needs to cross compile the dependencies for each platform
 and architecture separately, build time can increase significantly.
+
+### User scripts
+
+To give the user more power, two hook scripts will get source during the build
+if avalable. The first on is `.xgo/setup.sh` which gets sourced after everything
+got set up. The second is `.xgo/build.sh` which gets sourced for each target.
+
+All environment variables set up by xgo are avalable in the scripts. `XGOOS` and
+`XGOARCH` are expanded the the actual value defined by the [build targets](#limit-build-targets).
+Forthermore following environment variables are set to a target sepecific value:
+
+- `CC`: C cross compiler to use for the build
+- `HOST`: Target platform to build
+- `PREFIX`: File-system path where to install the built binaries.
+
+For further reference, see [build.sh](docker/base/build.sh)
+
