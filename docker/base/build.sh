@@ -50,7 +50,7 @@ function extension {
 # Detect if we are using go modules
 if [[ "$GO111MODULE" == "on" || "$GO111MODULE" == "auto" ]]; then
   USEMODULES=true
-  else
+else
   USEMODULES=false
 fi
 
