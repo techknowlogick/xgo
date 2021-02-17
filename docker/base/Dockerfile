@@ -67,7 +67,7 @@ ENV LD_LIBRARY_PATH=/osxcross/target/lib
 # Download the osx sdk and build the osx toolchain
 # We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
 RUN \
-  $FETCH $OSX_SDK_PATH dd228a335194e3392f1904ce49aff1b1da26ca62 && \
+  $FETCH $OSX_SDK_PATH e8f0382f9e54ab3d7211b4886216475201ee750e47fa76dc6a0bf4604a63ddfc && \
   tar -xf `basename $OSX_SDK_PATH` && rm -f `basename $OSX_SDK_PATH`
 ADD patch.tar.xz $OSX_SDK/usr/include/c++
 RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
