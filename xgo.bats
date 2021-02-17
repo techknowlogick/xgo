@@ -38,3 +38,8 @@
   run go run xgo.go --targets "darwin-10.6/amd64" code.gitea.io/gitea
   [ "$status" -eq 0 ]
 }
+
+@test "vikunja smoke" {
+  run go run xgo.go --targets "darwin/amd64" code.vikunja.io/api
+  [ "$status" -eq 0 ]
+}
