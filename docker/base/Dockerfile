@@ -58,8 +58,8 @@ ADD patches /patches
 ##########################
 
 # Configure the container for OSX cross compilation
-ENV OSX_SDK MacOSX10.11.sdk
-ENV OSX_SDK_PATH https://s3.dockerproject.org/darwin/v2/$OSX_SDK.tar.xz
+ENV OSX_SDK MacOSX11.1.sdk
+ENV OSX_SDK_PATH https://faasd-test.spacebear.ee/$OSX_SDK.tar.xz
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
