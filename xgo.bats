@@ -35,7 +35,7 @@
 }
 
 @test "gitea smoke" {
-  run go run xgo.go --targets "darwin-10.6/amd64" code.gitea.io/gitea
+  run go run xgo.go --targets "darwin-10.6/amd64" -tags 'netgo osusergo sqlite sqlite_unlock_notify' code.gitea.io/gitea
   [ "$status" -eq 0 ]
 }
 
