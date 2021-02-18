@@ -21,7 +21,7 @@
 #   FLAG_BUILDMODE - Optional buildmode flag to set on the Go builder
 #   FLAG_TRIMPATH  - Optional trimpath flag to set on the Go builder
 #   TARGETS        - Comma separated list of build targets to compile for
-#   GO_VERSION     - Bootstrapped version of Go to disable uncupported targets
+#   GO_VERSION     - Bootstrapped version of Go to disable unsupported targets
 #   EXT_GOPATH     - GOPATH elements mounted from the host filesystem
 
 # Define a function that figures out the binary extension
@@ -50,7 +50,7 @@ function extension {
 # Detect if we are using go modules
 if [[ "$GO111MODULE" == "on" || "$GO111MODULE" == "auto" ]]; then
   USEMODULES=true
-  else
+else
   USEMODULES=false
 fi
 
@@ -413,6 +413,14 @@ for TARGET in $TARGETS; do
         CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" --ldflags="$LDSTRIP $V $LD" -d $PACK_RELPATH
       fi
       CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$LDSTRIP $V $LD" $R $BM -o "/build/$NAME-darwin-$PLATFORM-amd64$R`extension darwin`" $PACK_RELPATH
+    fi
+    if [ $XGOARCH == "." ] || [ $XGOARCH == "arm64" ]; then
+      echo "Compiling for darwin-$PLATFORM/arm64..."
+      CC=o64-clang CXX=o64-clang++ HOST=arm64-apple-darwin15 PREFIX=/usr/local $BUILD_DEPS /deps ${DEPS_ARGS[@]}
+      if [[ "$USEMODULES" == false ]]; then
+        CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go get $V $X "${T[@]}" --ldflags="$LDSTRIP $V $LD" -d $PACK_RELPATH
+      fi
+      CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$LDSTRIP $V $LD" $R $BM -o "/build/$NAME-darwin-$PLATFORM-arm64$R`extension darwin`" $PACK_RELPATH
     fi
     # Remove any automatically injected deployment target vars
     unset MACOSX_DEPLOYMENT_TARGET

@@ -33,21 +33,23 @@ GOOS=linux GOARCH=386 CGO_ENABLED=1 go install std
 echo "Bootstrapping linux/arm64..."
 GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc-6 go install std
 
-if [ $GO_VERSION -ge 170 ]; then
-  echo "Bootstrapping linux/mips64..."
-  GOOS=linux GOARCH=mips64 CGO_ENABLED=1 CC=mips64-linux-gnuabi64-gcc-6 go install std
+echo "Bootstrapping linux/mips64..."
+GOOS=linux GOARCH=mips64 CGO_ENABLED=1 CC=mips64-linux-gnuabi64-gcc-6 go install std
 
-  echo "Bootstrapping linux/mips64le..."
-  GOOS=linux GOARCH=mips64le CGO_ENABLED=1 CC=mips64el-linux-gnuabi64-gcc-6 go install std
-fi
+echo "Bootstrapping linux/mips64le..."
+GOOS=linux GOARCH=mips64le CGO_ENABLED=1 CC=mips64el-linux-gnuabi64-gcc-6 go install std
 
-if [ $GO_VERSION -ge 180 ]; then
-  echo "Bootstrapping linux/mips..."
-  GOOS=linux GOARCH=mips CGO_ENABLED=1 CC=mips-linux-gnu-gcc-6 go install std
+echo "Bootstrapping linux/mips..."
+GOOS=linux GOARCH=mips CGO_ENABLED=1 CC=mips-linux-gnu-gcc-6 go install std
 
-  echo "Bootstrapping linux/mipsle..."
-  GOOS=linux GOARCH=mipsle CGO_ENABLED=1 CC=mipsel-linux-gnu-gcc-6 go install std
-fi
+echo "Bootstrapping linux/mipsle..."
+GOOS=linux GOARCH=mipsle CGO_ENABLED=1 CC=mipsel-linux-gnu-gcc-6 go install std
+
+echo "Bootstrapping linux/ppc64le..."
+GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 CC=powerpc64le-linux-gnu-gcc-6 go install std
+
+echo "Bootstrapping linux/s390x..."
+GOOS=linux GOARCH=s390x CGO_ENABLED=1 CC=s390x-linux-gnu-gcc-6 go install std
 
 echo "Bootstrapping windows/amd64..."
 GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go install std
@@ -57,6 +59,11 @@ GOOS=windows GOARCH=386 CGO_ENABLED=1 CC=i686-w64-mingw32-gcc go install std
 
 echo "Bootstrapping darwin/amd64..."
 GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 CC=o64-clang go install std
+
+if [ $GO_VERSION -ge 1160 ]; then
+  echo "Bootstrapping darwin/arm64..."
+  GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 CC=o64-clang go install std
+fi
 
 # Install xgo within the container to enable internal cross compilation
 echo "Installing xgo-in-xgo..."
