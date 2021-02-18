@@ -26,25 +26,29 @@
 }
 
 @test "branches" {
+  skip "remotes are temporarily disabled due to gomod"
   run go run xgo.go --remote github.com/rwcarlsen/cyan --branch memprof --targets "linux/amd64" github.com/rwcarlsen/cyan/cmd/cyan
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "eth smoke" {
+  skip "remotes are temporarily disabled due to gomod"
   run go run xgo.go --remote github.com/ethereum/go-ethereum --targets "linux/amd64" github.com/ethereum/go-ethereum/cmd/geth
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "gitea smoke" {
-  run go run xgo.go --remote github.com/go-gitea/gitea --targets "darwin-10.6/amd64" -tags 'netgo osusergo sqlite sqlite_unlock_notify' code.gitea.io/gitea
+  git clone https://github.com/go-gitea/gitea.git /tmp/gitea
+  run go run xgo.go --targets "darwin-10.6/amd64" -tags 'netgo osusergo sqlite sqlite_unlock_notify' /tmp/gitea
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "vikunja smoke" {
-  run go run xgo.go --remote kolaente.dev/vikunja/api --targets "darwin-10.6/amd64" code.vikunja.io/api
+  git clone https://kolaente.dev/vikunja/api /tmp/vikunja
+  run go run xgo.go --targets "darwin-10.6/amd64" /tmp/vikunja
   echo "$output"
   [ "$status" -eq 0 ]
 }
