@@ -416,7 +416,7 @@ for TARGET in $TARGETS; do
     fi
     if [ $XGOARCH == "." ] || [ $XGOARCH == "arm64" ]; then
       echo "Compiling for darwin-$PLATFORM/arm64..."
-      CC=o64-clang CXX=o64-clang++ HOST=x86_64-apple-darwin15 PREFIX=/usr/local $BUILD_DEPS /deps ${DEPS_ARGS[@]}
+      CC=o64-clang CXX=o64-clang++ HOST=arm64-apple-darwin15 PREFIX=/usr/local $BUILD_DEPS /deps ${DEPS_ARGS[@]}
       if [[ "$USEMODULES" == false ]]; then
         CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go get $V $X "${T[@]}" --ldflags="$LDSTRIP $V $LD" -d $PACK_RELPATH
       fi
