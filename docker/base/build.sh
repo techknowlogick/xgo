@@ -396,7 +396,7 @@ for TARGET in $TARGETS; do
     # Split the platform version and configure the deployment target
     PLATFORM=`echo $XGOOS | cut -d '-' -f 2`
     if [ "$PLATFORM" == "" ] || [ "$PLATFORM" == "." ] || [ "$PLATFORM" == "darwin" ]; then
-      PLATFORM=10.6 # OS X Snow Leopard
+      PLATFORM=10.12 # OS X Sierra (min version support for golang)
     fi
     export MACOSX_DEPLOYMENT_TARGET=$PLATFORM
 
