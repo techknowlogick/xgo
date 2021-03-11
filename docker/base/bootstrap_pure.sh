@@ -60,7 +60,7 @@ GOOS=windows GOARCH=386 CGO_ENABLED=1 CC=i686-w64-mingw32-gcc go install std
 echo "Bootstrapping darwin/amd64..."
 GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 CC=o64-clang go install std
 
-if [ $GO_VERSION -ge 1160 ]; then
+if [[ "$GO_VERSION" != 115* ]]; then
   echo "Bootstrapping darwin/arm64..."
   GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 CC=o64-clang go install std
 fi

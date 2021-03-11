@@ -396,7 +396,7 @@ for TARGET in $TARGETS; do
     # Split the platform version and configure the deployment target
     PLATFORM=`echo $XGOOS | cut -d '-' -f 2`
     if [ "$PLATFORM" == "" ] || [ "$PLATFORM" == "." ] || [ "$PLATFORM" == "darwin" ]; then
-      PLATFORM=10.6 # OS X Snow Leopard
+      PLATFORM=10.12 # OS X Sierra (min version support for golang)
     fi
     export MACOSX_DEPLOYMENT_TARGET=$PLATFORM
 
@@ -415,12 +415,16 @@ for TARGET in $TARGETS; do
       CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$LDSTRIP $V $LD" $R $BM -o "/build/$NAME-darwin-$PLATFORM-amd64$R`extension darwin`" $PACK_RELPATH
     fi
     if [ $XGOARCH == "." ] || [ $XGOARCH == "arm64" ]; then
-      echo "Compiling for darwin-$PLATFORM/arm64..."
-      CC=o64-clang CXX=o64-clang++ HOST=arm64-apple-darwin15 PREFIX=/usr/local $BUILD_DEPS /deps ${DEPS_ARGS[@]}
-      if [[ "$USEMODULES" == false ]]; then
-        CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go get $V $X "${T[@]}" --ldflags="$LDSTRIP $V $LD" -d $PACK_RELPATH
+      if [[ "$GO_VERSION" == 115* ]]; then
+        echo "Go version too low, skipping darwin-$PLATFORM/arm64..."
+      else
+        echo "Compiling for darwin-$PLATFORM/arm64..."
+        CC=o64-clang CXX=o64-clang++ HOST=arm64-apple-darwin15 PREFIX=/usr/local $BUILD_DEPS /deps ${DEPS_ARGS[@]}
+        if [[ "$USEMODULES" == false ]]; then
+          CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go get $V $X "${T[@]}" --ldflags="$LDSTRIP $V $LD" -d $PACK_RELPATH
+        fi
+        CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$LDSTRIP $V $LD" $R $BM -o "/build/$NAME-darwin-$PLATFORM-arm64$R`extension darwin`" $PACK_RELPATH
       fi
-      CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$LDSTRIP $V $LD" $R $BM -o "/build/$NAME-darwin-$PLATFORM-arm64$R`extension darwin`" $PACK_RELPATH
     fi
     # Remove any automatically injected deployment target vars
     unset MACOSX_DEPLOYMENT_TARGET
