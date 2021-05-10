@@ -315,11 +315,17 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	re := regexp.MustCompile("([A-Z]):")
 	folder_w := filepath.ToSlash(re.ReplaceAllString(folder, "/$1"))
 	depsCache_w := filepath.ToSlash(re.ReplaceAllString(depsCache, "/$1"))
+	gocache := filepath.Join(depsCache, "gocache")
+	if err := os.MkdirAll(gocache, 0641); err != nil {
+		log.Fatalf("Failed to create gocache dir: %v.", err)
+	}
+	gocache_w := filepath.ToSlash(re.ReplaceAllString(gocache, "/$1"))
 
 	args := []string{
 		"run", "--rm",
 		"-v", folder_w + ":/build",
 		"-v", depsCache_w + ":/deps-cache:ro",
+		"-v", gocache_w + ":/gocache:rw",
 		"-e", "REPO_REMOTE=" + config.Remote,
 		"-e", "REPO_BRANCH=" + config.Branch,
 		"-e", "PACK=" + config.Package,
