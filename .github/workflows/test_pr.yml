@@ -44,7 +44,7 @@ jobs:
       - name: build base image
         uses: docker/build-push-action@v2
         # if: steps.base_build.outputs.value != '0'
-        if: false
+        if: true
         with:
           context: docker/base/
           tags: techknowlogick/xgo:base
