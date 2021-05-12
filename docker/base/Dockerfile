@@ -59,7 +59,7 @@ ADD patches /patches
 
 # Configure the container for OSX cross compilation
 ENV OSX_SDK MacOSX11.1.sdk
-ENV OSX_SDK_PATH https://faasd-test.spacebear.ee/$OSX_SDK.tar.xz
+ENV OSX_SDK_PATH https://github.com/larskanis/MacOSX-SDKs/releases/download/11.1/${OSX_SDK}.tar.xz
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
@@ -67,7 +67,7 @@ ENV LD_LIBRARY_PATH=/osxcross/target/lib
 # Download the osx sdk and build the osx toolchain
 # We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
 RUN \
-  $FETCH $OSX_SDK_PATH e8f0382f9e54ab3d7211b4886216475201ee750e47fa76dc6a0bf4604a63ddfc && \
+  $FETCH $OSX_SDK_PATH 97f44b22949cea4522408ccca9a8d87f2d09779b2878423d2d7a2cb805c3d42d && \
   tar -xf `basename $OSX_SDK_PATH` && rm -f `basename $OSX_SDK_PATH`
 ADD patch.tar.xz $OSX_SDK/usr/include/c++
 RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
@@ -75,7 +75,7 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 # Actually build the toolchain
 RUN \
   git clone https://github.com/tpoechtrager/osxcross.git && \
-  #cd osxcross && git checkout 035cc170338b7b252e3f13b0e3ccbf4411bffc41 && cd ../ && \
+  cd osxcross && git checkout 035cc170338b7b252e3f13b0e3ccbf4411bffc41 && cd ../ && \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
   OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
 
