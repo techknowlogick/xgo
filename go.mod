@@ -1,3 +1,3 @@
-module github.com/hallgren/xgo
+module src.techknowlogick.com/xgo
 
 go 1.12
