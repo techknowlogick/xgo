@@ -335,6 +335,7 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 		"-e", fmt.Sprintf("FLAG_TRIMPATH=%v", flags.Trimpath),
 		"-e", "TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
 		"-e", fmt.Sprintf("GOPROXY=%s", os.Getenv("GOPROXY")),
+		"-e", fmt.Sprintf("GOPRIVATE=%s", os.Getenv("GOPRIVATE")),
 	}
 	if usesModules {
 		args = append(args, []string{"-e", "GO111MODULE=on"}...)
