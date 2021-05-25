@@ -255,19 +255,18 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	locals, mounts, paths := []string{}, []string{}, []string{}
 	var usesModules bool
 	if strings.HasPrefix(config.Repository, string(filepath.Separator)) || strings.HasPrefix(config.Repository, ".") {
-		// Resolve the repository import path from the file path
-		config.Repository = resolveImportPath(config.Repository)
-
-		// Determine if this is a module-based repository
-		var modFile = config.Repository + "/go.mod"
-		_, err := os.Stat(modFile)
-		usesModules = !os.IsNotExist(err)
+		if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
+			usesModules = true
+		}
 
 		// Iterate over all the local libs and export the mount points
 		if os.Getenv("GOPATH") == "" && !usesModules {
 			log.Fatalf("No $GOPATH is set or forwarded to xgo")
 		}
 		if !usesModules {
+			// Resolve the repository import path from the file path
+			config.Repository = resolveImportPath(config.Repository)
+
 			for _, gopath := range strings.Split(os.Getenv("GOPATH"), string(os.PathListSeparator)) {
 				// Since docker sandboxes volumes, resolve any symlinks manually
 				sources := filepath.Join(gopath, "src")
