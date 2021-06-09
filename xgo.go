@@ -55,6 +55,7 @@ var (
 	crossArgs   = flag.String("depsargs", "", "CGO dependency configure arguments")
 	targets     = flag.String("targets", "*/*", "Comma separated targets to build for")
 	dockerImage = flag.String("image", "", "Use custom docker image instead of official distribution")
+	forwardSsh  = flag.Bool("ssh", false, "Enable ssh agent forwarding")
 )
 
 // ConfigFlags is a simple set of flags to define the environment and dependencies.
@@ -67,6 +68,7 @@ type ConfigFlags struct {
 	Dependencies string   // CGO dependencies (configure/make based archives)
 	Arguments    string   // CGO dependency configure arguments
 	Targets      []string // Targets to build for
+	ForwardSsh   bool     // Enable ssh agent forwarding
 }
 
 // Command line arguments to pass to go build
@@ -175,6 +177,7 @@ func main() {
 		Dependencies: *crossDeps,
 		Arguments:    *crossArgs,
 		Targets:      strings.Split(*targets, ","),
+		ForwardSsh:   *forwardSsh,
 	}
 	flags := &BuildFlags{
 		Verbose:  *buildVerbose,
@@ -337,6 +340,14 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 		"-e", fmt.Sprintf("GOPROXY=%s", os.Getenv("GOPROXY")),
 		"-e", fmt.Sprintf("GOPRIVATE=%s", os.Getenv("GOPRIVATE")),
 	}
+	if config.ForwardSsh && os.Getenv("SSH_AUTH_SOCK") != "" {
+		// Keep stdin open and allocate pseudo tty
+		args = append(args, "-i", "-t")
+		// Mount ssh agent socket
+		args = append(args, "-v", fmt.Sprintf("%[1]s:%[1]s", os.Getenv("SSH_AUTH_SOCK")))
+		// Set ssh agent socket environment variable
+		args = append(args, "-e", fmt.Sprintf("SSH_AUTH_SOCK=%s", os.Getenv("SSH_AUTH_SOCK")))
+	}
 	if usesModules {
 		args = append(args, []string{"-e", "GO111MODULE=on"}...)
 		args = append(args, []string{"-v", os.Getenv("GOPATH") + ":/go"}...)
@@ -365,7 +376,12 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	}
 
 	args = append(args, []string{image, config.Repository}...)
-	return run(exec.Command("docker", args...))
+
+	cmd := exec.Command("docker", args...)
+	if config.ForwardSsh {
+		cmd.Stdin = os.Stdin
+	}
+	return run(cmd)
 }
 
 // compileContained cross builds a requested package according to the given build
