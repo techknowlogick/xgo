@@ -450,5 +450,5 @@ for dir in `ls /usr/local`; do
   fi
 done
 
-# set owner of created executables to owner of the /build direcotry
-chown -R --reference /build /build/*
+# set owner of created executables to owner of the /build directory (all executables and created directories start with $NAME)
+chown -R --reference /build /build/"$NAME"*
