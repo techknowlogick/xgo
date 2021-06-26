@@ -262,15 +262,21 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 			usesModules = true
 		}
 
+		gopathEnv := os.Getenv("GOPATH")
+		if gopathEnv == "" && !usesModules {
+			log.Printf("No $GOPATH is set - defaulting to %s", build.Default.GOPATH)
+			gopathEnv = build.Default.GOPATH
+		}
+
 		// Iterate over all the local libs and export the mount points
-		if os.Getenv("GOPATH") == "" && !usesModules {
+		if gopathEnv == "" && !usesModules {
 			log.Fatalf("No $GOPATH is set or forwarded to xgo")
 		}
 		if !usesModules {
 			// Resolve the repository import path from the file path
 			config.Repository = resolveImportPath(config.Repository)
 
-			for _, gopath := range strings.Split(os.Getenv("GOPATH"), string(os.PathListSeparator)) {
+			for _, gopath := range strings.Split(gopathEnv, string(os.PathListSeparator)) {
 				// Since docker sandboxes volumes, resolve any symlinks manually
 				sources := filepath.Join(gopath, "src")
 				filepath.Walk(sources, func(path string, info os.FileInfo, err error) error {
