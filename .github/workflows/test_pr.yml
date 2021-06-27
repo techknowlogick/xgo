@@ -71,6 +71,7 @@ jobs:
           bats-version: 1.2.1
       - name: run BATS tests
         run: |
-          mkdir -p .xgo-cache go/src
+          mkdir -p .xgo-cache
+          mkdir -p ~/go/src
           bats xgo.bats
-      
+
