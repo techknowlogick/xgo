@@ -1,7 +1,8 @@
 #!/usr/bin/env bats
 
 @test "embedded c" {
-  run GO111MODULE=auto go run xgo.go ./tests/embedded_c
+  export GO111MODULE=auto
+  run go run xgo.go ./tests/embedded_c
   echo "$output"
   [ "$status" -eq 0 ]
 }
