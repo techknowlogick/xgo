@@ -258,13 +258,17 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	locals, mounts, paths := []string{}, []string{}, []string{}
 	var usesModules bool
 	if strings.HasPrefix(config.Repository, string(filepath.Separator)) || strings.HasPrefix(config.Repository, ".") {
-		// Resolve the repository import path from the file path
-		config.Repository = resolveImportPath(config.Repository)
+		if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
+			usesModules = true
+		}
+		if !usesModules {
+			// Resolve the repository import path from the file path
+			config.Repository = resolveImportPath(config.Repository)
 
-		// Determine if this is a module-based repository
-		var modFile = config.Repository + "/go.mod"
-		_, err := os.Stat(modFile)
-		usesModules = !os.IsNotExist(err)
+			if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
+				usesModules = true
+			}
+		}
 
 		gopathEnv := os.Getenv("GOPATH")
 		if gopathEnv == "" && !usesModules {
@@ -277,6 +281,7 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 			log.Fatalf("No $GOPATH is set or forwarded to xgo")
 		}
 		if !usesModules {
+
 			for _, gopath := range strings.Split(gopathEnv, string(os.PathListSeparator)) {
 				// Since docker sandboxes volumes, resolve any symlinks manually
 				sources := filepath.Join(gopath, "src")
