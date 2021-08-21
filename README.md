@@ -45,6 +45,10 @@ a lightweight Go wrapper was written on top of it.
 
     go get src.techknowlogick.com/xgo
 
+For go >= 1.17, `go get` is deprecated, so you'll have to use this command:
+    
+    go install src.techknowlogick.com/xgo@latest
+
 ## Usage
 
 Simply specify the import path you want to build, and xgo will do the rest:
