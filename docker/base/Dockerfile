@@ -44,7 +44,6 @@ RUN \
     clang llvm-dev libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch \
     make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake curl mercurial && \
     apt-get install -y libssl1.1 openssl ca-certificates && \
-    rm /usr/share/ca-certificates/mozilla/DST_Root_CA_X3.crt && \
     update-ca-certificates && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
