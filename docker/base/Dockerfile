@@ -60,7 +60,7 @@ ADD patches /patches
 ##########################
 
 # Configure the container for OSX cross compilation
-ENV OSX_SDK MacOSX11.1.sdk
+ENV OSX_SDK MacOSX11.3.sdk
 ENV OSX_SDK_PATH https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/${OSX_SDK}.tar.xz
 
 # Make libxar known to the ld64 and cctools build
@@ -69,7 +69,7 @@ ENV LD_LIBRARY_PATH=/osxcross/target/lib
 # Download the osx sdk and build the osx toolchain
 # We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
 RUN \
-  $FETCH $OSX_SDK_PATH 68797baaacb52f56f713400de306a58a7ca00b05c3dc6d58f0a8283bcac721f8 && \
+  $FETCH $OSX_SDK_PATH cd4f08a75577145b8f05245a2975f7c81401d75e9535dcffbb879ee1deefcbf4 && \
   tar -xf `basename $OSX_SDK_PATH` && rm -f `basename $OSX_SDK_PATH`
 ADD patch.tar.xz $OSX_SDK/usr/include/c++
 RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
