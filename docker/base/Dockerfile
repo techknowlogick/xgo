@@ -61,7 +61,7 @@ ADD patches /patches
 
 # Configure the container for OSX cross compilation
 ENV OSX_SDK MacOSX11.1.sdk
-ENV OSX_SDK_PATH https://github.com/larskanis/MacOSX-SDKs/releases/download/11.1/${OSX_SDK}.tar.xz
+ENV OSX_SDK_PATH https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/${OSX_SDK}.tar.xz
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
