@@ -77,9 +77,9 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 # Actually build the toolchain
 RUN \
   git clone https://github.com/tpoechtrager/osxcross.git && \
-  cd osxcross && git checkout 035cc170338b7b252e3f13b0e3ccbf4411bffc41 && cd ../ && \
+  cd osxcross && git checkout 0f87f567dfaf98460244471ad6c0f4311d62079c && cd ../ && \
   mv  $OSX_SDK.tar.xz /osxcross/tarballs/ && \
-  OSX_VERSION_MIN=10.10 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
+  OSX_VERSION_MIN=10.13 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
 
 ENV PATH /osxcross/target/bin:$PATH
 
