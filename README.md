@@ -33,6 +33,16 @@ All the necessary Go tool-chains, C cross compilers and platform headers/librari
 have been assembled into a single Docker container, which can then be called as if
 a single command to compile a Go package to various platforms and architectures.
 
+## Supporters
+
+Thanks to the following projects for supporting XGO
+
+* [Gitea](https://gitea.io/) - A painless self-hosted Git service.
+* [Offen](https://www.offen.dev/) - The fair and lightweight alternative to common web analytics tools.
+* [Vikunja](https://vikunja.io/) - The to-do app to organize your life.
+
+You too can [sponsor](https://github.com/sponsors/techknowlogick/) this project to ensure its continued maintenance.
+
 ## Installation
 
 Although you could build the container manually, it is available as an automatic
