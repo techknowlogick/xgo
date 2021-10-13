@@ -71,7 +71,7 @@ ENV LD_LIBRARY_PATH=/osxcross/target/lib
 RUN \
   $FETCH $OSX_SDK_PATH 9b86eab03176c56bb526de30daa50fa819937c54b280364784ce431885341bf6 && \
   tar -xf `basename $OSX_SDK_PATH` && rm -f `basename $OSX_SDK_PATH`
-ADD patch.tar.xz $OSX_SDK/usr/include/c++
+#ADD patch.tar.xz $OSX_SDK/usr/include/c++
 RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK
 
 # Actually build the toolchain
