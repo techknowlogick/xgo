@@ -261,12 +261,33 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 		if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
 			usesModules = true
 		}
+
 		if !usesModules {
 			// Resolve the repository import path from the file path
 			config.Repository = resolveImportPath(config.Repository)
 
 			if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
 				usesModules = true
+			}
+		}
+
+		// try use modules x3
+		if !usesModules && !strings.HasPrefix(config.Repository, "..") {
+			cmd := exec.Command("go", "env", "GOMOD")
+			cmd.Dir = config.Repository
+			out, _ := cmd.Output()
+			if len(out) > 0 {
+				oldf := folder
+				oldr := config.Repository
+				folder = filepath.Dir(string(out))
+				usesModules = true
+				tmp, _ := filepath.Rel(folder, oldf)
+				config.Repository = fmt.Sprintf("./%s", tmp)
+				if strings.HasPrefix(tmp, "..") {
+					usesModules = false
+					folder = oldf
+					config.Repository = oldr
+				}
 			}
 		}
 
