@@ -37,8 +37,7 @@
   # skip "remotes are temporarily disabled due to gomod"
   git clone https://github.com/ethereum/go-ethereum.git /tmp/eth
   run go run xgo.go --targets "linux/amd64" /tmp/eth/cmd/geth
-  run ls -lah
-  run ls -lah /tmp/eth
+  run sh -c "ls -lah && ls -lah /tmp/eth && exit 1"
   echo "$output"
   [ "$status" -eq 0 ]
 }
