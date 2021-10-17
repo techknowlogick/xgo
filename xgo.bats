@@ -37,20 +37,21 @@
   # skip "remotes are temporarily disabled due to gomod"
   git clone https://github.com/ethereum/go-ethereum.git /tmp/eth
   run go run xgo.go --targets "linux/amd64" /tmp/eth/cmd/geth
+  run ./geth --help
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "gitea smoke" {
   git clone https://github.com/go-gitea/gitea.git /tmp/gitea
-  run go run xgo.go --targets "darwin-10.6/amd64" -tags 'netgo osusergo sqlite sqlite_unlock_notify' /tmp/gitea
+  run go run xgo.go --targets "darwin-10.13/amd64" -tags 'netgo osusergo sqlite sqlite_unlock_notify' /tmp/gitea
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "vikunja smoke" {
   git clone https://kolaente.dev/vikunja/api /tmp/vikunja
-  run go run xgo.go --targets "darwin-10.6/amd64" /tmp/vikunja
+  run go run xgo.go --targets "darwin-10.13/amd64" /tmp/vikunja
   echo "$output"
   [ "$status" -eq 0 ]
 }
