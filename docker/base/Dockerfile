@@ -53,7 +53,7 @@ RUN \
 RUN ln -s /usr/include/asm-generic /usr/include/asm
 
 # Fix git safe.directory
-RUN git config --global --add safe.directory /source
+RUN git config --global --add safe.directory '*'
 
 # Add patches directory for patching later
 ADD patches /patches
