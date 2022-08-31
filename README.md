@@ -40,6 +40,7 @@ Thanks to the following projects for supporting XGO
 * [Gitea](https://gitea.io/) - A painless self-hosted Git service.
 * [Offen](https://www.offen.dev/) - The fair and lightweight alternative to common web analytics tools.
 * [Vikunja](https://vikunja.io/) - The to-do app to organize your life.
+* [Woodpecker CI](https://woodpecker-ci.org/) - Woodpecker is a simple CI engine with great extensibility.
 
 You too can [sponsor](https://github.com/sponsors/techknowlogick/) this project to ensure its continued maintenance.
 
