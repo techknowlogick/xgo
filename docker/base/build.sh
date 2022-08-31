@@ -329,6 +329,20 @@ for TARGET in $TARGETS; do
       CC=s390x-linux-gnu-gcc-6 CXX=s390x-linux-gnu-g++-6 GOOS=linux GOARCH=s390x CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$V $LD" --gcflags="$GC" $BM -o "/build/$NAME-linux-s390x`extension linux`" $PACK_RELPATH
     fi
   fi
+  if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "riscv64" ]); then
+    if [ "$GO_VERSION" -lt 180 ]; then
+      echo "Go version too low, skipping linux/riscv64..."
+    else
+      echo "Compiling for linux/riscv64..."
+      CC=riscv64-linux-gnu-gcc-8 CXX=riscv64-linux-gnu-g++-8 HOST=riscv64-linux-gnu PREFIX=/usr/riscv64-linux-gnu $BUILD_DEPS /deps ${DEPS_ARGS[@]}
+      export PKG_CONFIG_PATH=/usr/riscv64-linux-gnu/lib/pkgconfig
+
+      if [[ "$USEMODULES" == false ]]; then
+        CC=riscv64-linux-gnu-gcc-8 CXX=riscv64-linux-gnu-g++-8 GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 go get $V $X "${T[@]}" --ldflags="$V $LD" --gcflags="$GC" -d $PACK_RELPATH
+      fi
+      CC=riscv64-linux-gnu-gcc-8 CXX=riscv64-linux-gnu-g++-8 GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$V $LD" --gcflags="$GC" $BM -o "/build/$NAME-linux-riscv64`extension linux`" $PACK_RELPATH
+    fi
+  fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "ppc64le" ]); then
     if [ "$GO_VERSION" -lt 170 ]; then
       echo "Go version too low, skipping linux/ppc64le..."
