@@ -56,6 +56,7 @@ var (
 	targets     = flag.String("targets", "*/*", "Comma separated targets to build for")
 	dockerImage = flag.String("image", "", "Use custom docker image instead of official distribution")
 	dockerEnv   = flag.String("env", "", "Comma separated custom environments added to docker run -e")
+	dockerArgs  = flag.String("dockerargs", "", "Comma separated arguments added to docker run")
 	forwardSsh  = flag.Bool("ssh", false, "Enable ssh agent forwarding")
 )
 
@@ -70,6 +71,7 @@ type ConfigFlags struct {
 	Arguments    string   // CGO dependency configure arguments
 	Targets      []string // Targets to build for
 	DockerEnv    []string // Custom environments added to docker run -e
+	DockerArgs   []string // Custom options added to docker run
 	ForwardSsh   bool     // Enable ssh agent forwarding
 }
 
@@ -182,6 +184,7 @@ func main() {
 		Arguments:    *crossArgs,
 		Targets:      strings.Split(*targets, ","),
 		DockerEnv:    strings.Split(*dockerEnv, ","),
+		DockerArgs:   strings.Split(*dockerArgs, ","),
 		ForwardSsh:   *forwardSsh,
 	}
 	flags := &BuildFlags{
@@ -358,12 +361,20 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 		"-e", fmt.Sprintf("GOPROXY=%s", os.Getenv("GOPROXY")),
 		"-e", fmt.Sprintf("GOPRIVATE=%s", os.Getenv("GOPRIVATE")),
 	}
+
 	// Set custom environment variables
 	for _, s := range config.DockerEnv {
 		if s != "" {
 			args = append(args, []string{"-e", s}...)
 		}
 	}
+	// Set custom args
+	for _, s := range config.DockerArgs {
+		if s != "" {
+			args = append(args, s)
+		}
+	}
+
 	if config.ForwardSsh && os.Getenv("SSH_AUTH_SOCK") != "" {
 		// Keep stdin open and allocate pseudo tty
 		args = append(args, "-i", "-t")
@@ -400,11 +411,11 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	}
 
 	args = append(args, []string{image, config.Repository}...)
-
 	cmd := exec.Command("docker", args...)
 	if config.ForwardSsh {
 		cmd.Stdin = os.Stdin
 	}
+
 	return run(cmd)
 }
 
