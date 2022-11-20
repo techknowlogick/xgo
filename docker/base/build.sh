@@ -48,11 +48,23 @@ function extension {
   fi
 }
 
+GO_VERSION_MAJOR=$(go version | sed -e 's/.*go\([0-9]\+\)\..*/\1/')
+GO_VERSION_MINOR=$(go version | sed -e 's/.*go[0-9]\+\.\([0-9]\+\)\..*/\1/')
+GO111MODULE=$(go env GO111MODULE)
+
 # Detect if we are using go modules
-if [[ "$GO111MODULE" == "on" || "$GO111MODULE" == "auto" ]]; then
-  USEMODULES=true
+if [[ "$GO_VERSION_MAJOR" -le 1 && "$GO_VERSION_MINOR" -le 17 ]]; then
+  if [[ "$GO111MODULE" == "on" || "$GO111MODULE" == "auto" ]]; then
+    USEMODULES=true
+  else
+    USEMODULES=false
+  fi
 else
-  USEMODULES=false
+  if [[ "$GO111MODULE" != "off" ]]; then
+    USEMODULES=true
+  else
+    USEMODULES=false
+  fi
 fi
 
 # Either set a local build environemnt, or pull any remote imports
