@@ -22,7 +22,6 @@
 #   FLAG_BUILDMODE - Optional buildmode flag to set on the Go builder
 #   FLAG_TRIMPATH  - Optional trimpath flag to set on the Go builder
 #   TARGETS        - Comma separated list of build targets to compile for
-#   GO_VERSION     - Bootstrapped version of Go to disable unsupported targets
 #   EXT_GOPATH     - GOPATH elements mounted from the host filesystem
 
 # Define a function that figures out the binary extension
@@ -214,7 +213,7 @@ for TARGET in $TARGETS; do
     GOOS=linux GOARCH=386 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$V $LD" --gcflags="$GC" $BM -o "/build/$NAME-linux-386`extension linux`" $PACK_RELPATH
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "arm" ] || [ $XGOARCH == "arm-5" ]); then
-    if [ "$GO_VERSION" -ge 150 ]; then
+    if [ "$GO_VERSION_MAJOR" -gt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -ge 15 ]; }; then
       echo "Bootstrapping linux/arm-5..."
       CC=arm-linux-gnueabi-gcc-6 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go install std
     fi
@@ -226,13 +225,13 @@ for TARGET in $TARGETS; do
       CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go get $V $X "${T[@]}" --ldflags="$V $LD" --gcflags="$GC" -d $PACK_RELPATH
     fi
     CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go build $V $X $TP $MOD "${T[@]}" --ldflags="$V $LD" --gcflags="$GC" $BM -o "/build/$NAME-linux-arm-5`extension linux`" $PACK_RELPATH
-    if [ "$GO_VERSION" -ge 150 ]; then
+    if [ "$GO_VERSION_MAJOR" -gt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -ge 15 ]; }; then
       echo "Cleaning up Go runtime for linux/arm-5..."
       rm -rf /usr/local/go/pkg/linux_arm
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "arm-6" ]); then
-    if [ "$GO_VERSION" -lt 150 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 15 ]; }; then
       echo "Go version too low, skipping linux/arm-6..."
     else
       echo "Bootstrapping linux/arm-6..."
@@ -252,7 +251,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "arm-7" ]); then
-    if [ "$GO_VERSION" -lt 150 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 15 ]; }; then
       echo "Go version too low, skipping linux/arm-7..."
     else
       echo "Bootstrapping linux/arm-7..."
@@ -272,7 +271,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "arm64" ]); then
-    if [ "$GO_VERSION" -lt 150 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 15 ]; }; then
       echo "Go version too low, skipping linux/arm64..."
     else
       echo "Compiling for linux/arm64..."
@@ -286,7 +285,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "mips64" ]); then
-    if [ "$GO_VERSION" -lt 170 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 17 ]; }; then
       echo "Go version too low, skipping linux/mips64..."
     else
       echo "Compiling for linux/mips64..."
@@ -300,7 +299,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "mips64le" ]); then
-    if [ "$GO_VERSION" -lt 170 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 17 ]; }; then
       echo "Go version too low, skipping linux/mips64le..."
     else
       echo "Compiling for linux/mips64le..."
@@ -314,7 +313,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "mips" ]); then
-    if [ "$GO_VERSION" -lt 180 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 18 ]; }; then
       echo "Go version too low, skipping linux/mips..."
     else
       echo "Compiling for linux/mips..."
@@ -328,7 +327,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "s390x" ]); then
-    if [ "$GO_VERSION" -lt 170 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 17 ]; }; then
       echo "Go version too low, skipping linux/s390x..."
     else
       echo "Compiling for linux/s390x..."
@@ -342,7 +341,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "riscv64" ]); then
-    if [ "$GO_VERSION" -lt 180 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 18 ]; }; then
       echo "Go version too low, skipping linux/riscv64..."
     else
       echo "Compiling for linux/riscv64..."
@@ -356,7 +355,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "ppc64le" ]); then
-    if [ "$GO_VERSION" -lt 170 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 17 ]; }; then
       echo "Go version too low, skipping linux/ppc64le..."
     else
       echo "Compiling for linux/ppc64le..."
@@ -370,7 +369,7 @@ for TARGET in $TARGETS; do
     fi
   fi
   if ([ $XGOOS == "." ] || [ $XGOOS == "linux" ]) && ([ $XGOARCH == "." ] || [ $XGOARCH == "mipsle" ]); then
-    if [ "$GO_VERSION" -lt 180 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 18 ]; }; then
       echo "Go version too low, skipping linux/mipsle..."
     else
       echo "Compiling for linux/mipsle..."
@@ -430,7 +429,7 @@ for TARGET in $TARGETS; do
 
     # Strip symbol table below Go 1.6 to prevent DWARF issues
     LDSTRIP=""
-    if [ "$GO_VERSION" -lt 160 ]; then
+    if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 16 ]; }; then
       LDSTRIP="-s"
     fi
     # Build the requested darwin binaries
@@ -443,7 +442,7 @@ for TARGET in $TARGETS; do
       CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build $V $X $TP $MOD "${T[@]}" --ldflags="$LDSTRIP $V $LD" --gcflags="$GC" $R $BM -o "/build/$NAME-darwin-$PLATFORM-amd64$R`extension darwin`" $PACK_RELPATH
     fi
     if [ $XGOARCH == "." ] || [ $XGOARCH == "arm64" ]; then
-      if [[ "$GO_VERSION" == 115* ]]; then
+      if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 16 ]; }; then
         echo "Go version too low, skipping darwin-$PLATFORM/arm64..."
       else
         echo "Compiling for darwin-$PLATFORM/arm64..."
