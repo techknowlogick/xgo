@@ -17,10 +17,10 @@ set -e
 
 # Download, verify and install the root distribution if pulled remotely
 if [ "$GOROOT" == "" ]; then
-  $FETCH $ROOT_DIST $ROOT_DIST_SHA
+  $FETCH "$ROOT_DIST" "$ROOT_DIST_SHA"
 
-  tar -C /usr/local -xzf `basename $ROOT_DIST`
-  rm -f `basename $ROOT_DIST`
+  tar -C /usr/local -xzf "$(basename "$ROOT_DIST")"
+  rm -f "$(basename "$ROOT_DIST")"
 
   export GOROOT=/usr/local/go
 fi
