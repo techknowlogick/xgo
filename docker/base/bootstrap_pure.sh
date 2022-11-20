@@ -51,6 +51,9 @@ GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 CC=powerpc64le-linux-gnu-gcc-6 go instal
 echo "Bootstrapping linux/s390x..."
 GOOS=linux GOARCH=s390x CGO_ENABLED=1 CC=s390x-linux-gnu-gcc-6 go install std
 
+echo "Bootstrapping linux/riscv64..."
+GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 CC=riscv64-linux-gnu-gcc-8 go install std
+
 echo "Bootstrapping windows/amd64..."
 GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go install std
 
@@ -67,5 +70,5 @@ fi
 
 # Install xgo within the container to enable internal cross compilation
 echo "Installing xgo-in-xgo..."
-go get -u src.techknowlogick.com/xgo
+go install src.techknowlogick.com/xgo@latest
 ln -s /go/bin/xgo /usr/bin/xgo

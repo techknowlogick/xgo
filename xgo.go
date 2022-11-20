@@ -55,6 +55,9 @@ var (
 	crossArgs   = flag.String("depsargs", "", "CGO dependency configure arguments")
 	targets     = flag.String("targets", "*/*", "Comma separated targets to build for")
 	dockerImage = flag.String("image", "", "Use custom docker image instead of official distribution")
+	dockerEnv   = flag.String("env", "", "Comma separated custom environments added to docker run -e")
+	dockerArgs  = flag.String("dockerargs", "", "Comma separated arguments added to docker run")
+	forwardSsh  = flag.Bool("ssh", false, "Enable ssh agent forwarding")
 )
 
 // ConfigFlags is a simple set of flags to define the environment and dependencies.
@@ -67,6 +70,9 @@ type ConfigFlags struct {
 	Dependencies string   // CGO dependencies (configure/make based archives)
 	Arguments    string   // CGO dependency configure arguments
 	Targets      []string // Targets to build for
+	DockerEnv    []string // Custom environments added to docker run -e
+	DockerArgs   []string // Custom options added to docker run
+	ForwardSsh   bool     // Enable ssh agent forwarding
 }
 
 // Command line arguments to pass to go build
@@ -76,6 +82,7 @@ var (
 	buildRace     = flag.Bool("race", false, "Enable data race detection (supported only on amd64)")
 	buildTags     = flag.String("tags", "", "List of build tags to consider satisfied during the build")
 	buildLdFlags  = flag.String("ldflags", "", "Arguments to pass on each go tool link invocation")
+	buildGcFlags  = flag.String("gcflags", "", "Arguments to pass on each go tool compile invocation")
 	buildMode     = flag.String("buildmode", "default", "Indicates which kind of object file to build")
 	buildTrimpath = flag.Bool("trimpath", false, "Indicates if trimpath should be applied to build")
 )
@@ -87,6 +94,7 @@ type BuildFlags struct {
 	Race     bool   // Enable data race detection (supported only on amd64)
 	Tags     string // List of build tags to consider satisfied during the build
 	LdFlags  string // Arguments to pass on each go tool link invocation
+	GcFlags  string // Arguments to pass on each go tool compile invocation
 	Mode     string // Indicates which kind of object file to build
 	Trimpath bool   // Indicates if trimpath should be applied to build
 }
@@ -132,7 +140,7 @@ func main() {
 	}
 	// Cache all external dependencies to prevent always hitting the internet
 	if *crossDeps != "" {
-		if err := os.MkdirAll(depsCache, 0751); err != nil {
+		if err := os.MkdirAll(depsCache, 0750); err != nil {
 			log.Fatalf("Failed to create dependency cache: %v.", err)
 		}
 		// Download all missing dependencies
@@ -175,6 +183,9 @@ func main() {
 		Dependencies: *crossDeps,
 		Arguments:    *crossArgs,
 		Targets:      strings.Split(*targets, ","),
+		DockerEnv:    strings.Split(*dockerEnv, ","),
+		DockerArgs:   strings.Split(*dockerArgs, ","),
+		ForwardSsh:   *forwardSsh,
 	}
 	flags := &BuildFlags{
 		Verbose:  *buildVerbose,
@@ -182,6 +193,7 @@ func main() {
 		Race:     *buildRace,
 		Tags:     *buildTags,
 		LdFlags:  *buildLdFlags,
+		GcFlags:  *buildGcFlags,
 		Mode:     *buildMode,
 		Trimpath: *buildTrimpath,
 	}
@@ -228,7 +240,6 @@ func checkDockerImage(image string) (bool, error) {
 
 // compare output of docker images and image name
 func compareOutAndImage(out []byte, image string) (bool, error) {
-
 	if strings.Contains(image, ":") {
 		// get repository and tag
 		res := strings.SplitN(image, ":", 2)
@@ -239,7 +250,6 @@ func compareOutAndImage(out []byte, image string) (bool, error) {
 
 	// default find repository without tag
 	return bytes.Contains(out, []byte(image)), nil
-
 }
 
 // Pulls an image from the docker registry.
@@ -255,20 +265,30 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	locals, mounts, paths := []string{}, []string{}, []string{}
 	var usesModules bool
 	if strings.HasPrefix(config.Repository, string(filepath.Separator)) || strings.HasPrefix(config.Repository, ".") {
-		// Resolve the repository import path from the file path
-		config.Repository = resolveImportPath(config.Repository)
+		if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
+			usesModules = true
+		}
+		if !usesModules {
+			// Resolve the repository import path from the file path
+			config.Repository = resolveImportPath(config.Repository)
 
-		// Determine if this is a module-based repository
-		var modFile = config.Repository + "/go.mod"
-		_, err := os.Stat(modFile)
-		usesModules = !os.IsNotExist(err)
+			if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
+				usesModules = true
+			}
+		}
+
+		gopathEnv := os.Getenv("GOPATH")
+		if gopathEnv == "" && !usesModules {
+			log.Printf("No $GOPATH is set - defaulting to %s", build.Default.GOPATH)
+			gopathEnv = build.Default.GOPATH
+		}
 
 		// Iterate over all the local libs and export the mount points
-		if os.Getenv("GOPATH") == "" && !usesModules {
+		if gopathEnv == "" && !usesModules {
 			log.Fatalf("No $GOPATH is set or forwarded to xgo")
 		}
 		if !usesModules {
-			for _, gopath := range strings.Split(os.Getenv("GOPATH"), string(os.PathListSeparator)) {
+			for _, gopath := range strings.Split(gopathEnv, string(os.PathListSeparator)) {
 				// Since docker sandboxes volumes, resolve any symlinks manually
 				sources := filepath.Join(gopath, "src")
 				filepath.Walk(sources, func(path string, info os.FileInfo, err error) error {
@@ -316,7 +336,7 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	folder_w := filepath.ToSlash(re.ReplaceAllString(folder, "/$1"))
 	depsCache_w := filepath.ToSlash(re.ReplaceAllString(depsCache, "/$1"))
 	gocache := filepath.Join(depsCache, "gocache")
-	if err := os.MkdirAll(gocache, 0641); err != nil {
+	if err := os.MkdirAll(gocache, 0750); err != nil { // 0750 = rwxr-x---
 		log.Fatalf("Failed to create gocache dir: %v.", err)
 	}
 	gocache_w := filepath.ToSlash(re.ReplaceAllString(gocache, "/$1"))
@@ -337,14 +357,38 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 		"-e", fmt.Sprintf("FLAG_RACE=%v", flags.Race),
 		"-e", fmt.Sprintf("FLAG_TAGS=%s", flags.Tags),
 		"-e", fmt.Sprintf("FLAG_LDFLAGS=%s", flags.LdFlags),
+		"-e", fmt.Sprintf("FLAG_GCFLAGS=%s", flags.GcFlags),
 		"-e", fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
 		"-e", fmt.Sprintf("FLAG_TRIMPATH=%v", flags.Trimpath),
 		"-e", "TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
 		"-e", fmt.Sprintf("GOPROXY=%s", os.Getenv("GOPROXY")),
+		"-e", fmt.Sprintf("GOPRIVATE=%s", os.Getenv("GOPRIVATE")),
+	}
+
+	// Set custom environment variables
+	for _, s := range config.DockerEnv {
+		if s != "" {
+			args = append(args, []string{"-e", s}...)
+		}
+	}
+	// Set custom args
+	for _, s := range config.DockerArgs {
+		if s != "" {
+			args = append(args, s)
+		}
+	}
+
+	if config.ForwardSsh && os.Getenv("SSH_AUTH_SOCK") != "" {
+		// Keep stdin open and allocate pseudo tty
+		args = append(args, "-i", "-t")
+		// Mount ssh agent socket
+		args = append(args, "-v", fmt.Sprintf("%[1]s:%[1]s", os.Getenv("SSH_AUTH_SOCK")))
+		// Set ssh agent socket environment variable
+		args = append(args, "-e", fmt.Sprintf("SSH_AUTH_SOCK=%s", os.Getenv("SSH_AUTH_SOCK")))
 	}
 	if usesModules {
 		args = append(args, []string{"-e", "GO111MODULE=on"}...)
-		args = append(args, []string{"-v", os.Getenv("GOPATH") + ":/go"}...)
+		args = append(args, []string{"-v", build.Default.GOPATH + ":/go"}...)
 
 		// Map this repository to the /source folder
 		absRepository, err := filepath.Abs(config.Repository)
@@ -370,7 +414,12 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	}
 
 	args = append(args, []string{image, config.Repository}...)
-	return run(exec.Command("docker", args...))
+	cmd := exec.Command("docker", args...)
+	if config.ForwardSsh {
+		cmd.Stdin = os.Stdin
+	}
+
+	return run(cmd)
 }
 
 // compileContained cross builds a requested package according to the given build
@@ -396,6 +445,7 @@ func compileContained(config *ConfigFlags, flags *BuildFlags, folder string) err
 		fmt.Sprintf("FLAG_RACE=%v", flags.Race),
 		fmt.Sprintf("FLAG_TAGS=%s", flags.Tags),
 		fmt.Sprintf("FLAG_LDFLAGS=%s", flags.LdFlags),
+		fmt.Sprintf("FLAG_GCFLAGS=%s", flags.GcFlags),
 		fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
 		fmt.Sprintf("FLAG_TRIMPATH=%v", flags.Trimpath),
 		"TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),

@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 
 @test "embedded c" {
+  export GO111MODULE=auto
   run go run xgo.go ./tests/embedded_c
   echo "$output"
   [ "$status" -eq 0 ]
@@ -33,8 +34,9 @@
 }
 
 @test "eth smoke" {
-  skip "remotes are temporarily disabled due to gomod"
-  run go run xgo.go --remote github.com/ethereum/go-ethereum --targets "linux/amd64" github.com/ethereum/go-ethereum/cmd/geth
+  # skip "remotes are temporarily disabled due to gomod"
+  git clone https://github.com/ethereum/go-ethereum.git /tmp/eth
+  run go run xgo.go --targets "linux/amd64" /tmp/eth/cmd/geth
   echo "$output"
   [ "$status" -eq 0 ]
 }

@@ -33,6 +33,17 @@ All the necessary Go tool-chains, C cross compilers and platform headers/librari
 have been assembled into a single Docker container, which can then be called as if
 a single command to compile a Go package to various platforms and architectures.
 
+## Supporters
+
+Thanks to the following projects for supporting XGO
+
+* [Gitea](https://gitea.io/) - A painless self-hosted Git service.
+* [Offen](https://www.offen.dev/) - The fair and lightweight alternative to common web analytics tools.
+* [Vikunja](https://vikunja.io/) - The to-do app to organize your life.
+* [Woodpecker CI](https://woodpecker-ci.org/) - Woodpecker is a simple CI engine with great extensibility.
+
+You too can [sponsor](https://github.com/sponsors/techknowlogick/) this project to ensure its continued maintenance.
+
 ## Installation
 
 Although you could build the container manually, it is available as an automatic
@@ -44,6 +55,10 @@ To prevent having to remember a potentially complex Docker command every time,
 a lightweight Go wrapper was written on top of it.
 
     go get src.techknowlogick.com/xgo
+
+For go >= 1.17, `go get` is deprecated, so you'll have to use this command:
+    
+    go install src.techknowlogick.com/xgo@latest
 
 ## Usage
 
@@ -76,6 +91,7 @@ A handful of flags can be passed to `go build`. The currently supported ones are
   - `-race`: enables data race detection (supported only on amd64, rest built without)
   - `-tags='tag list'`: list of build tags to consider satisfied during the build
   - `-ldflags='flag list'`: arguments to pass on each go tool link invocation
+  - `-gcflags='flag list'`: arguments to pass on each go tool compile invocation
   - `-buildmode=mode`: binary type to produce by the compiler
 
 
@@ -182,7 +198,7 @@ argument:
 The supported targets are:
 
  * Platforms: `darwin`, `linux`, `windows`
- * Achitectures: `386`, `amd64`, `arm-5`, `arm-6`, `arm-7`, `arm64`, `mips`, `mipsle`, `mips64`, `mips64le`
+ * Achitectures: `386`, `amd64`, `arm-5`, `arm-6`, `arm-7`, `arm64`, `mips`, `mipsle`, `mips64`, `mips64le`, `riscv64`
 
 ### Platform versions
 
