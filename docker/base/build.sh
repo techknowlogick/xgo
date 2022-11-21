@@ -157,7 +157,7 @@ DEPS_ARGS=("$ARGS")
 
 # Save the contents of the pre-build /usr/local folder for post cleanup
 shopt -s nullglob
-USR_LOCAL_CONTENTS=(/home/andrew/*)
+USR_LOCAL_CONTENTS=(/usr/local/*)
 shopt -u nullglob
 
 
