@@ -57,7 +57,7 @@ jobs:
           context: docker/${{ steps.golang_version_1.outputs.value }}/
           build-contexts: |
             techknowlogick/xgo:base=docker-image://pr-base:latest
-          tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }},techknowlogick/xgo:latest
+          tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }},techknowlogick/xgo:latest,pr-xgo:latest
           push: false
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
           load: true
@@ -77,6 +77,7 @@ jobs:
           bats-version: 1.2.1
       - name: run BATS tests
         run: |
+          docker tag pr-xgo:latest techknowlogick/xgo:latest
           mkdir -p .xgo-cache
           mkdir -p ~/go/src
           bats xgo.bats
