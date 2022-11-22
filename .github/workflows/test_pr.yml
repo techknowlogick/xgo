@@ -55,6 +55,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: docker/${{ steps.golang_version_1.outputs.value }}/
+          build-contexts: |
+            techknowlogick/xgo:base=docker-image://techknowlogick/xgo:base
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }},techknowlogick/xgo:latest
           push: false
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
@@ -63,6 +65,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: docker/${{ steps.golang_version_2.outputs.value }}/
+          build-contexts: |
+            techknowlogick/xgo:base=docker-image://techknowlogick/xgo:base
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
           push: false
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
