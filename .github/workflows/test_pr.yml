@@ -48,14 +48,14 @@ jobs:
         with:
           context: docker/base/
           tags: techknowlogick/xgo:base
-          push: false
+          outputs: type=image,push=false
           file: docker/base/Dockerfile
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image
         uses: docker/build-push-action@v2
         with:
           context: docker/${{ steps.golang_version_1.outputs.value }}/
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }},techknowlogick/xgo:latest
-          push: false
+          outputs: type=image,push=false
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
           load: true
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
@@ -63,7 +63,7 @@ jobs:
         with:
           context: docker/${{ steps.golang_version_2.outputs.value }}/
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
-          push: false
+          outputs: type=image,push=false
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
       - name: Setup BATS
         uses: mig4/setup-bats@v1
