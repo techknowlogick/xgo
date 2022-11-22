@@ -14,11 +14,11 @@ jobs:
           export VERSION=$(cat .golang_version | awk -F',' '{print $1}' | sed 's/go1/go-1/')
           DOTS=$(echo -n $VERSION | awk -F"." '{print NF-1}')
           if [ "$DOTS" == "1" ]; then
-            echo ::set-output name=value::$VERSION.0
-            echo ::set-output name=wildcard::$VERSION.x
+            echo "name=value::$VERSION.0" >> $GITHUB_OUTPUT
+            echo "name=wildcard::$VERSION.x" >> $GITHUB_OUTPUT
           else
-            echo ::set-output name=value::$VERSION
-            echo ::set-output name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')
+            echo "name=value::$VERSION" >> $GITHUB_OUTPUT
+            echo "name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
           fi
         id: golang_version_1
       - name: get golang version 2
@@ -26,18 +26,18 @@ jobs:
           export VERSION=$(cat .golang_version | awk -F',' '{print $2}' | sed 's/go1/go-1/')
           DOTS=$(echo -n $VERSION | awk -F"." '{print NF-1}')
           if [ "$DOTS" == "1" ]; then
-            echo ::set-output name=value::$VERSION.0
-            echo ::set-output name=wildcard::$VERSION.x
+            echo "name=value::$VERSION.0" >> $GITHUB_OUTPUT
+            echo "name=wildcard::$VERSION.x" >> $GITHUB_OUTPUT
           else
-            echo ::set-output name=value::$VERSION
-            echo ::set-output name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')
+            echo "name=value::$VERSION" >> $GITHUB_OUTPUT
+            echo "name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
           fi
         id: golang_version_2
       - name: get if base should be built
         run: |
           export VAL=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/base" | wc -l | awk '{print $1}')
           echo $VAL
-          echo ::set-output name=value::$(echo -n $VAL)
+          echo "name=value::$(echo -n $VAL)" >> $GITHUB_OUTPUT
         id: base_build
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -47,13 +47,16 @@ jobs:
         if: true
         with:
           context: docker/base/
-          tags: techknowlogick/xgo:base
-          push: false
+          tags: techknowlogick/xgo:base, pr-base:latest
           file: docker/base/Dockerfile
+          push: false
+          load: true
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image
         uses: docker/build-push-action@v2
         with:
           context: docker/${{ steps.golang_version_1.outputs.value }}/
+          build-contexts: |
+            techknowlogick/xgo:base=docker-image://pr-base:latest
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }},techknowlogick/xgo:latest
           push: false
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
@@ -62,8 +65,11 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: docker/${{ steps.golang_version_2.outputs.value }}/
+          build-contexts: |
+            techknowlogick/xgo:base=docker-image://pr-base:latest
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
           push: false
+          load: true
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
       - name: Setup BATS
         uses: mig4/setup-bats@v1
