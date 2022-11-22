@@ -14,11 +14,11 @@ jobs:
           export VERSION=$(cat .golang_version | awk -F',' '{print $1}' | sed 's/go1/go-1/')
           DOTS=$(echo -n $VERSION | awk -F"." '{print NF-1}')
           if [ "$DOTS" == "1" ]; then
-            echo "name=value=$VERSION.0" >> $GITHUB_OUTPUT
-            echo "name=wildcard=$VERSION.x" >> $GITHUB_OUTPUT
+            echo "value=$VERSION.0" >> $GITHUB_OUTPUT
+            echo "wildcard=$VERSION.x" >> $GITHUB_OUTPUT
           else
-            echo "name=value=$VERSION" >> $GITHUB_OUTPUT
-            echo "name=wildcard=$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
+            echo "value=$VERSION" >> $GITHUB_OUTPUT
+            echo "wildcard=$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
           fi
         id: golang_version_1
       - name: get golang version 2
@@ -26,11 +26,11 @@ jobs:
           export VERSION=$(cat .golang_version | awk -F',' '{print $2}' | sed 's/go1/go-1/')
           DOTS=$(echo -n $VERSION | awk -F"." '{print NF-1}')
           if [ "$DOTS" == "1" ]; then
-            echo "name=value=$VERSION.0" >> $GITHUB_OUTPUT
-            echo "name=wildcard=$VERSION.x" >> $GITHUB_OUTPUT
+            echo "value=$VERSION.0" >> $GITHUB_OUTPUT
+            echo "wildcard=$VERSION.x" >> $GITHUB_OUTPUT
           else
-            echo "name=value=$VERSION" >> $GITHUB_OUTPUT
-            echo "name=wildcard=$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
+            echo "value=$VERSION" >> $GITHUB_OUTPUT
+            echo "wildcard=$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
           fi
         id: golang_version_2
       - name: get if base should be built
