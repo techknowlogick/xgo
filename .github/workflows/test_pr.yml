@@ -14,11 +14,11 @@ jobs:
           export VERSION=$(cat .golang_version | awk -F',' '{print $1}' | sed 's/go1/go-1/')
           DOTS=$(echo -n $VERSION | awk -F"." '{print NF-1}')
           if [ "$DOTS" == "1" ]; then
-            echo "name=value::$VERSION.0" >> $GITHUB_OUTPUT
-            echo "name=wildcard::$VERSION.x" >> $GITHUB_OUTPUT
+            echo "name=value=$VERSION.0" >> $GITHUB_OUTPUT
+            echo "name=wildcard=$VERSION.x" >> $GITHUB_OUTPUT
           else
-            echo "name=value::$VERSION" >> $GITHUB_OUTPUT
-            echo "name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
+            echo "name=value=$VERSION" >> $GITHUB_OUTPUT
+            echo "name=wildcard=$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
           fi
         id: golang_version_1
       - name: get golang version 2
@@ -26,18 +26,18 @@ jobs:
           export VERSION=$(cat .golang_version | awk -F',' '{print $2}' | sed 's/go1/go-1/')
           DOTS=$(echo -n $VERSION | awk -F"." '{print NF-1}')
           if [ "$DOTS" == "1" ]; then
-            echo "name=value::$VERSION.0" >> $GITHUB_OUTPUT
-            echo "name=wildcard::$VERSION.x" >> $GITHUB_OUTPUT
+            echo "name=value=$VERSION.0" >> $GITHUB_OUTPUT
+            echo "name=wildcard=$VERSION.x" >> $GITHUB_OUTPUT
           else
-            echo "name=value::$VERSION" >> $GITHUB_OUTPUT
-            echo "name=wildcard::$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
+            echo "name=value=$VERSION" >> $GITHUB_OUTPUT
+            echo "name=wildcard=$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
           fi
         id: golang_version_2
       - name: get if base should be built
         run: |
           export VAL=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/base" | wc -l | awk '{print $1}')
           echo $VAL
-          echo "name=value::$(echo -n $VAL)" >> $GITHUB_OUTPUT
+          echo "name=value=$(echo -n $VAL)" >> $GITHUB_OUTPUT
         id: base_build
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
