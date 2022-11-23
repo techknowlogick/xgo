@@ -182,7 +182,7 @@ if [ "$FLAG_X" == "true" ];    then X=-x; fi
 if [ "$FLAG_RACE" == "true" ]; then R=-race; fi
 if [ "$FLAG_TAGS" != "" ];     then T=(--tags "$FLAG_TAGS"); fi
 if [ "$FLAG_LDFLAGS" != "" ];  then LD=("${LD[@]}" "${FLAG_LDFLAGS[@]}"); fi
-if [ "$FLAG_GCFLAGS" != "" ];  then GC=(--gcflags="$FLAG_GCFLAGS"); fi
+if [ "$FLAG_GCFLAGS" != "" ];  then GC=(--gcflags="$(printf "%s " "${FLAG_GCFLAGS[@]}")"); fi
 
 if [ "$FLAG_BUILDMODE" != "" ] && [ "$FLAG_BUILDMODE" != "default" ]; then BM=(--buildmode="${FLAG_BUILDMODE[@]}"); fi
 if [ "$FLAG_TRIMPATH" == "true" ]; then TP=-trimpath; fi
@@ -193,7 +193,7 @@ if [ "$TARGETS" == "" ]; then
   TARGETS="./."
 fi
 
-if [ "${#LD[@]}" -gt 0 ]; then LDF=(--ldflags="${LD[@]}"); fi
+if [ "${#LD[@]}" -gt 0 ]; then LDF=(--ldflags="$(printf "%s " "${LD[@]}")"); fi
 
 # Build for each requested platform individually
 for TARGET in $TARGETS; do
@@ -439,7 +439,7 @@ for TARGET in $TARGETS; do
       LDS=("-s" "${LDS[@]}")
     fi
     if [ ${#LDS[@]} -gt 0 ]; then
-      LDFS=(--ldflags="${LDS[@]}")
+      LDFS=(--ldflags="$(printf "%s " "${LD[@]}")")
     fi
     # Build the requested darwin binaries
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "amd64" ]; then
