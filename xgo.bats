@@ -14,6 +14,18 @@
   [ "$status" -eq 0 ]
 }
 
+@test "has singe ldflags" {
+  run go run xgo.go -ldflags '-extldflags "-static"' ./tests/basic
+  echo "$output"
+  [ "$status" -eq 0 ]
+}
+
+@test "has appended ldflags" {
+  run go run xgo.go -v -ldflags '-extldflags "-static"' ./tests/basic
+  echo "$output"
+  [ "$status" -eq 0 ]
+}
+
 @test "has mod" {
   skip "this test doesn't yet exist"
   run go run xgo.go src.techknowlogick.com/xgo/tests/hasmod
