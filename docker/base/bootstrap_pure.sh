@@ -60,6 +60,9 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go install std
 echo "Bootstrapping windows/386..."
 GOOS=windows GOARCH=386 CGO_ENABLED=1 CC=i686-w64-mingw32-gcc go install std
 
+echo "Bootstrapping freebsd/amd64..."
+GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-pc-freebsd12-gcc go install std
+
 echo "Bootstrapping darwin/amd64..."
 GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 CC=o64-clang go install std
 

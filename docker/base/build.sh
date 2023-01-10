@@ -463,6 +463,24 @@ for TARGET in $TARGETS; do
     # Remove any automatically injected deployment target vars
     unset MACOSX_DEPLOYMENT_TARGET
   fi
+  # Check and build for freebsd targets
+  if [ "$XGOOS" == "." ] || [[ "$XGOOS" == freebsd* ]]; then
+    # Build the requested freebsd binaries
+    if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "amd64" ]; then
+      echo "Compiling for freebsd/amd64..."
+      CC=x86_64-pc-freebsd12-gcc HOST=x86_64-pc-freebsd12 PREFIX=/freebsdcross/x86_64-pc-freebsd12 $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      export PKG_CONFIG_PATH=/freebsdcross/x86_64-pc-freebsd12/lib/pkgconfig
+
+       if [[ "$USEMODULES" == false ]]; then
+        CC=x86_64-pc-freebsd12-gcc CXX=x86_64-pc-freebsd12-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      fi
+      CC=x86_64-pc-freebsd12-gcc CXX=x86_64-pc-freebsd12-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 go build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-freebsd12-amd64$(extension freebsd)" "$PACK_RELPATH"
+    fi
+    if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm64" ]; then
+      echo "skipping freebsd/arm64... as it is not yet supported"
+      # TODO: add arm64 support
+    fi
+  fi
 done
 
 # Clean up any leftovers for subsequent build invocations
