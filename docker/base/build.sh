@@ -66,7 +66,7 @@ else
   fi
 fi
 
-# Either set a local build environemnt, or pull any remote imports
+# Either set a local build environment, or pull any remote imports
 if [ "$EXT_GOPATH" != "" ]; then
   # If local builds are requested, inject the sources
   echo "Building locally $1..."
@@ -77,13 +77,9 @@ if [ "$EXT_GOPATH" != "" ]; then
   cd "$(go list -e -f "{{.Dir}}" "$1")"
   GODEPS_WORKSPACE="$(pwd)/Godeps/_workspace"
   export GOPATH="$GOPATH":"$GODEPS_WORKSPACE"
-elif [[ "$USEMODULES" == true ]]; then
-  # Go module builds should assume a local repository
-  # at mapped to /source containing at least a go.mod file.
-  if [[ ! -d /source ]]; then
-    echo "Go modules are enabled but go.mod was not found in the source folder."
-    exit 10
-  fi
+elif [[ "$USEMODULES" == true && -d /source ]]; then
+  # Go module build with a local repository mapped to /source containing at least a go.mod file.
+
   # Change into the repo/source folder
   cd /source
   echo "Building /source/go.mod..."
@@ -98,7 +94,7 @@ else
 
   # Otherwise download the canonical import path (may fail, don't allow failures beyond)
   echo "Fetching main repository $1..."
-  go get -v -d "$1"
+  GO111MODULE="off" go get -v -d "$1"
   set -e
 
   cd "$GOPATH_ROOT/$1"
@@ -162,20 +158,22 @@ shopt -u nullglob
 
 
 # Configure some global build parameters
-NAME=$(basename "$1/$PACK")
+NAME="$OUT"
 
-# Go module-based builds error with 'cannot find main module'
-# when $PACK is defined
-if [[ "$USEMODULES" = true ]]; then
-  NAME=$(sed -n 's/module\ \(.*\)/\1/p' /source/go.mod)
+if [ "$NAME" == "" ]; then
+  if [[ "$USEMODULES" = true ]]; then
+    # Go module-based builds error with 'cannot find main module'
+    # when $PACK is defined
+    NAME="$(sed -n 's/module\ \(.*\)/\1/p' /source/go.mod)"
+  fi
+fi
+
+if [ "$NAME" == "" ]; then
+  NAME="$(basename "$1/$PACK")"
 fi
 
 # Support go module package
 PACK_RELPATH="./$PACK"
-
-if [ "$OUT" != "" ]; then
-  NAME=$OUT
-fi
 
 if [ "$FLAG_V" == "true" ];    then V=-v; LD+='-v'; fi
 if [ "$FLAG_X" == "true" ];    then X=-x; fi
