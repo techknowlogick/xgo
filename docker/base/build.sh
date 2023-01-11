@@ -161,7 +161,7 @@ shopt -u nullglob
 NAME="$OUT"
 
 if [ "$NAME" == "" ]; then
-  if [[ "$USEMODULES" = true ]]; then
+  if [[ "$USEMODULES" = true && -d /source && -f /source/go.mod ]]; then
     # Go module-based builds error with 'cannot find main module'
     # when $PACK is defined
     NAME="$(sed -n 's/module\ \(.*\)/\1/p' /source/go.mod)"
