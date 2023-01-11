@@ -80,8 +80,3 @@ mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-6
 echo "Bootstrapping linux/arm-7..."
 CC=arm-linux-gnueabihf-gcc-6 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a" CGO_CXXFLAGS="-march=armv7-a" go install std
 mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-7
-
-# Install xgo within the container to enable internal cross compilation
-echo "Installing xgo-in-xgo..."
-go install src.techknowlogick.com/xgo@latest
-ln -s /go/bin/xgo /usr/bin/xgo
