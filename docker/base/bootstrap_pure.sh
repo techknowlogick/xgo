@@ -66,10 +66,20 @@ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-pc-freebsd12-gcc go install st
 echo "Bootstrapping darwin/amd64..."
 GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 CC=o64-clang go install std
 
-if [[ "$GO_VERSION" != 115* ]]; then
-  echo "Bootstrapping darwin/arm64..."
-  GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 CC=o64-clang go install std
-fi
+echo "Bootstrapping darwin/arm64..."
+GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 CC=o64-clang go install std
+
+echo "Bootstrapping linux/arm-5..."
+CC=arm-linux-gnueabi-gcc-6 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go install std
+mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-5
+
+echo "Bootstrapping linux/arm-6..."
+CC=arm-linux-gnueabi-gcc-6 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 CGO_CFLAGS="-march=armv6" CGO_CXXFLAGS="-march=armv6" go install std
+mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-6
+
+echo "Bootstrapping linux/arm-7..."
+CC=arm-linux-gnueabihf-gcc-6 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a" CGO_CXXFLAGS="-march=armv7-a" go install std
+mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-7
 
 # Install xgo within the container to enable internal cross compilation
 echo "Installing xgo-in-xgo..."
