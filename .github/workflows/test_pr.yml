@@ -48,8 +48,6 @@ jobs:
           context: docker/toolchain/
           tags: techknowlogick/xgo:toolchain,toolchain
           push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           outputs: type=local,dest=/tmp/toolchain
           file: docker/toolchain/Dockerfile
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image base
@@ -59,8 +57,6 @@ jobs:
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}-base
           push: false
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           outputs: type=local,dest=/tmp/${{ steps.golang_version_1.outputs.value }}-base
           build-contexts: |
             toolchain=/tmp/toolchain
@@ -74,8 +70,6 @@ jobs:
             VERSION=${{ steps.golang_version_1.outputs.value }}
             SHA=${GITHUB_SHA}
           file: docker/build/Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           outputs: type=docker,dest=/tmp/${{ steps.golang_version_1.outputs.value }}.tar
           build-contexts: |
             ${{ steps.golang_version_1.outputs.value }}-base=/tmp/${{ steps.golang_version_1.outputs.value }}-base
@@ -88,8 +82,6 @@ jobs:
           push: false
           outputs: type=local,dest=/tmp/${{ steps.golang_version_2.outputs.value }}-base
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           build-contexts: |
             toolchain=/tmp/toolchain
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
@@ -102,8 +94,6 @@ jobs:
             VERSION=${{ steps.golang_version_2.outputs.value }}
             SHA=${GITHUB_SHA}
           file: docker/build/Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           outputs: type=docker,dest=/tmp/${{ steps.golang_version_2.outputs.value }}.tar
           build-contexts: |
             ${{ steps.golang_version_2.outputs.value }}-base=/tmp/${{ steps.golang_version_1.outputs.value }}-base
