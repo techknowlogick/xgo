@@ -114,3 +114,4 @@ COPY build_deps.sh /build_deps.sh
 ENV BUILD_DEPS /build_deps.sh
 RUN chmod +x $BUILD_DEPS
 
+ENTRYPOINT [ "/bin/bash" ]
