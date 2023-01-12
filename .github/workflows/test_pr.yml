@@ -5,6 +5,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-20.04
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     steps:
       - uses: actions/checkout@v2
         with:
@@ -46,21 +51,19 @@ jobs:
         #if: steps.toolchain_build.outputs.value != '0'
         with:
           context: docker/toolchain/
-          tags: techknowlogick/xgo:toolchain
-          push: false
-          outputs: type=oci,dest=/tmp/toolchain
+          tags: localhost:5000/toolchain
+          push: true
           file: docker/toolchain/Dockerfile
         id: toolchain_build
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image base
         uses: docker/build-push-action@v3
         with:
           context: docker/${{ steps.golang_version_1.outputs.value }}/
-          tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}-base
-          push: false
+          tags: localhost:5000/${{ steps.golang_version_1.outputs.value }}-base
+          push: true
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
-          outputs: type=oci,dest=/tmp/${{ steps.golang_version_1.outputs.value }}-base
           build-contexts: |
-            toolchain=oci-layout:///tmp/toolchain@${{ steps.toolchain_build.outputs.imageid }}
+            toolchain=docker-image://localhost:5000/toolchain@${{ steps.toolchain_build.outputs.imageid }}
         id: golang_version_1_base
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image
         uses: docker/build-push-action@v3
@@ -74,18 +77,18 @@ jobs:
           file: docker/build/Dockerfile
           outputs: type=docker,dest=/tmp/${{ steps.golang_version_1.outputs.value }}.tar
           build-contexts: |
-            ${{ steps.golang_version_1.outputs.value }}-base=oci-layout:///tmp/${{ steps.golang_version_1.outputs.value }}-base@${{ steps.golang_version_1_base.outputs.imageid }}
+            ${{ steps.golang_version_1.outputs.value }}-base=docker-image://localhost:5000/${{ steps.golang_version_1.outputs.value }}-base@${{ steps.golang_version_1_base.outputs.imageid }}
         id: docker_version_1
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image base
         uses: docker/build-push-action@v3
         with:
           context: docker/${{ steps.golang_version_2.outputs.value }}/
-          tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }}-base
-          push: false
+          tags: localhost:5000/${{ steps.golang_version_2.outputs.value }}-base
+          push: true
           outputs: type=oci,dest=/tmp/${{ steps.golang_version_2.outputs.value }}-base
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
           build-contexts: |
-            toolchain=oci-layout:///tmp/toolchain@${{ steps.toolchain_build.outputs.imageid }}
+            toolchain=docker-image://localhost:5000/toolchain@${{ steps.toolchain_build.outputs.imageid }}
         id: golang_version_2_base
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
         uses: docker/build-push-action@v3
@@ -99,7 +102,7 @@ jobs:
           file: docker/build/Dockerfile
           outputs: type=docker,dest=/tmp/${{ steps.golang_version_2.outputs.value }}.tar
           build-contexts: |
-            ${{ steps.golang_version_2.outputs.value }}-base=oci-layout:///tmp/${{ steps.golang_version_1.outputs.value }}-base@${{ steps.golang_version_2_base.outputs.imageid }}
+            ${{ steps.golang_version_2.outputs.value }}-base=docker-image://localhost:5000/${{ steps.golang_version_1.outputs.value }}-base@${{ steps.golang_version_2_base.outputs.imageid }}
       - name: Setup BATS
         uses: mig4/setup-bats@v1
         with:
