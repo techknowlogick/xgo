@@ -50,6 +50,7 @@ jobs:
           push: false
           outputs: type=oci,dest=/tmp/toolchain
           file: docker/toolchain/Dockerfile
+        id: toolchain_build
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image base
         uses: docker/build-push-action@v3
         with:
@@ -59,7 +60,8 @@ jobs:
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
           outputs: type=oci,dest=/tmp/${{ steps.golang_version_1.outputs.value }}-base
           build-contexts: |
-            toolchain=oci-layout:///tmp/toolchain
+            toolchain=oci-layout:///tmp/toolchain@${{ steps.toolchain_build.outputs.imageid }}
+        id: golang_version_1_base
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image
         uses: docker/build-push-action@v3
         with:
@@ -72,7 +74,7 @@ jobs:
           file: docker/build/Dockerfile
           outputs: type=docker,dest=/tmp/${{ steps.golang_version_1.outputs.value }}.tar
           build-contexts: |
-            ${{ steps.golang_version_1.outputs.value }}-base=oci-layout:///tmp/${{ steps.golang_version_1.outputs.value }}-base
+            ${{ steps.golang_version_1.outputs.value }}-base=oci-layout:///tmp/${{ steps.golang_version_1.outputs.value }}-base@${{ steps.golang_version_1_base.outputs.imageid }}
         id: docker_version_1
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image base
         uses: docker/build-push-action@v3
@@ -83,7 +85,8 @@ jobs:
           outputs: type=oci,dest=/tmp/${{ steps.golang_version_2.outputs.value }}-base
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
           build-contexts: |
-            toolchain=oci-layout:///tmp/toolchain
+            toolchain=oci-layout:///tmp/toolchain@${{ steps.toolchain_build.outputs.imageid }}
+        id: golang_version_2_base
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
         uses: docker/build-push-action@v3
         with:
@@ -96,7 +99,7 @@ jobs:
           file: docker/build/Dockerfile
           outputs: type=docker,dest=/tmp/${{ steps.golang_version_2.outputs.value }}.tar
           build-contexts: |
-            ${{ steps.golang_version_2.outputs.value }}-base=oci-layout:///tmp/${{ steps.golang_version_1.outputs.value }}-base
+            ${{ steps.golang_version_2.outputs.value }}-base=oci-layout:///tmp/${{ steps.golang_version_1.outputs.value }}-base@${{ steps.golang_version_2_base.outputs.imageid }}
       - name: Setup BATS
         uses: mig4/setup-bats@v1
         with:
