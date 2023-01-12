@@ -38,7 +38,7 @@ jobs:
           export VAL=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/toolchain" | wc -l | awk '{print $1}')
           echo $VAL
           echo "value=$(echo -n $VAL)" >> $GITHUB_OUTPUT
-        id: toolchain_build
+        id: do_toolchain_build
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: build toolchain image
