@@ -270,14 +270,8 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 
 	// We need to consider our module-aware status
 	go111module := os.Getenv("GO111MODULE")
-	if go111module != "off" {
+	if go111module != "off" && localBuild {
 		// we need to look at the current config and determine if we should use modules...
-		if !localBuild {
-			// This implies that we are using an url or module name for `go get`.
-			// We can't run `go get` here! So we cannot determine if this needs to be module-aware or not!
-			log.Fatalf("Can only compile directories with GO111MODULE=auto")
-		}
-
 		if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
 			usesModules = true
 		}
@@ -319,6 +313,12 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 			}
 		}
 	}
+	if go111module == "auto" && !localBuild {
+		// This implies that we are using an url or module name for `go get`.
+		// We can't run `go get` here! So we cannot determine if this needs to be module-aware or not!
+		log.Fatalf("Can only compile directories with GO111MODULE=auto")
+	}
+
 	if go111module == "on" || go111module == "" {
 		usesModules = true
 	}

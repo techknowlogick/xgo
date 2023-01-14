@@ -27,29 +27,29 @@
 }
 
 @test "branches" {
-  skip "remotes are temporarily disabled due to gomod"
-  run go run xgo.go --remote github.com/rwcarlsen/cyan --branch memprof --targets "linux/amd64" --image="${IMAGEID}" github.com/rwcarlsen/cyan/cmd/cyan
+  export GO111MODULE=off
+  run go run xgo.go --remote https://github.com/rwcarlsen/cyan --branch memprof --targets "linux/amd64" --image="${IMAGEID}" github.com/rwcarlsen/cyan/cmd/cyan
+  export GO111MODULE=auto
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "eth smoke" {
-  # skip "remotes are temporarily disabled due to gomod"
-  git clone https://github.com/ethereum/go-ethereum.git /tmp/eth
+  git clone --depth 1 https://github.com/ethereum/go-ethereum.git /tmp/eth
   run go run xgo.go --targets "linux/amd64" --image="${IMAGEID}" /tmp/eth/cmd/geth
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "gitea smoke" {
-  git clone https://github.com/go-gitea/gitea.git /tmp/gitea
+  git clone --depth 1 https://github.com/go-gitea/gitea.git /tmp/gitea
   run go run xgo.go --image="${IMAGEID}" --targets "darwin-10.6/amd64" -tags 'netgo osusergo sqlite sqlite_unlock_notify' /tmp/gitea
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "vikunja smoke" {
-  git clone https://kolaente.dev/vikunja/api /tmp/vikunja
+  git clone --depth 1 https://kolaente.dev/vikunja/api /tmp/vikunja
   run go run xgo.go --image="${IMAGEID}" --targets "darwin-10.6/amd64" /tmp/vikunja
   echo "$output"
   [ "$status" -eq 0 ]
