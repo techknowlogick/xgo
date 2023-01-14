@@ -7,9 +7,6 @@ FROM ubuntu:18.04
 
 LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
 
-# Mark the image as xgo enabled to support xgo-in-xgo
-ENV XGO_IN_XGO 1
-
 # Configure the Go environment, since it's not going to change
 ENV PATH   /usr/local/go/bin:$PATH
 ENV GOPATH /go
@@ -57,7 +54,6 @@ RUN \
   ln -s /usr/include/asm-generic /usr/include/asm && \
   # Fix git safe.directory
   git config --global --add safe.directory '*'
-
 
 # Add patches directory for patching later
 COPY patches /patches

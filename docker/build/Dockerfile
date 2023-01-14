@@ -11,6 +11,8 @@ LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
 COPY go.mod /xgo-src
 COPY xgo.go /xgo-src
 
+# Mark the image as xgo enabled to support xgo-in-xgo
+ENV XGO_IN_XGO 1
 
 # Install xgo within the container to enable internal cross compilation
 WORKDIR /xgo-src
