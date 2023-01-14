@@ -69,7 +69,7 @@ jobs:
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image
         uses: docker/build-push-action@v3
         with:
-          context: docker/build/
+          context: .
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }}
           push: true
           build-args: |
@@ -89,7 +89,7 @@ jobs:
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
         uses: docker/build-push-action@v3
         with:
-          context: docker/build/
+          context: .
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
           push: true
           build-args: |

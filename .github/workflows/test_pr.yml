@@ -60,7 +60,7 @@ jobs:
             --tag techknowlogick/xgo:latest \
             --build-arg VERSION=${{ steps.golang_version_1.outputs.value }} \
             --build-arg SHA=${{ github.event.pull_request.head.sha }} \
-            --load docker/build/
+            --load .
 
           echo "Bootstrap go ${{ steps.golang_version_2.outputs.value }}"
           docker buildx build --file docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile \
@@ -72,7 +72,7 @@ jobs:
             --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }} \
             --build-arg VERSION=${{ steps.golang_version_2.outputs.value }} \
             --build-arg SHA=${{ github.event.pull_request.head.sha }} \
-            --load docker/build/
+            --load .
 
           mkdir -p .xgo-cache
           mkdir -p ~/go/src
