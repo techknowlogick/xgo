@@ -8,14 +8,18 @@ FROM ${VERSION}-base
 
 LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
 
+COPY go.mod /xgo-src
+COPY xgo.go /xgo-src
+
 # Install xgo within the container to enable internal cross compilation
 RUN \
   echo "Installing xgo-in-xgo..." && \
-  go install src.techknowlogick.com/xgo@"${SHA}" && \
-  ln -s /go/bin/xgo /usr/bin/xgo
+  go install /xgo-src/xgo.go && \
+  ln -s /go/bin/xgo /usr/bin/xgo && \
+  rm -r /xgo-src
 
 # Inject the container entry point, the build script
-COPY build.sh /build.sh
+COPY docker/build/build.sh /build.sh
 ENV BUILD /build.sh
 RUN chmod +x "$BUILD"
 
