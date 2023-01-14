@@ -22,6 +22,8 @@ RUN \
   ln -s /go/bin/xgo /usr/bin/xgo && \
   rm -r /xgo-src
 
+WORKDIR /
+
 # Inject the container entry point, the build script
 COPY docker/build/build.sh /build.sh
 ENV BUILD /build.sh
