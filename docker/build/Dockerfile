@@ -8,8 +8,8 @@ FROM ${VERSION}-base
 
 LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
 
-COPY go.mod /xgo-src
-COPY xgo.go /xgo-src
+COPY go.mod /xgo-src/
+COPY xgo.go /xgo-src/
 
 # Mark the image as xgo enabled to support xgo-in-xgo
 ENV XGO_IN_XGO 1
