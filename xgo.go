@@ -265,25 +265,50 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	// If a local build was requested, find the import path and mount all GOPATH sources
 	locals, mounts, paths := []string{}, []string{}, []string{}
 
-	usesModules := true
+	usesModules := false
 	localBuild := strings.HasPrefix(config.Repository, string(filepath.Separator)) || strings.HasPrefix(config.Repository, ".")
 
 	// We need to consider our module-aware status
 	go111module := os.Getenv("GO111MODULE")
-	if go111module == "off" {
-		usesModules = false
-	} else if go111module == "auto" {
+	if go111module != "off" {
 		// we need to look at the current config and determine if we should use modules...
-
 		if !localBuild {
 			// This implies that we are using an url or module name for `go get`.
 			// We can't run `go get` here! So we cannot determine if this needs to be module-aware or not!
 			log.Fatalf("Can only compile directories with GO111MODULE=auto")
 		}
 
-		usesModules = false
 		if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
 			usesModules = true
+		}
+		if !usesModules {
+			// Walk the parents looking for a go.mod file!
+			goModDir, err := filepath.Abs(config.Repository)
+			if err == nil {
+				// now walk backwards as per go behaviour
+				for {
+					if stat, err := os.Stat(filepath.Join(goModDir, "go.mod")); err == nil {
+						usesModules = !stat.IsDir()
+						break
+					}
+					parent := filepath.Dir(goModDir)
+					if len(parent) >= len(goModDir) {
+						break
+					}
+					goModDir = parent
+				}
+
+				if usesModules {
+					sourcePath, _ := filepath.Rel(goModDir, config.Repository)
+					if config.Package == "" {
+						config.Package = sourcePath
+					} else {
+						config.Package = filepath.Join(sourcePath, config.Package)
+					}
+
+					config.Repository = goModDir
+				}
+			}
 		}
 		if !usesModules {
 			// Resolve the repository import path from the file path
@@ -293,27 +318,9 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 				usesModules = true
 			}
 		}
-		if !usesModules {
-			// Walk the parents looking for a go.mod file!
-			goModDir, err := filepath.Abs(config.Repository)
-			if err != nil {
-				log.Fatalf("Failed to locate requested package: %v.", err)
-			}
-			// now walk backwards as per go behaviour
-			for {
-				if stat, err := os.Stat(filepath.Join(goModDir, "go.mod")); err == nil {
-					usesModules = true
-					break
-				} else if stat.IsDir() {
-					break
-				}
-				parent := filepath.Dir(goModDir)
-				if len(parent) >= len(goModDir) {
-					break
-				}
-				goModDir = parent
-			}
-		}
+	}
+	if go111module == "on" || go111module == "" {
+		usesModules = true
 	}
 
 	if localBuild && !usesModules {
