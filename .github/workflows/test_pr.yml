@@ -43,14 +43,40 @@ jobs:
         uses: mig4/setup-bats@v1
         with:
           bats-version: 1.2.1
-      - name: build images
+      - name: build images and tests
         run: |
-          docker buildx build --file docker/toolchain/Dockerfile --tag techknowlogick/xgo:toolchain --tag toolchain --load docker/toolchain/
-          docker buildx build --file docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile --tag ${{ steps.golang_version_1.outputs.value }}-base --load docker/${{ steps.golang_version_1.outputs.value }}/
-          docker buildx build --file docker/build/Dockerfile --tag techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }} --tag techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }} --tag techknowlogick/xgo:latest --build-arg VERSION=${{ steps.golang_version_1.outputs.value }} --build-arg SHA=${{ github.event.pull_request.head.sha }} --load docker/build/
-          docker buildx build --file docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile --tag ${{ steps.golang_version_2.outputs.value }}-base --load docker/${{ steps.golang_version_2.outputs.value }}/
-          docker buildx build --file docker/build/Dockerfile --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }} --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }} --tag techknowlogick/xgo:latest --build-arg VERSION=${{ steps.golang_version_2.outputs.value }} --build-arg SHA=${{ github.event.pull_request.head.sha }} --load docker/build/
+          echo "Build toolchain docker"
+          docker buildx build --file docker/toolchain/Dockerfile \
+            --tag toolchain --load docker/toolchain/
+
+          echo "Bootstrap go ${{ steps.golang_version_1.outputs.value }}"
+          docker buildx build --file docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile \
+            --tag ${{ steps.golang_version_1.outputs.value }}-base --load docker/${{ steps.golang_version_1.outputs.value }}/
+
+          echo "Build xgo for go ${{ steps.golang_version_1.outputs.value }} "
+          docker buildx build --file docker/build/Dockerfile \
+            --tag techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }} \
+            --tag techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }} \
+            --tag techknowlogick/xgo:latest \
+            --build-arg VERSION=${{ steps.golang_version_1.outputs.value }} \
+            --build-arg SHA=${{ github.event.pull_request.head.sha }} \
+            --load docker/build/
+
+          echo "Bootstrap go ${{ steps.golang_version_2.outputs.value }}"
+          docker buildx build --file docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile \
+            --tag ${{ steps.golang_version_2.outputs.value }}-base --load docker/${{ steps.golang_version_2.outputs.value }}/
+
+          echo "Build xgo for go ${{ steps.golang_version_2.outputs.value }} "
+          docker buildx build --file docker/build/Dockerfile \
+            --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }} \
+            --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }} \
+            --build-arg VERSION=${{ steps.golang_version_2.outputs.value }} \
+            --build-arg SHA=${{ github.event.pull_request.head.sha }} \
+            --load docker/build/
+
           mkdir -p .xgo-cache
           mkdir -p ~/go/src
-          env IMAGEID="techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }}" bats xgo.bats
+
+          echo "Run tests on latest go ${{ steps.golang_version_1.outputs.value }}"
+          env IMAGEID="techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}" bats xgo.bats
 
