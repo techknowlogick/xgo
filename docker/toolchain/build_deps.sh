@@ -15,6 +15,7 @@ set -e
 rm -rf /deps-build && cp -r "$1" /deps-build
 
 # Build all the dependencies (no order for now)
+set +f
 for dep in /deps-build/*; do
 	echo "Configuring dependency $dep for $HOST..."
 	(cd "$dep" && ./configure --disable-shared --host="$HOST" --prefix="$PREFIX" --silent "${@:2}")
