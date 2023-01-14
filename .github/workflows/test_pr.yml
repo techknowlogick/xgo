@@ -33,21 +33,29 @@ jobs:
             echo "wildcard=$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
           fi
         id: golang_version_2
-      - name: get if toolchain should be built
-        run: |
-          export VAL=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/toolchain" | wc -l | awk '{print $1}')
-          echo $VAL
-          echo "value=$(echo -n $VAL)" >> $GITHUB_OUTPUT
-        id: do_toolchain_build
       - name: Setup BATS
         uses: mig4/setup-bats@v1
         with:
           bats-version: 1.2.1
-      - name: build images and tests
+      - name: cache toolchain
+        id: cache-toolchain
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-toolchain
+        with:
+          path: /tmp/toolchain.tar
+          key: ${{ runner.os }}-toolchain-${{ hashFiles('docker/toolchain/**') }}
+      - if: ${{ steps.cache-toolchain.outputs.cache-hit != 'true' }}
+        name: build toolchain
         run: |
           echo "Build toolchain docker"
           docker buildx build --file docker/toolchain/Dockerfile \
             --tag toolchain --load docker/toolchain/
+          docker save -o /tmp/toolchain.tar toolchain
+      - name: build images and tests
+        run: |
+          echo "Load toolchain docker"
+          docker load -i /tmp/toolchain.tar
 
           echo "Bootstrap go ${{ steps.golang_version_1.outputs.value }}"
           docker buildx build --file docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile \
