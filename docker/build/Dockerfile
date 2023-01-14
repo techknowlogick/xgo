@@ -11,10 +11,12 @@ LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
 COPY go.mod /xgo-src
 COPY xgo.go /xgo-src
 
+
 # Install xgo within the container to enable internal cross compilation
+WORKDIR /xgo-src
 RUN \
   echo "Installing xgo-in-xgo..." && \
-  go install /xgo-src/xgo.go && \
+  go install xgo.go && \
   ln -s /go/bin/xgo /usr/bin/xgo && \
   rm -r /xgo-src
 
