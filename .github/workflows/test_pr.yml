@@ -66,7 +66,7 @@ jobs:
           docker buildx build --file docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile \
             --tag ${{ steps.golang_version_2.outputs.value }}-base --load docker/${{ steps.golang_version_2.outputs.value }}/
 
-          echo "Build xgo for go ${{ steps.golang_version_2.outputs.value }} "
+          echo "Build xgo for go ${{ steps.golang_version_2.outputs.value }}"
           docker buildx build --file docker/build/Dockerfile \
             --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }} \
             --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }} \
