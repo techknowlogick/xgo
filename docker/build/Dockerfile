@@ -3,7 +3,6 @@
 #
 # Released under the MIT license.
 ARG VERSION=latest
-ARG SHA=latest
 FROM ${VERSION}-base
 
 LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"

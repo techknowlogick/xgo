@@ -67,7 +67,6 @@ jobs:
             --tag techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }} \
             --tag techknowlogick/xgo:latest \
             --build-arg VERSION=${{ steps.golang_version_1.outputs.value }} \
-            --build-arg SHA=${{ github.event.pull_request.head.sha }} \
             --load .
 
           echo "Bootstrap go ${{ steps.golang_version_2.outputs.value }}"
@@ -79,7 +78,6 @@ jobs:
             --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }} \
             --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }} \
             --build-arg VERSION=${{ steps.golang_version_2.outputs.value }} \
-            --build-arg SHA=${{ github.event.pull_request.head.sha }} \
             --load .
 
           mkdir -p .xgo-cache
