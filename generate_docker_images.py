@@ -23,7 +23,7 @@ def generate_image(image):
   # now that folders have been created, the Dockerfile needs to be created
   f = open("docker/"+version+"/Dockerfile", "w")
   f.write("## GENERATED. DO NOT EDIT DIRECTLY.\n")
-  f.write("FROM techknowlogick/xgo:base\n\n")
+  f.write("FROM toolchain\n\n")
   f.write("ENV GO_VERSION "+version.replace("go-","").replace(".","")+"\n\n")
   f.write("RUN \\\n")
   f.write("  export ROOT_DIST=https://dl.google.com/go/"+image["filename"]+" && \\\n")
@@ -34,7 +34,7 @@ def generate_image(image):
   # now wildcard version
   f = open("docker/"+wildcard+"/Dockerfile", "w")
   f.write("## GENERATED. DO NOT EDIT DIRECTLY.\n")
-  f.write("FROM techknowlogick/xgo:"+version+"\n")
+  f.write("FROM "+version+"\n")
   f.close()
 
 r = requests.get('https://golang.org/dl/?mode=json')

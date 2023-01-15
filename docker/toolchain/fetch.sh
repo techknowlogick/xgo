@@ -7,21 +7,21 @@
 set -e
 
 # Skip the download if no operands specified
-if [ "$1" == "" -o "$2" == "" ]; then
+if [ "$1" == "" ] || [ "$2" == "" ]; then
   echo "Fetch operands missing, skipping..."
   exit
 fi
 
 # Pull the file from the remote URL
-file=`basename $1`
+file=$(basename "$1")
 echo "Downloading $1..."
-wget -q $1
+wget -q "$1"
 
 # Generate a desired checksum report and check against it
-echo "$2  $file" > $file.sum
+echo "$2  $file" > "$file.sum"
 if [ "${#2}" == "40" ]; then
-  sha1sum -c $file.sum
+  sha1sum -c "$file.sum"
 else
-  sha256sum -c $file.sum
+  sha256sum -c "$file.sum"
 fi
-rm $file.sum
+rm "$file.sum"

@@ -21,7 +21,7 @@ jobs:
         python3 generate_docker_images.py
 
     - name: Get golang version
-      run: echo ::set-output name=value::$(cat .golang_version)
+      run: echo "value=$(cat .golang_version)" >> $GITHUB_OUTPUT
       id: golang_version
 
     - name: Create Pull Request

@@ -1,5 +1,5 @@
 ## GENERATED. DO NOT EDIT DIRECTLY.
-FROM techknowlogick/xgo:base
+FROM toolchain
 
 ENV GO_VERSION 11810
 
