@@ -259,17 +259,18 @@ and architecture separately, build time can increase significantly.
 
 ### User scripts
 
-To give the user more power, two hook scripts will get source during the build
-if avalable. The first on is `.xgo/setup.sh` which gets sourced after everything
-got set up. The second is `.xgo/build.sh` which gets sourced for each target.
+To give the user more power, xgo provides two hook scripts which will be sourced
+during the build if they are available. The first one is `.xgo/setup.sh` which will
+be sourced after everything is set up. The second is `.xgo/build.sh` which will be
+sourced for each target.
 
-All environment variables set up by xgo are avalable in the scripts. `XGOOS` and
-`XGOARCH` are expanded the the actual value defined by the [build targets](#limit-build-targets).
-Forthermore following environment variables are set to a target sepecific value:
+All environment variables set up by xgo are avalable in the scripts.
 
-- `CC`: C cross compiler to use for the build
-- `HOST`: Target platform to build
-- `PREFIX`: File-system path where to install the built binaries.
+Within `.xgo/build.sh` there are several target specific environment variables:
+
+* `XGOOS` and `XGOARCH` are expanded to the actual value defined by the [build targets](#limit-build-targets).
+* `CC`: C cross compiler to use for the build
+* `HOST`: Target platform to build
+* `PREFIX`: File-system path where to install the built binaries.
 
 For further reference, see [build.sh](docker/base/build.sh)
-
