@@ -24,8 +24,6 @@
 #   TARGETS        - Comma separated list of build targets to compile for
 #   EXT_GOPATH     - GOPATH elements mounted from the host filesystem
 
-set -v
-
 # Define a function that figures out the binary extension
 function extension {
   if [ "$FLAG_BUILDMODE" == "archive" ] || [ "$FLAG_BUILDMODE" == "c-archive" ]; then
@@ -68,7 +66,7 @@ else
   fi
 fi
 
-# Either set a local build environemnt, or pull any remote imports
+# Either set a local build environment, or pull any remote imports
 if [ "$EXT_GOPATH" != "" ]; then
   # If local builds are requested, inject the sources
   echo "Building locally $1..."
@@ -79,13 +77,9 @@ if [ "$EXT_GOPATH" != "" ]; then
   cd "$(go list -e -f "{{.Dir}}" "$1")"
   GODEPS_WORKSPACE="$(pwd)/Godeps/_workspace"
   export GOPATH="$GOPATH":"$GODEPS_WORKSPACE"
-elif [[ "$USEMODULES" == true ]]; then
-  # Go module builds should assume a local repository
-  # at mapped to /source containing at least a go.mod file.
-  if [[ ! -d /source ]]; then
-    echo "Go modules are enabled but go.mod was not found in the source folder."
-    exit 10
-  fi
+elif [[ "$USEMODULES" == true && -d /source ]]; then
+  # Go module build with a local repository mapped to /source containing at least a go.mod file.
+
   # Change into the repo/source folder
   cd /source
   echo "Building /source/go.mod..."
@@ -100,7 +94,7 @@ else
 
   # Otherwise download the canonical import path (may fail, don't allow failures beyond)
   echo "Fetching main repository $1..."
-  go get -v -d "$1"
+  GO111MODULE="off" go get -v -d "$1"
   set -e
 
   cd "$GOPATH_ROOT/$1"
@@ -164,27 +158,36 @@ shopt -u nullglob
 
 
 # Configure some global build parameters
-NAME=$(basename "$1/$PACK")
+NAME="$OUT"
 
-# Go module-based builds error with 'cannot find main module'
-# when $PACK is defined
-if [[ "$USEMODULES" = true ]]; then
-  NAME=$(sed -n 's/module\ \(.*\)/\1/p' /source/go.mod)
+
+if [ "$NAME" == "" ]; then
+  if [[ "$USEMODULES" = true && -d /source && -f /source/go.mod ]]; then
+    NAME="$(sed -n 's/module\ \(.*\)/\1/p' /source/go.mod)"
+
+    if [[ "$NAME" != "" && "$PACK" != "" ]]; then
+      NAME="$NAME/$PACK"
+    fi
+  fi
+fi
+
+if [[ "$NAME" == "" ]]; then
+  NAME="$(basename "$1/$PACK")"
+fi
+
+if [[ "$NAME" == "" || "$NAME" == "." ]]; then
+  NAME="main"
 fi
 
 # Support go module package
 PACK_RELPATH="./$PACK"
-
-if [ "$OUT" != "" ]; then
-  NAME=$OUT
-fi
 
 if [ "$FLAG_V" == "true" ];    then V=-v; LD+='-v'; fi
 if [ "$FLAG_X" == "true" ];    then X=-x; fi
 if [ "$FLAG_RACE" == "true" ]; then R=-race; fi
 if [ "$FLAG_TAGS" != "" ];     then T=(--tags "$FLAG_TAGS"); fi
 if [ "$FLAG_LDFLAGS" != "" ];  then LD=("${LD[@]}" "${FLAG_LDFLAGS[@]}"); fi
-if [ "$FLAG_GCFLAGS" != "" ];  then GC=(--gcflags="$FLAG_GCFLAGS"); fi
+if [ "$FLAG_GCFLAGS" != "" ];  then GC=(--gcflags="$(printf "%s " "${FLAG_GCFLAGS[@]}")"); fi
 
 if [ "$FLAG_BUILDMODE" != "" ] && [ "$FLAG_BUILDMODE" != "default" ]; then BM=(--buildmode="${FLAG_BUILDMODE[@]}"); fi
 if [ "$FLAG_TRIMPATH" == "true" ]; then TP=-trimpath; fi
@@ -195,7 +198,7 @@ if [ "$TARGETS" == "" ]; then
   TARGETS="./."
 fi
 
-if [ "${#LD[@]}" -gt 0 ]; then LDF=(--ldflags="${LD[@]}"); fi
+if [ "${#LD[@]}" -gt 0 ]; then LDF=(--ldflags="$(printf "%s " "${LD[@]}")"); fi
 
 # Build for each requested platform individually
 for TARGET in $TARGETS; do
@@ -225,8 +228,7 @@ for TARGET in $TARGETS; do
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; }  && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm" ] || [ "$XGOARCH" == "arm-5" ]; }; then
     mkdir -p /gocache/linux/arm-5
     if [ "$GO_VERSION_MAJOR" -gt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -ge 15 ]; }; then
-      echo "Bootstrapping linux/arm-5..."
-      GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-6 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go install std
+      ln -s /usr/local/go/pkg/linux_arm-5 /usr/local/go/pkg/linux_arm
     fi
     echo "Compiling for linux/arm-5..."
     GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 HOST=arm-linux-gnueabi PREFIX=/usr/arm-linux-gnueabi CFLAGS="-march=armv5" CXXFLAGS="-march=armv5" $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
@@ -237,17 +239,15 @@ for TARGET in $TARGETS; do
     fi
     GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-5$(extension linux)" "$PACK_RELPATH"
     if [ "$GO_VERSION_MAJOR" -gt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -ge 15 ]; }; then
-      echo "Cleaning up Go runtime for linux/arm-5..."
-      rm -rf /usr/local/go/pkg/linux_arm
+      rm /usr/local/go/pkg/linux_arm
     fi
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm-6" ]; }; then
     if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 15 ]; }; then
       echo "Go version too low, skipping linux/arm-6..."
     else
-      echo "Bootstrapping linux/arm-6..."
       mkdir -p /gocache/linux/arm-6
-      GOCACHE=/gocache/linux/arm-6 CC=arm-linux-gnueabi-gcc-6 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 CGO_CFLAGS="-march=armv6" CGO_CXXFLAGS="-march=armv6" go install std
+      ln -s /usr/local/go/pkg/linux_arm-6 /usr/local/go/pkg/linux_arm
 
       echo "Compiling for linux/arm-6..."
       GOCACHE=/gocache/linux/arm-6 CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 HOST=arm-linux-gnueabi PREFIX=/usr/arm-linux-gnueabi CFLAGS="-march=armv6" CXXFLAGS="-march=armv6" $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
@@ -258,17 +258,15 @@ for TARGET in $TARGETS; do
       fi
       GOCACHE=/gocache/linux/arm-6 CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 CGO_CFLAGS="-march=armv6" CGO_CXXFLAGS="-march=armv6" go build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-6$(extension linux)" "$PACK_RELPATH"
 
-      echo "Cleaning up Go runtime for linux/arm-6..."
-      rm -rf /usr/local/go/pkg/linux_arm
+      rm /usr/local/go/pkg/linux_arm
     fi
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm-7" ]; }; then
     if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 15 ]; }; then
       echo "Go version too low, skipping linux/arm-7..."
     else
-      echo "Bootstrapping linux/arm-7..."
       mkdir -p /gocache/linux/arm-7
-      GOCACHE=/gocache/linux/arm-7 CC=arm-linux-gnueabihf-gcc-6 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a" CGO_CXXFLAGS="-march=armv7-a" go install std
+      ln -s /usr/local/go/pkg/linux_arm-7 /usr/local/go/pkg/linux_arm
 
       echo "Compiling for linux/arm-7..."
       GOCACHE=/gocache/linux/arm-7 CC=arm-linux-gnueabihf-gcc-6 CXX=arm-linux-gnueabihf-g++-6 HOST=arm-linux-gnueabihf PREFIX=/usr/arm-linux-gnueabihf CFLAGS="-march=armv7-a -fPIC" CXXFLAGS="-march=armv7-a -fPIC" $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
@@ -279,8 +277,7 @@ for TARGET in $TARGETS; do
       fi
       GOCACHE=/gocache/linux/arm-7 CC=arm-linux-gnueabihf-gcc-6 CXX=arm-linux-gnueabihf-g++-6 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a -fPIC" CGO_CXXFLAGS="-march=armv7-a -fPIC" go build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-7$(extension linux)" "$PACK_RELPATH"
 
-      echo "Cleaning up Go runtime for linux/arm-7..."
-      rm -rf /usr/local/go/pkg/linux_arm
+      rm /usr/local/go/pkg/linux_arm
     fi
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm64" ]; }; then
@@ -456,7 +453,7 @@ for TARGET in $TARGETS; do
       LDS=("-s" "${LDS[@]}")
     fi
     if [ ${#LDS[@]} -gt 0 ]; then
-      LDFS=(--ldflags="${LDS[@]}")
+      LDFS=(--ldflags="$(printf "%s " "${LD[@]}")")
     fi
     # Build the requested darwin binaries
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "amd64" ]; then
@@ -483,6 +480,24 @@ for TARGET in $TARGETS; do
     fi
     # Remove any automatically injected deployment target vars
     unset MACOSX_DEPLOYMENT_TARGET
+  fi
+  # Check and build for freebsd targets
+  if [ "$XGOOS" == "." ] || [[ "$XGOOS" == freebsd* ]]; then
+    # Build the requested freebsd binaries
+    if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "amd64" ]; then
+      echo "Compiling for freebsd/amd64..."
+      CC=x86_64-pc-freebsd12-gcc HOST=x86_64-pc-freebsd12 PREFIX=/freebsdcross/x86_64-pc-freebsd12 $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      export PKG_CONFIG_PATH=/freebsdcross/x86_64-pc-freebsd12/lib/pkgconfig
+
+       if [[ "$USEMODULES" == false ]]; then
+        CC=x86_64-pc-freebsd12-gcc CXX=x86_64-pc-freebsd12-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      fi
+      CC=x86_64-pc-freebsd12-gcc CXX=x86_64-pc-freebsd12-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 go build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-freebsd12-amd64$(extension freebsd)" "$PACK_RELPATH"
+    fi
+    if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm64" ]; then
+      echo "skipping freebsd/arm64... as it is not yet supported"
+      # TODO: add arm64 support
+    fi
   fi
 done
 
