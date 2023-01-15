@@ -8,7 +8,6 @@
 }
 
 @test "embedded cpp" {
-  skip "TODO: C++ is failing on linux/386, need to look into this"
   run go run xgo.go --image="${IMAGEID}" ./tests/embedded_cpp
   echo "$output"
   [ "$status" -eq 0 ]
@@ -27,9 +26,7 @@
 }
 
 @test "branches" {
-  export GO111MODULE=off
   run go run xgo.go --remote https://github.com/rwcarlsen/cyan --branch memprof --targets "linux/amd64" --image="${IMAGEID}" github.com/rwcarlsen/cyan/cmd/cyan
-  export GO111MODULE=auto
   echo "$output"
   [ "$status" -eq 0 ]
 }
