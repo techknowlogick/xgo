@@ -296,8 +296,9 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 		}
 		if !usesModules {
 			// Walk the parents looking for a go.mod file!
-			goModDir, err := filepath.Abs(config.Repository)
+			absRepository, err := filepath.Abs(config.Repository)
 			if err == nil {
+				goModDir := absRepository
 				// now walk backwards as per go behaviour
 				for {
 					if stat, err := os.Stat(filepath.Join(goModDir, "go.mod")); err == nil {
@@ -312,7 +313,7 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 				}
 
 				if usesModules {
-					sourcePath, _ := filepath.Rel(goModDir, config.Repository)
+					sourcePath, _ := filepath.Rel(goModDir, absRepository)
 					if config.Package == "" {
 						config.Package = sourcePath
 					} else {
@@ -334,7 +335,7 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 	}
 
 	// Assemble and run the cross compilation command
-	fmt.Printf("Cross compiling local repository: %s...\n", config.Repository)
+	fmt.Printf("Cross compiling local repository: %s : %s...\n", config.Repository, config.Package)
 	args := toArgs(config, flags, folder)
 
 	if usesModules {

@@ -160,16 +160,23 @@ shopt -u nullglob
 # Configure some global build parameters
 NAME="$OUT"
 
+
 if [ "$NAME" == "" ]; then
   if [[ "$USEMODULES" = true && -d /source && -f /source/go.mod ]]; then
-    # Go module-based builds error with 'cannot find main module'
-    # when $PACK is defined
     NAME="$(sed -n 's/module\ \(.*\)/\1/p' /source/go.mod)"
+
+    if [[ "$NAME" != "" && "$PACK" != "" ]]; then
+      NAME="$NAME/$PACK"
+    fi
   fi
 fi
 
-if [ "$NAME" == "" ]; then
+if [[ "$NAME" == "" ]]; then
   NAME="$(basename "$1/$PACK")"
+fi
+
+if [[ "$NAME" == "" || "$NAME" == "." ]]; then
+  NAME="main"
 fi
 
 # Support go module package
