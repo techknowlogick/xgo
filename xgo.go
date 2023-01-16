@@ -141,7 +141,7 @@ func main() {
 	}
 	// Cache all external dependencies to prevent always hitting the internet
 	if *crossDeps != "" {
-		if err := os.MkdirAll(depsCache, 0751); err != nil {
+		if err := os.MkdirAll(depsCache, 0750); err != nil {
 			log.Fatalf("Failed to create dependency cache: %v.", err)
 		}
 		// Download all missing dependencies
@@ -385,11 +385,17 @@ func toArgs(config *ConfigFlags, flags *BuildFlags, folder string) []string {
 	re := regexp.MustCompile("([A-Z]):")
 	folder_w := filepath.ToSlash(re.ReplaceAllString(folder, "/$1"))
 	depsCache_w := filepath.ToSlash(re.ReplaceAllString(depsCache, "/$1"))
+	gocache := filepath.Join(depsCache, "gocache")
+	if err := os.MkdirAll(gocache, 0750); err != nil { // 0750 = rwxr-x---
+		log.Fatalf("Failed to create gocache dir: %v.", err)
+	}
+	gocache_w := filepath.ToSlash(re.ReplaceAllString(gocache, "/$1"))
 
 	args := []string{
 		"run", "--rm",
 		"-v", folder_w + ":/build",
 		"-v", depsCache_w + ":/deps-cache:ro",
+		"-v", gocache_w + ":/gocache:rw",
 		"-e", "REPO_REMOTE=" + config.Remote,
 		"-e", "REPO_BRANCH=" + config.Branch,
 		"-e", "PACK=" + config.Package,
