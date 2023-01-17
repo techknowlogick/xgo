@@ -48,7 +48,7 @@ function extension {
 }
 
 function do_build {
-    if [ -f "$PACK_RELPATH/.xgo/build.sh" ]; then echo "source build.sh"; source "$PACK_RELPATH/.xgo/build.sh"; fi
+    if [ -f "/hooksdir/build.sh" ]; then echo "source build.sh hook"; source "/hooksdir/build.sh"; fi
     # call dedicated build script
     $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
 }
@@ -207,7 +207,7 @@ fi
 if [ "${#LD[@]}" -gt 0 ]; then LDF=(--ldflags="$(printf "%s " "${LD[@]}")"); fi
 
 # source setup.sh if existing
-if [ -f "$PACK_RELPATH/.xgo/setup.sh" ]; then echo "source setup.sh"; source "$PACK_RELPATH/.xgo/setup.sh"; fi
+if [ -f "/hooksdir/setup.sh" ]; then echo "source setup.sh hook"; source "/hooksdir/setup.sh"; fi
 
 # Build for each requested platform individually
 for TARGET in $TARGETS; do
