@@ -58,6 +58,7 @@ var (
 	dockerImage = flag.String("image", "", "Use custom docker image instead of official distribution")
 	dockerEnv   = flag.String("env", "", "Comma separated custom environments added to docker run -e")
 	dockerArgs  = flag.String("dockerargs", "", "Comma separated arguments added to docker run")
+	hooksDir    = flag.String("hooksdir", "", "Directory with user hook scripts (setup.sh, build.sh)")
 	forwardSsh  = flag.Bool("ssh", false, "Enable ssh agent forwarding")
 )
 
@@ -207,6 +208,18 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to resolve destination path (%s): %v.", *outFolder, err)
 		}
+	}
+	if *hooksDir != "" {
+		dir, err := filepath.Abs(*hooksDir)
+		if err != nil {
+			log.Fatalf("Failed to resolve hooksdir path (%s): %v.", *hooksDir, err)
+		}
+		if i, err := os.Stat(dir); err != nil {
+			log.Fatalf("Failed to resolve hooksdir path (%s): %v.", *hooksDir, err)
+		} else if !i.IsDir() {
+			log.Fatalf("Given hooksdir (%s) is not a directory.", *hooksDir)
+		}
+		config.DockerArgs = append(config.DockerArgs, "--mount", fmt.Sprintf(`type=bind,source=%s,target=/hooksdir`, dir))
 	}
 	// Execute the cross compilation, either in a container or the current system
 	if !xgoInXgo {

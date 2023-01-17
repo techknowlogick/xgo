@@ -47,6 +47,12 @@ function extension {
   fi
 }
 
+function do_build {
+    if [ -f "/hooksdir/build.sh" ]; then echo "source build.sh hook"; source "/hooksdir/build.sh"; fi
+    # call dedicated build script
+    $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+}
+
 GO_VERSION_MAJOR=$(go version | sed -e 's/.*go\([0-9]\+\)\..*/\1/')
 GO_VERSION_MINOR=$(go version | sed -e 's/.*go[0-9]\+\.\([0-9]\+\)\..*/\1/')
 GO111MODULE=$(go env GO111MODULE)
@@ -200,6 +206,9 @@ fi
 
 if [ "${#LD[@]}" -gt 0 ]; then LDF=(--ldflags="$(printf "%s " "${LD[@]}")"); fi
 
+# source setup.sh if existing
+if [ -f "/hooksdir/setup.sh" ]; then echo "source setup.sh hook"; source "/hooksdir/setup.sh"; fi
+
 # Build for each requested platform individually
 for TARGET in $TARGETS; do
   # Split the target into platform and architecture
@@ -210,7 +219,7 @@ for TARGET in $TARGETS; do
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "amd64" ]; }; then
     echo "Compiling for linux/amd64..."
     mkdir -p /gocache/linux/amd64
-    GOCACHE=/gocache/linux/amd64 HOST=x86_64-linux PREFIX=/usr/local $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+    XGOOS="linux" XGOARCH="amd64" GOCACHE=/gocache/linux/amd64 HOST=x86_64-linux PREFIX=/usr/local do_build
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/amd64 GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
@@ -219,7 +228,7 @@ for TARGET in $TARGETS; do
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "386" ]; }; then
     echo "Compiling for linux/386..."
     mkdir -p /gocache/linux/386
-    GOCACHE=/gocache/linux/386 CC="gcc -m32" CXX="g++ -m32" HOST=i686-linux PREFIX=/usr/local $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+    XGOOS="linux" XGOARCH="386" GOCACHE=/gocache/linux/386 CC="gcc -m32" CXX="g++ -m32" HOST=i686-linux PREFIX=/usr/local do_build
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/386 GOOS=linux GOARCH=386 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
@@ -231,7 +240,7 @@ for TARGET in $TARGETS; do
       ln -s /usr/local/go/pkg/linux_arm-5 /usr/local/go/pkg/linux_arm
     fi
     echo "Compiling for linux/arm-5..."
-    GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 HOST=arm-linux-gnueabi PREFIX=/usr/arm-linux-gnueabi CFLAGS="-march=armv5" CXXFLAGS="-march=armv5" $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+    XGOOS="linux" XGOARCH="arm-5" GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 HOST=arm-linux-gnueabi PREFIX=/usr/arm-linux-gnueabi CFLAGS="-march=armv5" CXXFLAGS="-march=armv5" do_build
     export PKG_CONFIG_PATH=/usr/arm-linux-gnueabi/lib/pkgconfig
 
     if [[ "$USEMODULES" == false ]]; then
@@ -250,7 +259,7 @@ for TARGET in $TARGETS; do
       ln -s /usr/local/go/pkg/linux_arm-6 /usr/local/go/pkg/linux_arm
 
       echo "Compiling for linux/arm-6..."
-      GOCACHE=/gocache/linux/arm-6 CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 HOST=arm-linux-gnueabi PREFIX=/usr/arm-linux-gnueabi CFLAGS="-march=armv6" CXXFLAGS="-march=armv6" $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="arm-6" GOCACHE=/gocache/linux/arm-6 CC=arm-linux-gnueabi-gcc-6 CXX=arm-linux-gnueabi-g++-6 HOST=arm-linux-gnueabi PREFIX=/usr/arm-linux-gnueabi CFLAGS="-march=armv6" CXXFLAGS="-march=armv6" do_build
       export PKG_CONFIG_PATH=/usr/arm-linux-gnueabi/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -269,7 +278,7 @@ for TARGET in $TARGETS; do
       ln -s /usr/local/go/pkg/linux_arm-7 /usr/local/go/pkg/linux_arm
 
       echo "Compiling for linux/arm-7..."
-      GOCACHE=/gocache/linux/arm-7 CC=arm-linux-gnueabihf-gcc-6 CXX=arm-linux-gnueabihf-g++-6 HOST=arm-linux-gnueabihf PREFIX=/usr/arm-linux-gnueabihf CFLAGS="-march=armv7-a -fPIC" CXXFLAGS="-march=armv7-a -fPIC" $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="arm-7" GOCACHE=/gocache/linux/arm-7 CC=arm-linux-gnueabihf-gcc-6 CXX=arm-linux-gnueabihf-g++-6 HOST=arm-linux-gnueabihf PREFIX=/usr/arm-linux-gnueabihf CFLAGS="-march=armv7-a -fPIC" CXXFLAGS="-march=armv7-a -fPIC" do_build
       export PKG_CONFIG_PATH=/usr/arm-linux-gnueabihf/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -286,7 +295,7 @@ for TARGET in $TARGETS; do
     else
       echo "Compiling for linux/arm64..."
       mkdir -p /gocache/linux/arm64
-      GOCACHE=/gocache/linux/arm64 CC=aarch64-linux-gnu-gcc-6 CXX=aarch64-linux-gnu-g++-6 HOST=aarch64-linux-gnu PREFIX=/usr/aarch64-linux-gnu $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="arm64" GOCACHE=/gocache/linux/arm64 CC=aarch64-linux-gnu-gcc-6 CXX=aarch64-linux-gnu-g++-6 HOST=aarch64-linux-gnu PREFIX=/usr/aarch64-linux-gnu do_build
       export PKG_CONFIG_PATH=/usr/aarch64-linux-gnu/lib/pkgconfig
 
        if [[ "$USEMODULES" == false ]]; then
@@ -301,7 +310,7 @@ for TARGET in $TARGETS; do
     else
       echo "Compiling for linux/mips64..."
       mkdir -p /gocache/linux/mips64
-      GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc-6 CXX=mips64-linux-gnuabi64-g++-6 HOST=mips64-linux-gnuabi64 PREFIX=/usr/mips64-linux-gnuabi64 $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="mips64" GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc-6 CXX=mips64-linux-gnuabi64-g++-6 HOST=mips64-linux-gnuabi64 PREFIX=/usr/mips64-linux-gnuabi64 do_build
       export PKG_CONFIG_PATH=/usr/mips64-linux-gnuabi64/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -316,7 +325,7 @@ for TARGET in $TARGETS; do
     else
       echo "Compiling for linux/mips64le..."
       mkdir -p /gocache/linux/mips64le
-      GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc-6 CXX=mips64el-linux-gnuabi64-g++-6 HOST=mips64el-linux-gnuabi64 PREFIX=/usr/mips64el-linux-gnuabi64 $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="mips64le" GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc-6 CXX=mips64el-linux-gnuabi64-g++-6 HOST=mips64el-linux-gnuabi64 PREFIX=/usr/mips64el-linux-gnuabi64 do_build
       export PKG_CONFIG_PATH=/usr/mips64le-linux-gnuabi64/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -331,7 +340,7 @@ for TARGET in $TARGETS; do
     else
       echo "Compiling for linux/mips..."
       mkdir -p /gocache/linux/mips
-      GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc-6 CXX=mips-linux-gnu-g++-6 HOST=mips-linux-gnu PREFIX=/usr/mips-linux-gnu $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="mips" GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc-6 CXX=mips-linux-gnu-g++-6 HOST=mips-linux-gnu PREFIX=/usr/mips-linux-gnu do_build
       export PKG_CONFIG_PATH=/usr/mips-linux-gnu/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -346,7 +355,7 @@ for TARGET in $TARGETS; do
     else
       echo "Compiling for linux/s390x..."
       mkdir -p /gocache/linux/s390x
-      GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc-6 CXX=s390x-linux-gnu-g++-6 HOST=s390x-linux-gnu PREFIX=/usr/s390x-linux-gnu $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="s390x" GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc-6 CXX=s390x-linux-gnu-g++-6 HOST=s390x-linux-gnu PREFIX=/usr/s390x-linux-gnu do_build
       export PKG_CONFIG_PATH=/usr/s390x-linux-gnu/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -361,7 +370,7 @@ for TARGET in $TARGETS; do
     else
       echo "Compiling for linux/riscv64..."
       mkdir -p /gocache/linux/riscv64
-      GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc-8 CXX=riscv64-linux-gnu-g++-8 HOST=riscv64-linux-gnu PREFIX=/usr/riscv64-linux-gnu $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="riscv64" GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc-8 CXX=riscv64-linux-gnu-g++-8 HOST=riscv64-linux-gnu PREFIX=/usr/riscv64-linux-gnu do_build
       export PKG_CONFIG_PATH=/usr/riscv64-linux-gnu/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -376,7 +385,7 @@ for TARGET in $TARGETS; do
     else
       echo "Compiling for linux/ppc64le..."
       mkdir -p /gocache/linux/ppc64le
-      GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc-6 CXX=powerpc64le-linux-gnu-g++-6 HOST=ppc64le-linux-gnu PREFIX=/usr/ppc64le-linux-gnu $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="ppc64le" GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc-6 CXX=powerpc64le-linux-gnu-g++-6 HOST=ppc64le-linux-gnu PREFIX=/usr/ppc64le-linux-gnu do_build
       export PKG_CONFIG_PATH=/usr/ppc64le-linux-gnu/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -391,7 +400,7 @@ for TARGET in $TARGETS; do
     else
       echo "Compiling for linux/mipsle..."
       mkdir -p /gocache/linux/mipsle
-      GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc-6 CXX=mipsel-linux-gnu-g++-6 HOST=mipsel-linux-gnu PREFIX=/usr/mipsel-linux-gnu $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="linux" XGOARCH="mipsle" GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc-6 CXX=mipsel-linux-gnu-g++-6 HOST=mipsel-linux-gnu PREFIX=/usr/mipsel-linux-gnu do_build
       export PKG_CONFIG_PATH=/usr/mipsle-linux-gnu/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -418,7 +427,7 @@ for TARGET in $TARGETS; do
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "amd64" ]; then
       echo "Compiling for windows-$PLATFORM/amd64..."
       mkdir -p /gocache/windows-$PLATFORM/amd64
-      GOCACHE=/gocache/windows-$PLATFORM/amd64 CC=x86_64-w64-mingw32-gcc-posix CXX=x86_64-w64-mingw32-g++-posix HOST=x86_64-w64-mingw32 PREFIX=/usr/x86_64-w64-mingw32 $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="windows-$PLATFORM" XGOARCH="amd64" GOCACHE=/gocache/windows-$PLATFORM/amd64 CC=x86_64-w64-mingw32-gcc-posix CXX=x86_64-w64-mingw32-g++-posix HOST=x86_64-w64-mingw32 PREFIX=/usr/x86_64-w64-mingw32 do_build
       export PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -429,7 +438,7 @@ for TARGET in $TARGETS; do
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "386" ]; then
       echo "Compiling for windows-$PLATFORM/386..."
       mkdir -p /gocache/windows-$PLATFORM/386
-      GOCACHE=/gocache/windows-$PLATFORM/386 CC=i686-w64-mingw32-gcc-posix CXX=i686-w64-mingw32-g++-posix HOST=i686-w64-mingw32 PREFIX=/usr/i686-w64-mingw32 $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="windows-$PLATFORM" XGOARCH="386" GOCACHE=/gocache/windows-$PLATFORM/386 CC=i686-w64-mingw32-gcc-posix CXX=i686-w64-mingw32-g++-posix HOST=i686-w64-mingw32 PREFIX=/usr/i686-w64-mingw32 do_build
       export PKG_CONFIG_PATH=/usr/i686-w64-mingw32/lib/pkgconfig
 
       if [[ "$USEMODULES" == false ]]; then
@@ -459,7 +468,7 @@ for TARGET in $TARGETS; do
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "amd64" ]; then
       echo "Compiling for darwin-$PLATFORM/amd64..."
       mkdir -p /gocache/darwin-$PLATFORM/amd64
-      GOCACHE=/gocache/darwin-$PLATFORM/amd64 CC=o64-clang CXX=o64-clang++ HOST=x86_64-apple-darwin15 PREFIX=/usr/local $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="darwin-$PLATFORM" XGOARCH="amd64" GOCACHE=/gocache/darwin-$PLATFORM/amd64 CC=o64-clang CXX=o64-clang++ HOST=x86_64-apple-darwin15 PREFIX=/usr/local do_build
       if [[ "$USEMODULES" == false ]]; then
         GOCACHE=/gocache/darwin-$PLATFORM/amd64 CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" "${LDFS[@]}" "${GC[@]}" -d "$PACK_RELPATH"
       fi
@@ -471,7 +480,7 @@ for TARGET in $TARGETS; do
       else
         echo "Compiling for darwin-$PLATFORM/arm64..."
         mkdir -p /gocache/darwin-$PLATFORM/arm64
-        GOCACHE=/gocache/darwin-$PLATFORM/arm64 CC=o64-clang CXX=o64-clang++ HOST=arm64-apple-darwin15 PREFIX=/usr/local $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+        XGOOS="darwin-$PLATFORM" XGOARCH="arm64" GOCACHE=/gocache/darwin-$PLATFORM/arm64 CC=o64-clang CXX=o64-clang++ HOST=arm64-apple-darwin15 PREFIX=/usr/local do_build
         if [[ "$USEMODULES" == false ]]; then
           GOCACHE=/gocache/darwin-$PLATFORM/arm64 CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go get $V $X "${T[@]}" "${LDFS[@]}" "${GC[@]}" -d "$PACK_RELPATH"
         fi
@@ -486,7 +495,7 @@ for TARGET in $TARGETS; do
     # Build the requested freebsd binaries
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "amd64" ]; then
       echo "Compiling for freebsd/amd64..."
-      CC=x86_64-pc-freebsd12-gcc HOST=x86_64-pc-freebsd12 PREFIX=/freebsdcross/x86_64-pc-freebsd12 $BUILD_DEPS /deps "${DEPS_ARGS[@]}"
+      XGOOS="freebsd" XGOARCH="amd64" CC=x86_64-pc-freebsd12-gcc HOST=x86_64-pc-freebsd12 PREFIX=/freebsdcross/x86_64-pc-freebsd12 do_build
       export PKG_CONFIG_PATH=/freebsdcross/x86_64-pc-freebsd12/lib/pkgconfig
 
        if [[ "$USEMODULES" == false ]]; then
