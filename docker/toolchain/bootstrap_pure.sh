@@ -71,12 +71,18 @@ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 CC=o64-clang go install std
 
 echo "Bootstrapping linux/arm-5..."
 CC=arm-linux-gnueabi-gcc-6 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go install std
-mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-5
+if [ -d "/usr/local/go/pkg/linux_arm" ]; then
+  mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-5
+fi
 
 echo "Bootstrapping linux/arm-6..."
 CC=arm-linux-gnueabi-gcc-6 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 CGO_CFLAGS="-march=armv6" CGO_CXXFLAGS="-march=armv6" go install std
-mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-6
+if [ -d "/usr/local/go/pkg/linux_arm" ]; then
+  mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-6
+fi
 
 echo "Bootstrapping linux/arm-7..."
 CC=arm-linux-gnueabihf-gcc-6 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a" CGO_CXXFLAGS="-march=armv7-a" go install std
-mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-7
+if [ -d "/usr/local/go/pkg/linux_arm" ]; then
+  mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-7
+fi
