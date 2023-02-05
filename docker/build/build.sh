@@ -57,6 +57,11 @@ GO_VERSION_MAJOR=$(go version | sed -e 's/.*go\([0-9]\+\)\..*/\1/')
 GO_VERSION_MINOR=$(go version | sed -e 's/.*go[0-9]\+\.\([0-9]\+\)\..*/\1/')
 GO111MODULE=$(go env GO111MODULE)
 
+# if GO_VERSION_MINOR is empty then set to 0
+if [ -z "$GO_VERSION_MINOR" ]; then
+  GO_VERSION_MINOR=0
+fi
+
 # Detect if we are using go modules
 if [[ "$GO_VERSION_MAJOR" -le 1 && "$GO_VERSION_MINOR" -le 17 ]]; then
   if [[ "$GO111MODULE" == "on" || "$GO111MODULE" == "auto" ]]; then
