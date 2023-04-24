@@ -87,18 +87,22 @@ var (
 	buildGcFlags  = flag.String("gcflags", "", "Arguments to pass on each go tool compile invocation")
 	buildMode     = flag.String("buildmode", "default", "Indicates which kind of object file to build")
 	buildTrimpath = flag.Bool("trimpath", false, "Indicates if trimpath should be applied to build")
+	obfuscate     = flag.Bool("obfuscate", false, "Obfuscate build using garble")
+	garbleFlags   = flag.String("garbleflags", "", "Arguments to pass to garble (e.g. -seed=random)")
 )
 
 // BuildFlags is a simple collection of flags to fine tune a build.
 type BuildFlags struct {
-	Verbose  bool   // Print the names of packages as they are compiled
-	Steps    bool   // Print the command as executing the builds
-	Race     bool   // Enable data race detection (supported only on amd64)
-	Tags     string // List of build tags to consider satisfied during the build
-	LdFlags  string // Arguments to pass on each go tool link invocation
-	GcFlags  string // Arguments to pass on each go tool compile invocation
-	Mode     string // Indicates which kind of object file to build
-	Trimpath bool   // Indicates if trimpath should be applied to build
+	Verbose     bool   // Print the names of packages as they are compiled
+	Steps       bool   // Print the command as executing the builds
+	Race        bool   // Enable data race detection (supported only on amd64)
+	Tags        string // List of build tags to consider satisfied during the build
+	LdFlags     string // Arguments to pass on each go tool link invocation
+	GcFlags     string // Arguments to pass on each go tool compile invocation
+	Mode        string // Indicates which kind of object file to build
+	Trimpath    bool   // Indicates if trimpath should be applied to build
+	Obfuscate   bool   // Obfuscate build using garble
+	GarbleFlags string // Arguments to pass to garble
 }
 
 func main() {
@@ -190,14 +194,16 @@ func main() {
 		ForwardSsh:   *forwardSsh,
 	}
 	flags := &BuildFlags{
-		Verbose:  *buildVerbose,
-		Steps:    *buildSteps,
-		Race:     *buildRace,
-		Tags:     *buildTags,
-		LdFlags:  *buildLdFlags,
-		GcFlags:  *buildGcFlags,
-		Mode:     *buildMode,
-		Trimpath: *buildTrimpath,
+		Verbose:     *buildVerbose,
+		Steps:       *buildSteps,
+		Race:        *buildRace,
+		Tags:        *buildTags,
+		LdFlags:     *buildLdFlags,
+		GcFlags:     *buildGcFlags,
+		Mode:        *buildMode,
+		Trimpath:    *buildTrimpath,
+		Obfuscate:   *obfuscate,
+		GarbleFlags: *garbleFlags,
 	}
 	folder, err := os.Getwd()
 	if err != nil {
@@ -423,6 +429,8 @@ func toArgs(config *ConfigFlags, flags *BuildFlags, folder string) []string {
 		"-e", fmt.Sprintf("FLAG_GCFLAGS=%s", flags.GcFlags),
 		"-e", fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
 		"-e", fmt.Sprintf("FLAG_TRIMPATH=%v", flags.Trimpath),
+		"-e", fmt.Sprintf("FLAG_OBFUSCATE=%v", flags.Obfuscate),
+		"-e", fmt.Sprintf("GARBLE_FLAGS=%s", flags.GarbleFlags),
 		"-e", "TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
 		"-e", fmt.Sprintf("GOPROXY=%s", os.Getenv("GOPROXY")),
 		"-e", fmt.Sprintf("GOPRIVATE=%s", os.Getenv("GOPRIVATE")),
@@ -558,6 +566,8 @@ func compileContained(config *ConfigFlags, flags *BuildFlags, folder string) err
 		fmt.Sprintf("FLAG_GCFLAGS=%s", flags.GcFlags),
 		fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
 		fmt.Sprintf("FLAG_TRIMPATH=%v", flags.Trimpath),
+		fmt.Sprintf("FLAG_OBFUSCATE=%v", flags.Obfuscate),
+		fmt.Sprintf("GARBLE_FLAGS=%s", flags.GarbleFlags),
 		"TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
 	}
 	if local {
