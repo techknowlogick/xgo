@@ -92,4 +92,9 @@ if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VER
   fi
 else
   echo "Bootstrapping is no longer needed for go 1.20+"
+
+  # Install garble (go1.20+) for obfuscated builds
+  echo "Installing garble..."
+  go install mvdan.cc/garble@latest
+  cp /go/bin/garble /usr/bin/garble
 fi

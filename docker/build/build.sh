@@ -205,7 +205,7 @@ if [ "$FLAG_GCFLAGS" != "" ];  then GC=(--gcflags="$(printf "%s " "${FLAG_GCFLAG
 if [ "$FLAG_BUILDMODE" != "" ] && [ "$FLAG_BUILDMODE" != "default" ]; then BM=(--buildmode="${FLAG_BUILDMODE[@]}"); fi
 if [ "$FLAG_TRIMPATH" == "true" ]; then TP=-trimpath; fi
 if [ "$FLAG_MOD" != "" ]; then MOD=(--mod="$FLAG_MOD"); fi
-if [ "$FLAG_OBFUSCATE" == "true" ]; then
+if [ "$FLAG_OBFUSCATE" == "true" ] && [ "$GO_VERSION_MAJOR" -eq 1 ] && [ "$GO_VERSION_MINOR" -ge 20 ]; then
   if [ "$GARBLE_FLAGS" != "" ]; then
     GOBIN="garble ${GARBLE_FLAGS[@]}"
   else

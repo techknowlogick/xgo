@@ -23,12 +23,6 @@ RUN \
 
 WORKDIR /
 
-# Install garble for obfuscated builds
-RUN \
-  echo "Installing garble..." && \
-  go install mvdan.cc/garble@latest && \
-  cp /go/bin/garble /usr/bin/garble
-
 # Inject the container entry point, the build script
 COPY docker/build/build.sh /build.sh
 ENV BUILD /build.sh
