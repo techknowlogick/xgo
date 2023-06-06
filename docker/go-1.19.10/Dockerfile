@@ -1,0 +1,10 @@
+## GENERATED. DO NOT EDIT DIRECTLY.
+FROM toolchain
+
+ENV GO_VERSION 11910
+
+RUN \
+  export ROOT_DIST=https://dl.google.com/go/go1.19.10.linux-amd64.tar.gz && \
+  export ROOT_DIST_SHA=8b045a483d3895c6edba2e90a9189262876190dbbd21756870cdd63821810677 && \
+  \
+$BOOTSTRAP_PURE
