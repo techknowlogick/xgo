@@ -21,27 +21,26 @@ RUN chmod +x $FETCH
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # trunk-ignore(hadolint/DL3008)
 # trunk-ignore(hadolint/DL3015)
-RUN apt-get update && \
-  apt-get install -y automake autogen build-essential ca-certificates                    \
-    gcc-7-arm-linux-gnueabi g++-7-arm-linux-gnueabi libc6-dev-armel-cross                \
-    gcc-7-arm-linux-gnueabihf g++-7-arm-linux-gnueabihf libc6-dev-armhf-cross            \
-    gcc-7-aarch64-linux-gnu g++-7-aarch64-linux-gnu libc6-dev-arm64-cross                \
-    gcc-7-mips-linux-gnu g++-7-mips-linux-gnu libc6-dev-mips-cross                       \
-    gcc-7-mipsel-linux-gnu g++-7-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
-    gcc-7-mips64-linux-gnuabi64 g++-7-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
-    gcc-7-mips64el-linux-gnuabi64 g++-7-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
-    gcc-7-multilib g++-7-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev             \
-    gcc-7-arm-linux-gnueabi g++-7-arm-linux-gnueabi libc6-dev-armel-cross                \
-    gcc-7-arm-linux-gnueabihf g++-7-arm-linux-gnueabihf libc6-dev-armhf-cross            \
-    gcc-7-aarch64-linux-gnu g++-7-aarch64-linux-gnu libc6-dev-arm64-cross                \
-    gcc-7-mips-linux-gnu g++-7-mips-linux-gnu libc6-dev-mips-cross                       \
-    gcc-7-mipsel-linux-gnu g++-7-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
-    gcc-7-mips64-linux-gnuabi64 g++-7-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
-    gcc-7-mips64el-linux-gnuabi64 g++-7-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
-    gcc-7-s390x-linux-gnu g++-7-s390x-linux-gnu libc6-dev-s390x-cross \
-    gcc-7-powerpc64le-linux-gnu g++-7-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
+RUN apt-get install -y automake autogen build-essential ca-certificates                    \
+    gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
+    gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
+    gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu libc6-dev-arm64-cross                \
+    gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                       \
+    gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
+    gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
+    gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
+    gcc-9-multilib g++-9-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev             \
+    gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
+    gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
+    gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu libc6-dev-arm64-cross                \
+    gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                       \
+    gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
+    gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
+    gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
+    gcc-9-s390x-linux-gnu g++-9-s390x-linux-gnu libc6-dev-s390x-cross \
+    gcc-9-powerpc64le-linux-gnu g++-9-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
     gcc-8-riscv64-linux-gnu g++-8-riscv64-linux-gnu libc6-dev-riscv64-cross \
-    gcc-7-multilib g++-7-multilib gcc-7-multilib g++-7-multilib gcc-mingw-w64 g++-mingw-w64 \
+    gcc-9-multilib g++-9-multilib gcc-9-multilib g++-9-multilib gcc-mingw-w64 g++-mingw-w64 \
     clang llvm-dev libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch \
     make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake curl mercurial && \
     apt-get install -y libssl1.1 openssl ca-certificates && \
