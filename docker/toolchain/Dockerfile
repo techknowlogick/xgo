@@ -21,7 +21,8 @@ RUN chmod +x $FETCH
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # trunk-ignore(hadolint/DL3008)
 # trunk-ignore(hadolint/DL3015)
-RUN apt-get install -y automake autogen build-essential ca-certificates                    \
+RUN apt-get update -y && \
+    apt-get install -y automake autogen build-essential ca-certificates                    \
     gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
     gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
     gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu libc6-dev-arm64-cross                \
