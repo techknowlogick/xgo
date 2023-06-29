@@ -1,9 +1,10 @@
 # Go cross compiler (xgo): toolchain cross-compilation layer
 # Copyright (c) 2014 Péter Szilágyi. All rights reserved.
+# Copyright (c) 2019 techknowlogick
 #
 # Released under the MIT license.
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
 
