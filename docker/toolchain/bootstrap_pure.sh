@@ -35,28 +35,28 @@ if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VER
   GOOS=linux GOARCH=386 CGO_ENABLED=1 go install std
 
   echo "Bootstrapping linux/arm64..."
-  GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc-6 go install std
+  GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc-9 go install std
 
   echo "Bootstrapping linux/mips64..."
-  GOOS=linux GOARCH=mips64 CGO_ENABLED=1 CC=mips64-linux-gnuabi64-gcc-6 go install std
+  GOOS=linux GOARCH=mips64 CGO_ENABLED=1 CC=mips64-linux-gnuabi64-gcc-9 go install std
 
   echo "Bootstrapping linux/mips64le..."
-  GOOS=linux GOARCH=mips64le CGO_ENABLED=1 CC=mips64el-linux-gnuabi64-gcc-6 go install std
+  GOOS=linux GOARCH=mips64le CGO_ENABLED=1 CC=mips64el-linux-gnuabi64-gcc-9 go install std
 
   echo "Bootstrapping linux/mips..."
-  GOOS=linux GOARCH=mips CGO_ENABLED=1 CC=mips-linux-gnu-gcc-6 go install std
+  GOOS=linux GOARCH=mips CGO_ENABLED=1 CC=mips-linux-gnu-gcc-9 go install std
 
   echo "Bootstrapping linux/mipsle..."
-  GOOS=linux GOARCH=mipsle CGO_ENABLED=1 CC=mipsel-linux-gnu-gcc-6 go install std
+  GOOS=linux GOARCH=mipsle CGO_ENABLED=1 CC=mipsel-linux-gnu-gcc-9 go install std
 
   echo "Bootstrapping linux/ppc64le..."
-  GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 CC=powerpc64le-linux-gnu-gcc-6 go install std
+  GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 CC=powerpc64le-linux-gnu-gcc-9 go install std
 
   echo "Bootstrapping linux/s390x..."
-  GOOS=linux GOARCH=s390x CGO_ENABLED=1 CC=s390x-linux-gnu-gcc-6 go install std
+  GOOS=linux GOARCH=s390x CGO_ENABLED=1 CC=s390x-linux-gnu-gcc-9 go install std
 
   echo "Bootstrapping linux/riscv64..."
-  GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 CC=riscv64-linux-gnu-gcc-8 go install std
+  GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 CC=riscv64-linux-gnu-gcc-9 go install std
 
   echo "Bootstrapping windows/amd64..."
   GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go install std
@@ -74,19 +74,19 @@ if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VER
   GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 CC=o64-clang go install std
 
   echo "Bootstrapping linux/arm-5..."
-  CC=arm-linux-gnueabi-gcc-6 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go install std
+  CC=arm-linux-gnueabi-gcc-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go install std
   if [ -d "/usr/local/go/pkg/linux_arm" ]; then
     mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-5
   fi
 
   echo "Bootstrapping linux/arm-6..."
-  CC=arm-linux-gnueabi-gcc-6 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 CGO_CFLAGS="-march=armv6" CGO_CXXFLAGS="-march=armv6" go install std
+  CC=arm-linux-gnueabi-gcc-9 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 CGO_CFLAGS="-march=armv6" CGO_CXXFLAGS="-march=armv6" go install std
   if [ -d "/usr/local/go/pkg/linux_arm" ]; then
     mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-6
   fi
 
   echo "Bootstrapping linux/arm-7..."
-  CC=arm-linux-gnueabihf-gcc-6 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a" CGO_CXXFLAGS="-march=armv7-a" go install std
+  CC=arm-linux-gnueabihf-gcc-9 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a" CGO_CXXFLAGS="-march=armv7-a" go install std
   if [ -d "/usr/local/go/pkg/linux_arm" ]; then
     mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-7
   fi
