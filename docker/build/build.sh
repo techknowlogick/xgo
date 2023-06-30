@@ -256,13 +256,13 @@ for TARGET in $TARGETS; do
       ln -s /usr/local/go/pkg/linux_arm-5 /usr/local/go/pkg/linux_arm
     fi
     echo "Compiling for linux/arm-5..."
-    XGOOS="linux" XGOARCH="arm-5" GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 HOST=arm-linux-gnueabi PREFIX=/usr/arm-linux-gnueabi CFLAGS="-march=armv5" CXXFLAGS="-march=armv5" do_build
+    XGOOS="linux" XGOARCH="arm-5" GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 HOST=arm-linux-gnueabi PREFIX=/usr/arm-linux-gnueabi CFLAGS="-march=armv5t" CXXFLAGS="-march=armv5t" do_build
     export PKG_CONFIG_PATH=/usr/arm-linux-gnueabi/lib/pkgconfig
 
     if [[ "$USEMODULES" == false ]]; then
-      GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5t" CGO_CXXFLAGS="-march=armv5t" go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-5$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5t" CGO_CXXFLAGS="-march=armv5t" $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-5$(extension linux)" "$PACK_RELPATH"
     if [ "$GO_VERSION_MAJOR" -gt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -ge 15 ]; }; then
       rm /usr/local/go/pkg/linux_arm
     fi
