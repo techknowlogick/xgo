@@ -11,6 +11,7 @@ LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
 # Configure the Go environment, since it's not going to change
 ENV PATH   /usr/local/go/bin:$PATH
 ENV GOPATH /go
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Inject the remote file fetcher and checksum verifier
 COPY fetch.sh /fetch.sh
@@ -22,7 +23,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # trunk-ignore(hadolint/DL3008)
 # trunk-ignore(hadolint/DL3015)
 RUN apt-get update -y && \
-    apt-get install -y automake autogen build-essential ca-certificates                    \
+    apt-get install -y automake autogen build-essential zlib1g-dev                       \
     gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
     gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
     gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu libc6-dev-arm64-cross                \
