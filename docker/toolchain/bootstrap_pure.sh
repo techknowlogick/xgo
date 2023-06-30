@@ -74,7 +74,7 @@ if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VER
   GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 CC=o64-clang go install std
 
   echo "Bootstrapping linux/arm-5..."
-  CC=arm-linux-gnueabi-gcc-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5" CGO_CXXFLAGS="-march=armv5" go install std
+  CC=arm-linux-gnueabi-gcc-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5t" CGO_CXXFLAGS="-march=armv5t" go install std
   if [ -d "/usr/local/go/pkg/linux_arm" ]; then
     mv /usr/local/go/pkg/linux_arm /usr/local/go/pkg/linux_arm-5
   fi
