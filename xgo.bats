@@ -39,7 +39,7 @@
 }
 
 @test "gitea smoke" {
-  git clone --depth 1 https://github.com/go-gitea/gitea.git /tmp/gitea
+  git clone --depth 2 https://github.com/go-gitea/gitea.git /tmp/gitea
   run go run xgo.go --image="${IMAGEID}" --targets "darwin-10.6/amd64" -tags 'netgo osusergo sqlite sqlite_unlock_notify' /tmp/gitea
   echo "$output"
   [ "$status" -eq 0 ]
