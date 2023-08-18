@@ -49,8 +49,8 @@ jobs:
         name: build toolchain
         run: |
           echo "Build toolchain docker"
-          docker buildx build --file docker/toolchain/Dockerfile \
-            --tag toolchain --load docker/toolchain/
+          docker pull techknowolgick/xgo:toolchain
+          docker tag techknowlogick/xgo:toolchain toolchain
           docker save -o /tmp/toolchain.tar toolchain
       - name: build images and tests
         run: |
