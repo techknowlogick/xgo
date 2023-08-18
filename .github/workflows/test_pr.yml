@@ -37,52 +37,11 @@ jobs:
         uses: mig4/setup-bats@v1
         with:
           bats-version: 1.2.1
-      - name: cache toolchain
-        id: cache-toolchain
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-toolchain
-        with:
-          path: /tmp/toolchain.tar
-          key: ${{ runner.os }}-toolchain-${{ hashFiles('docker/toolchain/**') }}
       - if: ${{ steps.cache-toolchain.outputs.cache-hit != 'true' }}
         name: build toolchain
         run: |
-          echo "Build toolchain docker"
-          docker pull techknowlogick/xgo:toolchain
-          docker tag techknowlogick/xgo:toolchain toolchain
-          docker save -o /tmp/toolchain.tar toolchain
-      - name: build images and tests
-        run: |
-          echo "Load toolchain docker"
-          docker load -i /tmp/toolchain.tar
-
-          echo "Bootstrap go ${{ steps.golang_version_1.outputs.value }}"
-          docker buildx build --file docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile \
-            --tag ${{ steps.golang_version_1.outputs.value }}-base --load docker/${{ steps.golang_version_1.outputs.value }}/
-
-          echo "Build xgo for go ${{ steps.golang_version_1.outputs.value }} "
-          docker buildx build --file docker/build/Dockerfile \
-            --tag techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }} \
-            --tag techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }} \
-            --tag techknowlogick/xgo:latest \
-            --build-arg VERSION=${{ steps.golang_version_1.outputs.value }} \
-            --load .
-
-          echo "Bootstrap go ${{ steps.golang_version_2.outputs.value }}"
-          docker buildx build --file docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile \
-            --tag ${{ steps.golang_version_2.outputs.value }}-base --load docker/${{ steps.golang_version_2.outputs.value }}/
-
-          echo "Build xgo for go ${{ steps.golang_version_2.outputs.value }}"
-          docker buildx build --file docker/build/Dockerfile \
-            --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }} \
-            --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }} \
-            --build-arg VERSION=${{ steps.golang_version_2.outputs.value }} \
-            --load .
-
-          mkdir -p .xgo-cache
-          mkdir -p ~/go/src
+          
 
           echo "Run tests on latest go ${{ steps.golang_version_1.outputs.value }}"
-          env IMAGEID="techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}" bats xgo.bats
+          env IMAGEID="techknowlogick/xgo:go-1.21.x" bats xgo.bats
 
