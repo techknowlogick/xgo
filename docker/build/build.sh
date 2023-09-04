@@ -21,6 +21,7 @@
 #   FLAG_GCFLAGS   - Optional gcflags flag to set on the Go builder
 #   FLAG_BUILDMODE - Optional buildmode flag to set on the Go builder
 #   FLAG_TRIMPATH  - Optional trimpath flag to set on the Go builder
+#   FLAG_BUILDVCS  - Optional buildvcs flag to set on the Go builder
 #   FLAG_OBFUSCATE - Optional flag to obfuscate builds using garble
 #   TARGETS        - Comma separated list of build targets to compile for
 #   EXT_GOPATH     - GOPATH elements mounted from the host filesystem
@@ -204,6 +205,7 @@ if [ "$FLAG_GCFLAGS" != "" ];  then GC=(--gcflags="$(printf "%s " "${FLAG_GCFLAG
 
 if [ "$FLAG_BUILDMODE" != "" ] && [ "$FLAG_BUILDMODE" != "default" ]; then BM=(--buildmode="${FLAG_BUILDMODE[@]}"); fi
 if [ "$FLAG_TRIMPATH" == "true" ]; then TP=-trimpath; fi
+if [ "$FLAG_BUILDVCS" != "" ]; then BV=(--buildvcs="$FLAG_BUILDVCS"); fi
 if [ "$FLAG_MOD" != "" ]; then MOD=(--mod="$FLAG_MOD"); fi
 if [ "$FLAG_OBFUSCATE" == "true" ] && [ "$GO_VERSION_MAJOR" -eq 1 ] && [ "$GO_VERSION_MINOR" -ge 20 ]; then
   if [ "$GARBLE_FLAGS" != "" ]; then
@@ -239,7 +241,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/amd64 GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/amd64 GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" $R "${BM[@]}" -o "/build/$NAME-linux-amd64$R$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/amd64 GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" $R "${BM[@]}" -o "/build/$NAME-linux-amd64$R$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "386" ]; }; then
     echo "Compiling for linux/386..."
@@ -248,7 +250,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/386 GOOS=linux GOARCH=386 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/386 GOOS=linux GOARCH=386 CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-386$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/386 GOOS=linux GOARCH=386 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-386$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; }  && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm" ] || [ "$XGOARCH" == "arm-5" ]; }; then
     mkdir -p /gocache/linux/arm-5
@@ -262,7 +264,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5t" CGO_CXXFLAGS="-march=armv5t" go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5t" CGO_CXXFLAGS="-march=armv5t" $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-5$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/arm-5 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=5 CGO_ENABLED=1 CGO_CFLAGS="-march=armv5t" CGO_CXXFLAGS="-march=armv5t" $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-5$(extension linux)" "$PACK_RELPATH"
     if [ "$GO_VERSION_MAJOR" -gt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -ge 15 ]; }; then
       rm /usr/local/go/pkg/linux_arm
     fi
@@ -278,7 +280,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/arm-6 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 CGO_CFLAGS="-march=armv6" CGO_CXXFLAGS="-march=armv6" go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/arm-6 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 CGO_CFLAGS="-march=armv6" CGO_CXXFLAGS="-march=armv6" $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-6$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/arm-6 CC=arm-linux-gnueabi-gcc-9 CXX=arm-linux-gnueabi-g++-9 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 CGO_CFLAGS="-march=armv6" CGO_CXXFLAGS="-march=armv6" $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-6$(extension linux)" "$PACK_RELPATH"
 
     rm /usr/local/go/pkg/linux_arm
   fi
@@ -293,7 +295,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/arm-7 CC=arm-linux-gnueabihf-gcc-9 CXX=arm-linux-gnueabihf-g++-9 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a -fPIC" CGO_CXXFLAGS="-march=armv7-a -fPIC" go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/arm-7 CC=arm-linux-gnueabihf-gcc-9 CXX=arm-linux-gnueabihf-g++-9 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a -fPIC" CGO_CXXFLAGS="-march=armv7-a -fPIC" $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-7$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/arm-7 CC=arm-linux-gnueabihf-gcc-9 CXX=arm-linux-gnueabihf-g++-9 GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CGO_CFLAGS="-march=armv7-a -fPIC" CGO_CXXFLAGS="-march=armv7-a -fPIC" $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm-7$(extension linux)" "$PACK_RELPATH"
 
     rm /usr/local/go/pkg/linux_arm
   fi
@@ -306,7 +308,7 @@ for TARGET in $TARGETS; do
       if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/arm64 CC=aarch64-linux-gnu-gcc-9 CXX=aarch64-linux-gnu-g++-9 GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/arm64 CC=aarch64-linux-gnu-gcc-9 CXX=aarch64-linux-gnu-g++-9 GOOS=linux GOARCH=arm64 CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm64$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/arm64 CC=aarch64-linux-gnu-gcc-9 CXX=aarch64-linux-gnu-g++-9 GOOS=linux GOARCH=arm64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-arm64$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "mips64" ]; }; then
     echo "Compiling for linux/mips64..."
@@ -317,7 +319,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc-9 CXX=mips64-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc-9 CXX=mips64-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64 CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips64$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc-9 CXX=mips64-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips64$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "mips64le" ]; }; then
     echo "Compiling for linux/mips64le..."
@@ -328,7 +330,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc-9 CXX=mips64el-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64le CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc-9 CXX=mips64el-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64le CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips64le$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc-9 CXX=mips64el-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64le CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips64le$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "mips" ]; }; then
     echo "Compiling for linux/mips..."
@@ -339,7 +341,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc-9 CXX=mips-linux-gnu-g++-9 GOOS=linux GOARCH=mips CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc-9 CXX=mips-linux-gnu-g++-9 GOOS=linux GOARCH=mips CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc-9 CXX=mips-linux-gnu-g++-9 GOOS=linux GOARCH=mips CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "s390x" ]; }; then
     echo "Compiling for linux/s390x..."
@@ -350,7 +352,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc-9 CXX=s390x-linux-gnu-g++-9 GOOS=linux GOARCH=s390x CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc-9 CXX=s390x-linux-gnu-g++-9 GOOS=linux GOARCH=s390x CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-s390x$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc-9 CXX=s390x-linux-gnu-g++-9 GOOS=linux GOARCH=s390x CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-s390x$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "riscv64" ]; }; then
     echo "Compiling for linux/riscv64..."
@@ -361,7 +363,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc-9 CXX=riscv64-linux-gnu-g++-9 GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc-9 CXX=riscv64-linux-gnu-g++-9 GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-riscv64$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc-9 CXX=riscv64-linux-gnu-g++-9 GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-riscv64$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "ppc64le" ]; }; then
     echo "Compiling for linux/ppc64le..."
@@ -372,7 +374,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc-9 CXX=powerpc64le-linux-gnu-g++-9 GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc-9 CXX=powerpc64le-linux-gnu-g++-9 GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-ppc64le$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc-9 CXX=powerpc64le-linux-gnu-g++-9 GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-ppc64le$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "mipsle" ]; }; then
     echo "Compiling for linux/mipsle..."
@@ -383,7 +385,7 @@ for TARGET in $TARGETS; do
     if [[ "$USEMODULES" == false ]]; then
       GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc-9 CXX=mipsel-linux-gnu-g++-9 GOOS=linux GOARCH=mipsle CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc-9 CXX=mipsel-linux-gnu-g++-9 GOOS=linux GOARCH=mipsle CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mipsle$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc-9 CXX=mipsel-linux-gnu-g++-9 GOOS=linux GOARCH=mipsle CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mipsle$(extension linux)" "$PACK_RELPATH"
   fi
   # Check and build for Windows targets
   if [ "$XGOOS" == "." ] || [[ "$XGOOS" == windows* ]]; then
@@ -409,7 +411,7 @@ for TARGET in $TARGETS; do
       if [[ "$USEMODULES" == false ]]; then
         GOCACHE=/gocache/windows-$PLATFORM/amd64 CC=x86_64-w64-mingw32-gcc-posix CXX=x86_64-w64-mingw32-g++-posix GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CGO_CFLAGS="$CGO_NTDEF" CGO_CXXFLAGS="$CGO_NTDEF" go get $V $X "${T[@]}" -d "$PACK_RELPATH"
       fi
-      GOCACHE=/gocache/windows-$PLATFORM/amd64 CC=x86_64-w64-mingw32-gcc-posix CXX=x86_64-w64-mingw32-g++-posix GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CGO_CFLAGS="$CGO_NTDEF" CGO_CXXFLAGS="$CGO_NTDEF" $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" $R "${BM[@]}" -o "/build/$NAME-windows-$PLATFORM-amd64$R$(extension windows)" "$PACK_RELPATH"
+      GOCACHE=/gocache/windows-$PLATFORM/amd64 CC=x86_64-w64-mingw32-gcc-posix CXX=x86_64-w64-mingw32-g++-posix GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CGO_CFLAGS="$CGO_NTDEF" CGO_CXXFLAGS="$CGO_NTDEF" $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" $R "${BM[@]}" -o "/build/$NAME-windows-$PLATFORM-amd64$R$(extension windows)" "$PACK_RELPATH"
     fi
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "386" ]; then
       echo "Compiling for windows-$PLATFORM/386..."
@@ -420,7 +422,7 @@ for TARGET in $TARGETS; do
       if [[ "$USEMODULES" == false ]]; then
         GOCACHE=/gocache/windows-$PLATFORM/386 CC=i686-w64-mingw32-gcc-posix CXX=i686-w64-mingw32-g++-posix GOOS=windows GOARCH=386 CGO_ENABLED=1 CGO_CFLAGS="$CGO_NTDEF" CGO_CXXFLAGS="$CGO_NTDEF" go get $V $X "${T[@]}" -d "$PACK_RELPATH"
       fi
-      GOCACHE=/gocache/windows-$PLATFORM/386 CC=i686-w64-mingw32-gcc-posix CXX=i686-w64-mingw32-g++-posix GOOS=windows GOARCH=386 CGO_ENABLED=1 CGO_CFLAGS="$CGO_NTDEF" CGO_CXXFLAGS="$CGO_NTDEF" $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-windows-$PLATFORM-386$(extension windows)" "$PACK_RELPATH"
+      GOCACHE=/gocache/windows-$PLATFORM/386 CC=i686-w64-mingw32-gcc-posix CXX=i686-w64-mingw32-g++-posix GOOS=windows GOARCH=386 CGO_ENABLED=1 CGO_CFLAGS="$CGO_NTDEF" CGO_CXXFLAGS="$CGO_NTDEF" $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-windows-$PLATFORM-386$(extension windows)" "$PACK_RELPATH"
     fi
   fi
   # Check and build for OSX targets
@@ -448,7 +450,7 @@ for TARGET in $TARGETS; do
       if [[ "$USEMODULES" == false ]]; then
         GOCACHE=/gocache/darwin-$PLATFORM/amd64 CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" "${LDFS[@]}" "${GC[@]}" -d "$PACK_RELPATH"
       fi
-      GOCACHE=/gocache/darwin-$PLATFORM/amd64 CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDFS[@]}" "${GC[@]}" $R "${BM[@]}" -o "/build/$NAME-darwin-$PLATFORM-amd64$R$(extension darwin)" "$PACK_RELPATH"
+      GOCACHE=/gocache/darwin-$PLATFORM/amd64 CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDFS[@]}" "${GC[@]}" $R "${BM[@]}" -o "/build/$NAME-darwin-$PLATFORM-amd64$R$(extension darwin)" "$PACK_RELPATH"
     fi
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm64" ]; then
       if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 16 ]; }; then
@@ -460,7 +462,7 @@ for TARGET in $TARGETS; do
         if [[ "$USEMODULES" == false ]]; then
           GOCACHE=/gocache/darwin-$PLATFORM/arm64 CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go get $V $X "${T[@]}" "${LDFS[@]}" "${GC[@]}" -d "$PACK_RELPATH"
         fi
-        GOCACHE=/gocache/darwin-$PLATFORM/arm64 CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDFS[@]}" "${GC[@]}" $R "${BM[@]}" -o "/build/$NAME-darwin-$PLATFORM-arm64$R$(extension darwin)" "$PACK_RELPATH"
+        GOCACHE=/gocache/darwin-$PLATFORM/arm64 CC=o64-clang CXX=o64-clang++ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDFS[@]}" "${GC[@]}" $R "${BM[@]}" -o "/build/$NAME-darwin-$PLATFORM-arm64$R$(extension darwin)" "$PACK_RELPATH"
       fi
     fi
     # Remove any automatically injected deployment target vars
@@ -477,7 +479,7 @@ for TARGET in $TARGETS; do
        if [[ "$USEMODULES" == false ]]; then
         CC=x86_64-pc-freebsd12-gcc CXX=x86_64-pc-freebsd12-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
       fi
-      CC=x86_64-pc-freebsd12-gcc CXX=x86_64-pc-freebsd12-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 $GOBIN build $V $X $TP "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-freebsd12-amd64$(extension freebsd)" "$PACK_RELPATH"
+      CC=x86_64-pc-freebsd12-gcc CXX=x86_64-pc-freebsd12-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-freebsd12-amd64$(extension freebsd)" "$PACK_RELPATH"
     fi
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm64" ]; then
       echo "skipping freebsd/arm64... as it is not yet supported"
