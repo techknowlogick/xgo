@@ -87,6 +87,7 @@ var (
 	buildGcFlags  = flag.String("gcflags", "", "Arguments to pass on each go tool compile invocation")
 	buildMode     = flag.String("buildmode", "default", "Indicates which kind of object file to build")
 	buildTrimpath = flag.Bool("trimpath", false, "Indicates if trimpath should be applied to build")
+	buildBuildVCS = flag.Bool("buildvcs", true, "Whether to stamp binaries with version control information")
 	obfuscate     = flag.Bool("obfuscate", false, "Obfuscate build using garble")
 	garbleFlags   = flag.String("garbleflags", "", "Arguments to pass to garble (e.g. -seed=random)")
 )
@@ -101,6 +102,7 @@ type BuildFlags struct {
 	GcFlags     string // Arguments to pass on each go tool compile invocation
 	Mode        string // Indicates which kind of object file to build
 	Trimpath    bool   // Indicates if trimpath should be applied to build
+	BuildVCS    bool   // Whether to stamp binaries with version control information
 	Obfuscate   bool   // Obfuscate build using garble
 	GarbleFlags string // Arguments to pass to garble
 }
@@ -214,6 +216,7 @@ func main() {
 		GcFlags:     *buildGcFlags,
 		Mode:        *buildMode,
 		Trimpath:    *buildTrimpath,
+		BuildVCS:    *buildBuildVCS,
 		Obfuscate:   *obfuscate,
 		GarbleFlags: *garbleFlags,
 	}
@@ -441,6 +444,7 @@ func toArgs(config *ConfigFlags, flags *BuildFlags, folder string) []string {
 		"-e", fmt.Sprintf("FLAG_GCFLAGS=%s", flags.GcFlags),
 		"-e", fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
 		"-e", fmt.Sprintf("FLAG_TRIMPATH=%v", flags.Trimpath),
+		"-e", fmt.Sprintf("FLAG_BUILDVCS=%v", flags.BuildVCS),
 		"-e", fmt.Sprintf("FLAG_OBFUSCATE=%v", flags.Obfuscate),
 		"-e", fmt.Sprintf("GARBLE_FLAGS=%s", flags.GarbleFlags),
 		"-e", "TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
@@ -578,6 +582,7 @@ func compileContained(config *ConfigFlags, flags *BuildFlags, folder string) err
 		fmt.Sprintf("FLAG_GCFLAGS=%s", flags.GcFlags),
 		fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
 		fmt.Sprintf("FLAG_TRIMPATH=%v", flags.Trimpath),
+		fmt.Sprintf("FLAG_BUILDVCS=%v", flags.BuildVCS),
 		fmt.Sprintf("FLAG_OBFUSCATE=%v", flags.Obfuscate),
 		fmt.Sprintf("GARBLE_FLAGS=%s", flags.GarbleFlags),
 		"TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
