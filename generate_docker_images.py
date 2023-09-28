@@ -2,10 +2,10 @@ import requests
 import os
 import hashlib
 import re
-from jsonpath_ng import jsonpath, parse
+from jsonpath_ng import parse
 
 def generate_image(image):
-  version = image["version"].replace("go1","go-1")
+  version = image[0]["version"].replace("go1","go-1")
   wildcard = version
   if version.count('.') > 1:
     wildcard = re.sub("\.\d+$", ".x", version)
@@ -24,11 +24,18 @@ def generate_image(image):
   f = open("docker/"+version+"/Dockerfile", "w")
   f.write("## GENERATED. DO NOT EDIT DIRECTLY.\n")
   f.write("FROM toolchain\n\n")
+  f.write("ARG ARCH=amd64\n")
   f.write("ENV GO_VERSION "+version.replace("go-","").replace(".","")+"\n\n")
   f.write("RUN \\\n")
-  f.write("  export ROOT_DIST=https://dl.google.com/go/"+image["filename"]+" && \\\n")
-  f.write("  export ROOT_DIST_SHA="+image["sha256"]+" && \\\n")
-  f.write("  \\\n")
+  f.write('if [ "$ARCH" = "amd64" ]; then \\\n')
+  f.write("  export ROOT_DIST=https://dl.google.com/go/"+image[0]["filename"]+" && \\\n")
+  f.write("  export ROOT_DIST_SHA="+image[0]["sha256"]+" && \\\n")
+  f.write('elif [ "$ARCH" = "arm64" ]; then \\\n')
+  f.write("  export ROOT_DIST=https://dl.google.com/go/"+image[1]["filename"]+" && \\\n")
+  f.write("  export ROOT_DIST_SHA="+image[1]["sha256"]+" && \\\n")
+  f.write(" else \\\n")
+  f.write('echo "Unsupported architecture: $ARCH" && exit 1; \\\n')
+  f.write("fi && \\\n")
   f.write("$BOOTSTRAP_PURE\n")
   f.close()
   # now wildcard version
@@ -37,7 +44,7 @@ def generate_image(image):
   f.write("FROM "+version+"\n")
   f.close()
 
-r = requests.get('https://golang.org/dl/?mode=json')
+r = requests.get('https://go.dev/dl/?mode=json')
 
 if r.status_code != requests.codes.ok:
   print("error fetching golang versions")
@@ -58,19 +65,24 @@ fileExpr = parse('$.[*].files')
 files = [match.value for match in fileExpr.find(golangJson)]
 versionExpr = parse('$.[*].version')
 versions = [match.value for match in versionExpr.find(golangJson)]
-docker_images = []
+docker_images = {}
 for file in files:
   x = [f for f in file if (f['os'] == "linux" and f['arch'] == "amd64" ) ][0]
-  docker_images.append(x)
+  y = [f for f in file if (f['os'] == "linux" and f['arch'] == "arm64" ) ][0]
+  docker_images[x['version']] = [x, y]
 
+# loop through each key in dict and pass value to generate_image function
+first = {}
 for docker_image in docker_images:
-  generate_image(docker_image)
+  if len(first) < 1:
+    first = docker_images[docker_image]
+  generate_image(docker_images[docker_image])
 
 # write latest image
-if docker_images[0]["version"].count('.') > 1:
-  wildcard = re.sub("\.\d+$", ".x", docker_images[0]["version"])
+if first[0]["version"].count('.') > 1:
+  wildcard = re.sub("\.\d+$", ".x", first[0]["version"])
 else:
-  wildcard = docker_images[0]["version"] + ".x"
+  wildcard = first[0]["version"] + ".x"
 try:
     os.mkdir("docker/go-latest")
 except:
