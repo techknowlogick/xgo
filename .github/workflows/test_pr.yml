@@ -6,7 +6,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
       # FIXME: https://github.com/jlumbroso/free-disk-space/issues/17
