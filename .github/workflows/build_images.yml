@@ -12,6 +12,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
+      # FIXME: https://github.com/jlumbroso/free-disk-space/issues/17
+      - name: same as 'large-packages' but without 'google-cloud-sdk'
+        shell: bash
+        run: |
+          sudo apt-get remove -y '^dotnet-.*'
+          sudo apt-get remove -y '^llvm-.*'
+          sudo apt-get remove -y 'php.*'
+          sudo apt-get remove -y '^mongodb-.*'
+          sudo apt-get remove -y '^mysql-.*'
+          sudo apt-get remove -y azure-cli google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri
+          sudo apt-get autoremove -y
+          sudo apt-get clean
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -24,7 +36,7 @@ jobs:
           android: true
           dotnet: true
           haskell: true
-          large-packages: true
+          large-packages: false
           docker-images: false
           swap-storage: true
       - name: get golang version 1
