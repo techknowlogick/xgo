@@ -81,7 +81,8 @@ jobs:
         if: steps.toolchain_build.outputs.value != '0'
         with:
           context: docker/toolchain/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:toolchain
           push: true
           file: docker/toolchain/Dockerfile
@@ -89,7 +90,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: docker/${{ steps.golang_version_1.outputs.value }}/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}-base
           push: true
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
@@ -99,7 +101,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }}
           push: true
           build-args: |
@@ -111,7 +114,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: docker/${{ steps.golang_version_2.outputs.value }}/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }}-base
           push: true
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
@@ -121,7 +125,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
           push: true
           build-args: |
@@ -133,7 +138,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: docker/go-latest/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:latest
           push: true
           file: docker/go-latest/Dockerfile
