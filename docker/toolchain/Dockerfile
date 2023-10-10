@@ -26,7 +26,7 @@ RUN apt-get update -y && \
     apt-get install -y automake autogen build-essential zlib1g-dev                       \
     gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
     gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
-    gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu libc6-dev-arm64-cross                \
+    gcc-9-arm-linux-gnueabihf-base binutils-arm-linux-gnueabihf-dbg libc6-dev-arm64-cross                \
     gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                       \
     gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
     gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
@@ -34,7 +34,7 @@ RUN apt-get update -y && \
     gcc-9-multilib-x86-64-linux-gnu g++-9-multilib-x86-64-linux-gnu gcc-mingw-w64 g++-mingw-w64 clang llvm-dev             \
     gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
     gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
-    gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu libc6-dev-arm64-cross                \
+    gcc-9-arm-linux-gnueabihf-base libc6-dev-arm64-cross                \
     gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                       \
     gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
     gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
