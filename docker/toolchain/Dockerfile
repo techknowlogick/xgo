@@ -41,7 +41,7 @@ RUN apt-get update -y && \
     gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
     gcc-9-s390x-linux-gnu g++-9-s390x-linux-gnu libc6-dev-s390x-cross \
     gcc-9-powerpc64le-linux-gnu g++-9-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
-    gcc-9-riscv64-linux-gnu g++-8-riscv64-linux-gnu libc6-dev-riscv64-cross \
+    gcc-9-riscv64-linux-gnu g++-11-riscv64-linux-gnu libc6-dev-riscv64-cross \
     gcc-9-multilib g++-9-multilib gcc-9-multilib g++-9-multilib gcc-mingw-w64 g++-mingw-w64 \
     clang llvm-dev libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch \
     make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake curl mercurial && \
