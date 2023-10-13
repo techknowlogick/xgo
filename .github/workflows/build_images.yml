@@ -52,12 +52,12 @@ jobs:
             echo "wildcard=$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
           fi
         id: golang_version_2
-      - name: get if toolchain should be built
-        run: |
-          export VAL=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/toolchain" | wc -l | awk '{print $1}')
-          echo $VAL
-          echo "value=$(echo -n $VAL)" >> $GITHUB_OUTPUT
-        id: toolchain_build
+      # - name: get if toolchain should be built
+      #   run: |
+      #     export VAL=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/toolchain" | wc -l | awk '{print $1}')
+      #     echo $VAL
+      #     echo "value=$(echo -n $VAL)" >> $GITHUB_OUTPUT
+      #   id: toolchain_build
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
@@ -69,15 +69,15 @@ jobs:
       #   with:
       #     username: ${{ secrets.DOCKER_USERNAME }}
       #     password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: build toolchain image
-        uses: docker/build-push-action@v5
-        # if: steps.toolchain_build.outputs.value != '0'
-        with:
-          context: docker/toolchain/
-          platforms: linux/amd64,linux/arm64
-          tags: techknowlogick/xgo:toolchain
-          push: true
-          file: docker/toolchain/Dockerfile
+      # - name: build toolchain image
+      #   uses: docker/build-push-action@v5
+      #   # if: steps.toolchain_build.outputs.value != '0'
+      #   with:
+      #     context: docker/toolchain/
+      #     platforms: linux/amd64,linux/arm64
+      #     tags: techknowlogick/xgo:toolchain
+      #     push: true
+      #     file: docker/toolchain/Dockerfile
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image base
         uses: docker/build-push-action@v4
         with:
@@ -87,7 +87,7 @@ jobs:
           push: true
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
           build-contexts: |
-            toolchain=docker-image://techknowlogick/xgo:toolchain
+            toolchain=docker-image://techknowlogick/xgo:toolchain2
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image
         uses: docker/build-push-action@v4
         with:
@@ -109,7 +109,7 @@ jobs:
           push: true
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
           build-contexts: |
-            toolchain=docker-image://techknowlogick/xgo:toolchain
+            toolchain=docker-image://techknowlogick/xgo:toolchain2
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
         uses: docker/build-push-action@v3
         with:
