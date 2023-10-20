@@ -71,7 +71,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: build toolchain image
         uses: docker/build-push-action@v5
-        # if: steps.toolchain_build.outputs.value != '0'
+        if: steps.toolchain_build.outputs.value != '0'
         with:
           context: docker/toolchain/
           platforms: linux/amd64,linux/arm64
@@ -87,7 +87,7 @@ jobs:
           push: true
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
           build-contexts: |
-            toolchain=docker-image://techknowlogick/xgo:toolchain2
+            toolchain=docker-image://techknowlogick/xgo:toolchain
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image
         uses: docker/build-push-action@v4
         with:
@@ -109,7 +109,7 @@ jobs:
           push: true
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
           build-contexts: |
-            toolchain=docker-image://techknowlogick/xgo:toolchain2
+            toolchain=docker-image://techknowlogick/xgo:toolchain
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
         uses: docker/build-push-action@v3
         with:

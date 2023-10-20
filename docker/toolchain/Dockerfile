@@ -61,9 +61,9 @@ RUN \
 # Add patches directory for patching later
 COPY patches /patches
 
-# ##########################
-# # Darwin Toolchain build #
-# ##########################
+##########################
+# Darwin Toolchain build #
+##########################
 
 # Configure the container for OSX cross compilation
 ENV OSX_SDK MacOSX11.1.sdk
@@ -93,9 +93,9 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK && \
 
 ENV PATH /osxcross/target/bin:$PATH
 
-# ###########################
-# # FREEBSD TOOLCHAIN BUILD #
-# ###########################
+###########################
+# FREEBSD TOOLCHAIN BUILD #
+###########################
 
 COPY prep_freebsd.sh /prep_freebsd.sh
 RUN chmod +x /prep_freebsd.sh && \
