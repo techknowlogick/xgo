@@ -23,29 +23,29 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # trunk-ignore(hadolint/DL3008)
 # trunk-ignore(hadolint/DL3015)
 RUN apt-get update -y && \
-  apt-get install -y automake autogen build-essential zlib1g-dev                       \
-  gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
-  gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
-  gcc-9-arm-linux-gnueabihf-base binutils-arm-linux-gnueabihf-dbg libc6-dev-arm64-cross                \
-  gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                       \
-  gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
-  gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
-  gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
-  gcc-mingw-w64 g++-mingw-w64 clang llvm-dev             \
-  gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
-  gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
-  gcc-9-arm-linux-gnueabihf-base libc6-dev-arm64-cross                \
-  gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                       \
-  gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
-  gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
-  gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
-  gcc-9-s390x-linux-gnu g++-9-s390x-linux-gnu libc6-dev-s390x-cross \
+  apt-get install -y automake autogen build-essential zlib1g-dev                        \
+  gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                 \
+  gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross             \
+  gcc-9-arm-linux-gnueabihf-base binutils-arm-linux-gnueabihf-dbg libc6-dev-arm64-cross \
+  gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                        \
+  gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                  \
+  gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross        \
+  gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross  \
+  gcc-mingw-w64 g++-mingw-w64 clang llvm-dev                                            \
+  gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                 \
+  gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross             \
+  gcc-9-arm-linux-gnueabihf-base libc6-dev-arm64-cross                                  \
+  gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                        \
+  gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                  \
+  gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross        \
+  gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross  \
+  gcc-9-s390x-linux-gnu g++-9-s390x-linux-gnu libc6-dev-s390x-cross                     \
   gcc-9-powerpc64le-linux-gnu g++-9-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
-  gcc-9-riscv64-linux-gnu libc6-dev-riscv64-cross \
-  gcc-mingw-w64 g++-mingw-w64 \
-  gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi \
-  clang llvm-dev libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch \
-  make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake curl mercurial && \
+  gcc-9-riscv64-linux-gnu libc6-dev-riscv64-cross                                       \
+  gcc-mingw-w64 g++-mingw-w64 gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi          \
+  clang llvm-dev libtool libxml2-dev uuid-dev libssl-dev swig                           \
+  openjdk-8-jdk pkg-config patchmake xz-utils cpio wget zip unzip p7zip git mercurial   \
+  bzr texinfo help2man cmake curl mercurial && \
   apt-get install -y libssl1.1 openssl ca-certificates libgmp-dev && \
   update-ca-certificates && \
   apt-get clean && \
@@ -61,9 +61,9 @@ RUN \
 # Add patches directory for patching later
 COPY patches /patches
 
-##########################
-# Darwin Toolchain build #
-##########################
+# ##########################
+# # Darwin Toolchain build #
+# ##########################
 
 # Configure the container for OSX cross compilation
 ENV OSX_SDK MacOSX11.1.sdk
@@ -93,9 +93,9 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK && \
 
 ENV PATH /osxcross/target/bin:$PATH
 
-###########################
-# FREEBSD TOOLCHAIN BUILD #
-###########################
+# ###########################
+# # FREEBSD TOOLCHAIN BUILD #
+# ###########################
 
 COPY prep_freebsd.sh /prep_freebsd.sh
 RUN chmod +x /prep_freebsd.sh && \
@@ -113,4 +113,4 @@ COPY build_deps.sh /build_deps.sh
 ENV BUILD_DEPS /build_deps.sh
 RUN chmod +x $BUILD_DEPS
 
-ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT [ "/bin/bash", "-l", "-c" ]

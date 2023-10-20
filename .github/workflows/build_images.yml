@@ -1,10 +1,10 @@
 name: Build Images
 on:
-  pull_request:
-  # push:
-  #   branches:
-  #     - master
-  #     - main
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -52,39 +52,39 @@ jobs:
             echo "wildcard=$(echo -n $VERSION | sed 's/\.[^.]*$/.x/')" >> $GITHUB_OUTPUT
           fi
         id: golang_version_2
-      # - name: get if toolchain should be built
-      #   run: |
-      #     export VAL=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/toolchain" | wc -l | awk '{print $1}')
-      #     echo $VAL
-      #     echo "value=$(echo -n $VAL)" >> $GITHUB_OUTPUT
-      #   id: toolchain_build
+      - name: get if toolchain should be built
+        run: |
+          export VAL=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "docker/toolchain" | wc -l | awk '{print $1}')
+          echo $VAL
+          echo "value=$(echo -n $VAL)" >> $GITHUB_OUTPUT
+        id: toolchain_build
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: linux/amd64,linux/arm64
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKER_USERNAME }}
-      #     password: ${{ secrets.DOCKER_PASSWORD }}
-      # - name: build toolchain image
-      #   uses: docker/build-push-action@v5
-      #   # if: steps.toolchain_build.outputs.value != '0'
-      #   with:
-      #     context: docker/toolchain/
-      #     platforms: linux/amd64,linux/arm64
-      #     tags: techknowlogick/xgo:toolchain
-      #     push: true
-      #     file: docker/toolchain/Dockerfile
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: build toolchain image
+        uses: docker/build-push-action@v5
+        # if: steps.toolchain_build.outputs.value != '0'
+        with:
+          context: docker/toolchain/
+          platforms: linux/amd64,linux/arm64
+          tags: techknowlogick/xgo:toolchain
+          push: true
+          file: docker/toolchain/Dockerfile
       - name: build golang ${{ steps.golang_version_1.outputs.value }} image base
         uses: docker/build-push-action@v4
         with:
           context: docker/${{ steps.golang_version_1.outputs.value }}/
           platforms: linux/amd64,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}-base
-          push: false
+          push: true
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
           build-contexts: |
             toolchain=docker-image://techknowlogick/xgo:toolchain2
@@ -94,7 +94,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }}
-          push: false
+          push: true
           build-args: |
             VERSION=${{ steps.golang_version_1.outputs.value }}
           file: docker/build/Dockerfile
@@ -106,7 +106,7 @@ jobs:
           context: docker/${{ steps.golang_version_2.outputs.value }}/
           platforms: linux/amd64,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }}-base
-          push: false
+          push: true
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
           build-contexts: |
             toolchain=docker-image://techknowlogick/xgo:toolchain2
@@ -116,7 +116,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
-          push: false
+          push: true
           build-args: |
             VERSION=${{ steps.golang_version_2.outputs.value }}
           file: docker/build/Dockerfile
@@ -128,5 +128,5 @@ jobs:
           context: docker/go-latest/
           platforms: linux/amd64,linux/arm64
           tags: techknowlogick/xgo:latest
-          push: false
+          push: true
           file: docker/go-latest/Dockerfile
