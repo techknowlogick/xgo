@@ -44,7 +44,7 @@ RUN apt-get update -y && \
   gcc-9-riscv64-linux-gnu libc6-dev-riscv64-cross                                       \
   gcc-mingw-w64 g++-mingw-w64 gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi          \
   clang llvm-dev libtool libxml2-dev uuid-dev libssl-dev swig                           \
-  openjdk-8-jdk pkg-config patchmake xz-utils cpio wget zip unzip p7zip git mercurial   \
+  openjdk-8-jdk pkg-config xz-utils cpio wget zip unzip p7zip git mercurial   \
   bzr texinfo help2man cmake curl mercurial && \
   apt-get install -y libssl1.1 openssl ca-certificates libgmp-dev && \
   update-ca-certificates && \
