@@ -22,35 +22,31 @@ RUN chmod +x $FETCH
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # trunk-ignore(hadolint/DL3008)
 # trunk-ignore(hadolint/DL3015)
-RUN apt-get update -y && \
-  apt-get install -y automake autogen build-essential zlib1g-dev                        \
-  gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                 \
-  gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross             \
-  gcc-9-arm-linux-gnueabihf-base binutils-arm-linux-gnueabihf-dbg libc6-dev-arm64-cross \
-  gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                        \
-  gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                  \
-  gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross        \
-  gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross  \
-  gcc-mingw-w64 g++-mingw-w64 clang llvm-dev                                            \
-  gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                 \
-  gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross             \
-  gcc-9-arm-linux-gnueabihf-base libc6-dev-arm64-cross                                  \
-  gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                        \
-  gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                  \
-  gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross        \
-  gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross  \
-  gcc-9-s390x-linux-gnu g++-9-s390x-linux-gnu libc6-dev-s390x-cross                     \
-  gcc-9-powerpc64le-linux-gnu g++-9-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
-  gcc-9-riscv64-linux-gnu libc6-dev-riscv64-cross                                       \
-  gcc-mingw-w64 g++-mingw-w64 gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi          \
-  clang llvm-dev libtool libxml2-dev uuid-dev libssl-dev swig                           \
-  openjdk-8-jdk pkg-config xz-utils cpio wget zip unzip p7zip git mercurial   \
-  bzr texinfo help2man cmake curl mercurial && \
-  apt-get install -y libssl1.1 openssl ca-certificates libgmp-dev && \
-  update-ca-certificates && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-  find /var/log -type f | while read -r f; do echo -ne '' > "$f"; done;
+RUN apt-get update
+# the following cross-compilations are not supported on arm64 due to missing ubuntu libs:
+# - mips*
+RUN if [ $(arch) = "aarch64" ] ; then apt-get install -y \
+  gcc-multilib-x86-64-linux-gnu gcc-9-multilib-x86-64-linux-gnu \
+  gcc-arm-linux-gnueabihf; fi
+RUN if [ $(arch) = "x86_64" ] ; then apt-get install -y gcc-arm-linux-gnueabihf \
+  gcc-mips64-linux-gnuabi64 gcc-mips64el-linux-gnuabi64 gcc-mipsel-linux-gnu \
+  g++-mipsel-linux-gnu gcc-mips-linux-gnu g++-mips-linux-gnu \
+  g++-mips64el-linux-gnuabi64 g++-mips64-linux-gnuabi64 g++-9-mips-linux-gnu \
+  g++-9-mips64-linux-gnuabi64 gcc-9-mips-linux-gnu gcc-9-mips64-linux-gnuabi64 \
+  g++-9-mips64el-linux-gnuabi64 gcc-9-mips64el-linux-gnuabi64 \
+  g++-9-mipsel-linux-gnu; fi
+
+RUN apt-get update -y && apt-get install -y automake autogen build-essential bzr \
+  ca-certificates clang cmake cpio curl g++-mingw-w64 g++-powerpc64le-linux-gnu \
+  g++-s390x-linux-gnu gcc-mingw-w64 gcc-powerpc64le-linux-gnu gcc-riscv64-linux-gnu \
+  gcc-s390x-linux-gnu git help2man libc6-dev-arm64-cross libc6-dev-armel-cross \
+  libc6-dev-armhf-cross libc6-dev-mips-cross libc6-dev-mipsel-cross \
+  libc6-dev-powerpc-ppc64-cross libc6-dev-riscv64-cross libc6-dev-s390x-cross \
+  libgmp-dev libssl-dev libssl1.1 libtool libxml2-dev llvm-dev mercurial \
+  openjdk-8-jdk openssl p7zip pkg-config swig texinfo unzip ca-certificates \
+  uuid-dev wget xz-utils zip zlib1g-dev && apt-get clean && rm -rf \
+  /var/lib/apt/lists/* /tmp/* /var/tmp/* && find /var/log -type f | while read -r f; \
+  do echo -ne '' > "$f"; done;
 
 RUN \
   # Fix any stock package issues
