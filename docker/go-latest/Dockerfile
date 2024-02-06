@@ -1,2 +1,2 @@
 ## GENERATED. DO NOT EDIT DIRECTLY.
-FROM techknowlogick/xgo:go-1.21.x
+FROM techknowlogick/xgo:go-1.22.x
