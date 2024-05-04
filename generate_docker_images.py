@@ -23,7 +23,7 @@ def generate_image(image):
   # now that folders have been created, the Dockerfile needs to be created
   f = open("docker/"+version+"/Dockerfile", "w")
   f.write("## GENERATED. DO NOT EDIT DIRECTLY.\n")
-  f.write("FROM toolchain2\n\n")
+  f.write("FROM toolchain\n\n")
   f.write("ARG TARGETPLATFORM\n")
   f.write("ENV GO_VERSION "+version.replace("go-","").replace(".","")+"\n\n")
   f.write("RUN \\\n")
