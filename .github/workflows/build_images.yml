@@ -8,11 +8,23 @@ on:
 
 jobs:
   build:
-    runs-on: nscloud
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
+      # FIXME: https://github.com/jlumbroso/free-disk-space/issues/17
+      - name: same as 'large-packages' but without 'google-cloud-sdk'
+        shell: bash
+        run: |
+          sudo apt-get remove -y '^dotnet-.*'
+          sudo apt-get remove -y '^llvm-.*'
+          sudo apt-get remove -y 'php.*'
+          sudo apt-get remove -y '^mongodb-.*'
+          sudo apt-get remove -y '^mysql-.*'
+          sudo apt-get remove -y azure-cli google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri
+          sudo apt-get autoremove -y
+          sudo apt-get clean
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -25,7 +37,7 @@ jobs:
           android: true
           dotnet: true
           haskell: true
-          large-packages: true
+          large-packages: false
           docker-images: false
           swap-storage: true
       - name: get golang version 1
@@ -58,23 +70,20 @@ jobs:
           echo $VAL
           echo "value=$(echo -n $VAL)" >> $GITHUB_OUTPUT
         id: toolchain_build
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v2
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: build toolchain image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v4
         if: steps.toolchain_build.outputs.value != '0'
         with:
           context: docker/toolchain/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:toolchain
           push: true
           file: docker/toolchain/Dockerfile
@@ -82,7 +91,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: docker/${{ steps.golang_version_1.outputs.value }}/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}-base
           push: true
           file: docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile
@@ -92,7 +102,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }}
           push: true
           build-args: |
@@ -104,7 +115,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: docker/${{ steps.golang_version_2.outputs.value }}/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }}-base
           push: true
           file: docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile
@@ -114,7 +126,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }},techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }}
           push: true
           build-args: |
@@ -126,7 +139,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: docker/go-latest/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          #,linux/arm64
           tags: techknowlogick/xgo:latest
           push: true
           file: docker/go-latest/Dockerfile
