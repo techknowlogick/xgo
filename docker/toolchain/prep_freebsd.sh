@@ -9,8 +9,8 @@
 # for their work on this subject which
 # I have been able to expand upon for cgo/golang
 
-freebsd_ver=12
-freebsd_full_ver=12.4
+freebsd_ver=13
+freebsd_full_ver=13.4
 binutils_ver=2.39
 gmp_ver=6.2.1
 mpfr_ver=4.1.1
@@ -36,7 +36,7 @@ cd /tmp/freebsdbuild && \
   tar -xf /tmp/freebsdbuild/base.txz --strip-components=2 lib/ usr/lib/ usr/include/ && \
   cd usr/lib && \
   find . -xtype l|xargs ls -l|grep ' /lib/' \
-    | awk '{print "ln -sf /freebsdcross/x86_64-pc-freebsd12"$11 " " $9}' \
+    | awk '{print "ln -sf /freebsdcross/x86_64-pc-freebsd13"$11 " " $9}' \
     | /bin/sh && \
   rm -rf /tmp/freebsdbuild && mkdir /tmp/freebsdbuild
 
