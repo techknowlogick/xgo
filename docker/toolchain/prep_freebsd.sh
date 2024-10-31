@@ -31,9 +31,10 @@ mkdir /tmp/freebsdbuild && cd /tmp/freebsdbuild && \
 # freebsd specific lbs
 cd /tmp/freebsdbuild && \
   wget https://download.freebsd.org/ftp/releases/amd64/${freebsd_full_ver}-RELEASE/base.txz && \
+  mkdir -p /freebsdcross/x86_64-pc-freebsd${freebsd_ver} && \
   cd /freebsdcross/x86_64-pc-freebsd${freebsd_ver} && \
-  tar -xf /tmp/freebsdbuild/base.txz ./lib/ ./usr/lib/ ./usr/include/ && \
-  cd /freebsdcross/x86_64-pc-freebsd${freebsd_ver}/usr/lib && \
+  tar -xf /tmp/freebsdbuild/base.txz --strip-components=2 lib/ usr/lib/ usr/include/ && \
+  cd usr/lib && \
   find . -xtype l|xargs ls -l|grep ' /lib/' \
     | awk '{print "ln -sf /freebsdcross/x86_64-pc-freebsd12"$11 " " $9}' \
     | /bin/sh && \
