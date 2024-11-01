@@ -97,8 +97,8 @@ ENV PATH=/osxcross/target/bin:$PATH
 ###########################
 
 COPY prep_freebsd.sh /prep_freebsd.sh
-RUN chmod +x /prep_freebsd.sh && \
-  /prep_freebsd.sh
+#RUN chmod +x /prep_freebsd.sh && \
+#  /prep_freebsd.sh
 
 ENV PATH=/freebsdcross/x86_64-pc-freebsd13/bin:$PATH
 
