@@ -108,7 +108,7 @@ else
 
   # Otherwise download the canonical import path (may fail, don't allow failures beyond)
   echo "Fetching main repository $1..."
-  GO111MODULE="off" go get -v -d "$1"
+  GO111MODULE="off" go get -v "$1"
   set -e
 
   cd "$GOPATH_ROOT/$1"
