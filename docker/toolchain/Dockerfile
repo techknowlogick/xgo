@@ -27,10 +27,17 @@ RUN apt-get update -y && \
     automake autogen build-essential clang gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
     gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libc6-dev-armel-cross \
     gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross \
-    gcc-mingw-w64 g++-mingw-w64 llvm-dev \
+    gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+    gcc-mingw-w64 g++-mingw-w64 llvm-dev gcc-multilib-mipsel-linux-gnu \
+    gcc-multilib-mipsisa32r6-linux-gnu gcc-multilib-mipsisa32r6el-linux-gnu \
+    gcc-multilib-mipsisa64r6-linux-gnuabi64 gcc-multilib-mipsisa64r6el-linux-gnuabi64 \
+    gcc-multilib-powerpc-linux-gnu gcc-multilib-powerpc64-linux-gnu \
+    gcc-multilib-s390x-linux-gnu gcc-multilib-sparc64-linux-gnu \
+    gcc-multilib-x86-64-linux-gnux32 \
     gcc-mips-linux-gnu g++-mips-linux-gnu libc6-dev-mips-cross \
     gcc-mips64-linux-gnuabi64 g++-mips64-linux-gnuabi64 libc6-dev-mips64-cross \
-    gcc-mips64el-linux-gnuabi64 g++-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
+    gcc-multilib-mips64el-linux-gnuabi64 gcc-mips64el-linux-gnuabi64 g++-mips64el-linux-gnuabi64 \
+    libc6-dev-mips64el-cross \
     gcc-mipsel-linux-gnu g++-mipsel-linux-gnu libc6-dev-mipsel-cross \
     gcc-multilib-i686-linux-gnu gcc-multilib-mips-linux-gnu gcc-multilib-mips64-linux-gnuabi64 \
     gcc-multilib-x86-64-linux-gnux32 \
@@ -41,7 +48,7 @@ RUN apt-get update -y && \
 
 # gcc-multilib has no arch-agnostic library but must be installed with arch-specific libraries
 RUN if [ $(arch) = "aarch64" ] ; then apt-get install --fix-broken -y gcc-multilib-x86-64-linux-gnu; fi
-RUN if [ $(arch) = "x86_64" ] ; then apt-get install --fix-broken -y gcc-multilib; fi
+RUN if [ $(arch) = "x86_64" ] ; then apt-get install --fix-broken -y gcc-multilib-x86-64-linux-gnu; fi
 
 RUN apt-get update -y && apt-get install -y automake autogen build-essential bzr \
   ca-certificates clang cmake cpio curl git help2man  \
@@ -100,7 +107,7 @@ COPY prep_freebsd.sh /prep_freebsd.sh
 RUN chmod +x /prep_freebsd.sh && \
   /prep_freebsd.sh
 
-ENV PATH=/freebsdcross/x86_64-pc-freebsd12/bin:$PATH
+ENV PATH=/freebsdcross/x86_64-pc-freebsd14/bin:$PATH
 
 # Inject the new Go root distribution downloader and bootstrapper
 COPY bootstrap_pure.sh /bootstrap_pure.sh
