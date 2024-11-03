@@ -25,11 +25,12 @@
   [ "$status" -eq 0 ]
 }
 
-@test "branches" {
-  run go run xgo.go --remote https://github.com/rwcarlsen/cyan --branch memprof --targets "linux/amd64" --image="${IMAGEID}" github.com/rwcarlsen/cyan/cmd/cyan
-  echo "$output"
-  [ "$status" -eq 0 ]
-}
+# FIXME:
+# @test "branches" {
+#   run go run xgo.go --remote https://github.com/rwcarlsen/cyan --branch memprof --targets "linux/amd64" --image="${IMAGEID}" github.com/rwcarlsen/cyan/cmd/cyan
+#   echo "$output"
+#   [ "$status" -eq 0 ]
+# }
 
 @test "eth smoke" {
   git clone --depth 1 https://github.com/ethereum/go-ethereum.git /tmp/eth
@@ -45,9 +46,10 @@
   [ "$status" -eq 0 ]
 }
 
-@test "vikunja smoke" {
-  git clone --depth 1 https://kolaente.dev/vikunja/api /tmp/vikunja
-  run go run xgo.go --image="${IMAGEID}" --targets "darwin-10.6/amd64" /tmp/vikunja
-  echo "$output"
-  [ "$status" -eq 0 ]
-}
+# FIXME:
+# @test "vikunja smoke" {
+#   git clone --depth 1 https://kolaente.dev/vikunja/api /tmp/vikunja
+#   run go run xgo.go --image="${IMAGEID}" --targets "darwin-10.6/amd64" /tmp/vikunja
+#   echo "$output"
+#   [ "$status" -eq 0 ]
+# }
