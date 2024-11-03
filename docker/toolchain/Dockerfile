@@ -4,18 +4,18 @@
 #
 # Released under the MIT license.
 
-FROM ubuntu:24.04
+FROM ubuntu:20.04
 
 LABEL maintainer="techknowlogick <techknowlogick@gitea.io>"
 
 # Configure the Go environment, since it's not going to change
-ENV PATH=/usr/local/go/bin:$PATH
-ENV GOPATH=/go
+ENV PATH   /usr/local/go/bin:$PATH
+ENV GOPATH /go
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Inject the remote file fetcher and checksum verifier
 COPY fetch.sh /fetch.sh
-ENV FETCH=/fetch.sh
+ENV FETCH /fetch.sh
 RUN chmod +x $FETCH
 
 # Make sure apt-get is up to date and dependent packages are installed
@@ -23,33 +23,33 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # trunk-ignore(hadolint/DL3008)
 # trunk-ignore(hadolint/DL3015)
 RUN apt-get update -y && \
-    apt-get install --fix-broken -y \
-    automake autogen build-essential clang gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-    gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libc6-dev-armel-cross \
-    gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross \
-    gcc-mingw-w64 g++-mingw-w64 llvm-dev \
-    gcc-mips-linux-gnu g++-mips-linux-gnu libc6-dev-mips-cross \
-    gcc-mips64-linux-gnuabi64 g++-mips64-linux-gnuabi64 libc6-dev-mips64-cross \
-    gcc-mips64el-linux-gnuabi64 g++-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
-    gcc-mipsel-linux-gnu g++-mipsel-linux-gnu libc6-dev-mipsel-cross \
-    gcc-multilib-i686-linux-gnu gcc-multilib-mips-linux-gnu gcc-multilib-mips64-linux-gnuabi64 \
-    gcc-multilib-x86-64-linux-gnux32 \
-    gcc-powerpc64le-linux-gnu g++-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
-    gcc-riscv64-linux-gnu g++-riscv64-linux-gnu libc6-dev-riscv64-cross \
-    gcc-s390x-linux-gnu g++-s390x-linux-gnu libc6-dev-s390x-cross \
-    zlib1g-dev
-
-# gcc-multilib has no arch-agnostic library but must be installed with arch-specific libraries
-RUN if [ $(arch) = "aarch64" ] ; then apt-get install --fix-broken -y gcc-multilib-x86-64-linux-gnu; fi
-RUN if [ $(arch) = "x86_64" ] ; then apt-get install --fix-broken -y gcc-multilib; fi
-
-RUN apt-get update -y && apt-get install -y automake autogen build-essential bzr \
-  ca-certificates clang cmake cpio curl git help2man  \
-  libgmp-dev libssl-dev libtool libxml2-dev llvm-dev mercurial \
-  openjdk-8-jdk openssl p7zip pkg-config swig texinfo unzip ca-certificates \
-  uuid-dev wget xz-utils zip zlib1g-dev && apt-get clean && rm -rf \
-  /var/lib/apt/lists/* /tmp/* /var/tmp/* && find /var/log -type f | while read -r f; \
-  do echo -ne '' > "$f"; done;
+    apt-get install -y automake autogen build-essential zlib1g-dev                       \
+    gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
+    gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
+    gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu libc6-dev-arm64-cross                \
+    gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                       \
+    gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
+    gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
+    gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
+    gcc-9-multilib g++-9-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev             \
+    gcc-9-arm-linux-gnueabi g++-9-arm-linux-gnueabi libc6-dev-armel-cross                \
+    gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf libc6-dev-armhf-cross            \
+    gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu libc6-dev-arm64-cross                \
+    gcc-9-mips-linux-gnu g++-9-mips-linux-gnu libc6-dev-mips-cross                       \
+    gcc-9-mipsel-linux-gnu g++-9-mipsel-linux-gnu libc6-dev-mipsel-cross                 \
+    gcc-9-mips64-linux-gnuabi64 g++-9-mips64-linux-gnuabi64 libc6-dev-mips64-cross       \
+    gcc-9-mips64el-linux-gnuabi64 g++-9-mips64el-linux-gnuabi64 libc6-dev-mips64el-cross \
+    gcc-9-s390x-linux-gnu g++-9-s390x-linux-gnu libc6-dev-s390x-cross \
+    gcc-9-powerpc64le-linux-gnu g++-9-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
+    gcc-9-riscv64-linux-gnu g++-8-riscv64-linux-gnu libc6-dev-riscv64-cross \
+    gcc-9-multilib g++-9-multilib gcc-9-multilib g++-9-multilib gcc-mingw-w64 g++-mingw-w64 \
+    clang llvm-dev libtool libxml2-dev uuid-dev libssl-dev swig openjdk-8-jdk pkg-config patch \
+    make xz-utils cpio wget zip unzip p7zip git mercurial bzr texinfo help2man cmake curl mercurial && \
+    apt-get install -y libssl1.1 openssl ca-certificates && \
+    update-ca-certificates && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+  find /var/log -type f | while read -r f; do echo -ne '' > "$f"; done;
 
 RUN \
   # Fix any stock package issues
@@ -65,8 +65,8 @@ COPY patches /patches
 ##########################
 
 # Configure the container for OSX cross compilation
-ENV OSX_SDK=MacOSX11.1.sdk
-ENV OSX_SDK_PATH=https://github.com/phracker/MacOSX-SDKs/releases/download/11.0-11.1/${OSX_SDK}.tar.xz
+ENV OSX_SDK MacOSX11.1.sdk
+ENV OSX_SDK_PATH https://github.com/phracker/MacOSX-SDKs/releases/download/11.0-11.1/${OSX_SDK}.tar.xz
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
@@ -90,26 +90,25 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK && \
   # Actually build the toolchain
   OSX_VERSION_MIN=10.13 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
 
-ENV PATH=/osxcross/target/bin:$PATH
+ENV PATH /osxcross/target/bin:$PATH
 
 ###########################
 # FREEBSD TOOLCHAIN BUILD #
 ###########################
 
 COPY prep_freebsd.sh /prep_freebsd.sh
-#RUN chmod +x /prep_freebsd.sh && \
-#  /prep_freebsd.sh
+# RUN chmod +x /prep_freebsd.sh && \ /prep_freebsd.sh
 
-ENV PATH=/freebsdcross/x86_64-pc-freebsd13/bin:$PATH
+ENV PATH /freebsdcross/x86_64-pc-freebsd12/bin:$PATH
 
 # Inject the new Go root distribution downloader and bootstrapper
 COPY bootstrap_pure.sh /bootstrap_pure.sh
-ENV BOOTSTRAP_PURE=/bootstrap_pure.sh
+ENV BOOTSTRAP_PURE /bootstrap_pure.sh
 RUN chmod +x $BOOTSTRAP_PURE
 
 # Inject the C dependency cross compiler
 COPY build_deps.sh /build_deps.sh
-ENV BUILD_DEPS=/build_deps.sh
+ENV BUILD_DEPS /build_deps.sh
 RUN chmod +x $BUILD_DEPS
 
 ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
