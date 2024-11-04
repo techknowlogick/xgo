@@ -46,7 +46,10 @@
 }
 
 @test "vikunja smoke" {
-  git clone --depth 1 https://kolaente.dev/vikunja/api /tmp/vikunja
+  export vikunja_path=/tmp/vikunja
+  git clone --depth 1 https://kolaente.dev/vikunja/api $vikunja_path
+  mkdir -p $vikunja_path/frontend/dist/
+  touch $vikunja_path/frontend/dist/index.html
   run go run xgo.go --image="${IMAGEID}" --targets "darwin-10.6/amd64" /tmp/vikunja
   echo "$output"
   [ "$status" -eq 0 ]
