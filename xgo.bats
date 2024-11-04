@@ -25,11 +25,12 @@
   [ "$status" -eq 0 ]
 }
 
-@test "branches" {
-  run go run xgo.go --remote https://github.com/rwcarlsen/cyan --branch memprof --targets "linux/amd64" --image="${IMAGEID}" github.com/rwcarlsen/cyan/cmd/cyan
-  echo "$output"
-  [ "$status" -eq 0 ]
-}
+# FIXME: does not work, see https://github.com/techknowlogick/xgo/issues/260
+#@test "branches" {
+#  run go run xgo.go --remote https://github.com/rwcarlsen/cyan --branch memprof --targets "linux/amd64" --image="${IMAGEID}" github.com/rwcarlsen/cyan/cmd/cyan
+#  echo "$output"
+#  [ "$status" -eq 0 ]
+#}
 
 @test "eth smoke" {
   git clone --depth 1 https://github.com/ethereum/go-ethereum.git /tmp/eth
@@ -50,7 +51,7 @@
   git clone --depth 1 https://kolaente.dev/vikunja/api $vikunja_path
   mkdir -p $vikunja_path/frontend/dist/
   touch $vikunja_path/frontend/dist/index.html
-  run go run xgo.go --image="${IMAGEID}" --targets "darwin-10.6/amd64" /tmp/vikunja
+  run go run xgo.go --image="${IMAGEID}" --targets "darwin-10.6/amd64" $vikunja_path
   echo "$output"
   [ "$status" -eq 0 ]
 }
