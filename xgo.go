@@ -1,5 +1,6 @@
 // Go CGO cross compiler
 // Copyright (c) 2014 Péter Szilágyi. All rights reserved.
+// Copyright (c) 2019 techknowlogick. All rights reserved.
 //
 // Released under the MIT license.
 
