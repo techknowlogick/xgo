@@ -41,7 +41,7 @@ func init() {
 
 // Cross compilation docker containers
 var (
-	dockerDist = "techknowlogick/xgo:"
+	dockerDist = "ghcr.io/techknowlogick/xgo:"
 )
 
 // Command line arguments to fine tune the compilation
