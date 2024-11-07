@@ -42,8 +42,9 @@ RUN apt-get update -y && \
   gcc-multilib-i686-linux-gnu gcc-multilib-mips-linux-gnu gcc-multilib-mips64-linux-gnuabi64 \
   gcc-multilib-x86-64-linux-gnux32 \
   gcc-powerpc64le-linux-gnu g++-powerpc64le-linux-gnu libc6-dev-powerpc-ppc64-cross \
-  gcc-riscv64-linux-gnu g++-riscv64-linux-gnu libc6-dev-riscv64-cross \
+  gcc-riscv64-linux-gnu g++-riscv64-linux-gnu libc6-dev-riscv64-cross gcc-9-riscv64-linux-gnu \
   gcc-s390x-linux-gnu g++-s390x-linux-gnu libc6-dev-s390x-cross \
+  gcc-9-mipsel-linux-gnu gcc-9-mips-linux-gnu gcc-9-mips64-linux-gnuabi64 gcc-9-mips64el-linux-gnuabi64 \
   zlib1g-dev
 
 # gcc-multilib has no arch-agnostic library but must be installed with arch-specific libraries
