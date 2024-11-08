@@ -313,79 +313,79 @@ for TARGET in $TARGETS; do
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "mips64" ]; }; then
     echo "Compiling for linux/mips64..."
     mkdir -p /gocache/linux/mips64
-    XGOOS="linux" XGOARCH="mips64" GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc-9 CXX=mips64-linux-gnuabi64-g++-9 HOST=mips64-linux-gnuabi64 PREFIX=/usr/mips64-linux-gnuabi64 do_build
+    XGOOS="linux" XGOARCH="mips64" GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc CXX=mips64-linux-gnuabi64-g++ HOST=mips64-linux-gnuabi64 PREFIX=/usr/mips64-linux-gnuabi64 do_build
     export PKG_CONFIG_PATH=/usr/mips64-linux-gnuabi64/lib/pkgconfig
 
     if [[ "$USEMODULES" == false ]]; then
-      GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc-9 CXX=mips64-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc CXX=mips64-linux-gnuabi64-g++ GOOS=linux GOARCH=mips64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc-9 CXX=mips64-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips64$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/mips64 CC=mips64-linux-gnuabi64-gcc CXX=mips64-linux-gnuabi64-g++ GOOS=linux GOARCH=mips64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips64$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "mips64le" ]; }; then
     echo "Compiling for linux/mips64le..."
     mkdir -p /gocache/linux/mips64le
-    XGOOS="linux" XGOARCH="mips64le" GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc-9 CXX=mips64el-linux-gnuabi64-g++-9 HOST=mips64el-linux-gnuabi64 PREFIX=/usr/mips64el-linux-gnuabi64 do_build
+    XGOOS="linux" XGOARCH="mips64le" GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc CXX=mips64el-linux-gnuabi64-g++ HOST=mips64el-linux-gnuabi64 PREFIX=/usr/mips64el-linux-gnuabi64 do_build
     export PKG_CONFIG_PATH=/usr/mips64le-linux-gnuabi64/lib/pkgconfig
 
     if [[ "$USEMODULES" == false ]]; then
-      GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc-9 CXX=mips64el-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64le CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc CXX=mips64el-linux-gnuabi64-g++ GOOS=linux GOARCH=mips64le CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc-9 CXX=mips64el-linux-gnuabi64-g++-9 GOOS=linux GOARCH=mips64le CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips64le$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/mips64le CC=mips64el-linux-gnuabi64-gcc CXX=mips64el-linux-gnuabi64-g++ GOOS=linux GOARCH=mips64le CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips64le$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "mips" ]; }; then
     echo "Compiling for linux/mips..."
     mkdir -p /gocache/linux/mips
-    XGOOS="linux" XGOARCH="mips" GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc-9 CXX=mips-linux-gnu-g++-9 HOST=mips-linux-gnu PREFIX=/usr/mips-linux-gnu do_build
+    XGOOS="linux" XGOARCH="mips" GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc CXX=mips-linux-gnu-g++ HOST=mips-linux-gnu PREFIX=/usr/mips-linux-gnu do_build
     export PKG_CONFIG_PATH=/usr/mips-linux-gnu/lib/pkgconfig
 
     if [[ "$USEMODULES" == false ]]; then
-      GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc-9 CXX=mips-linux-gnu-g++-9 GOOS=linux GOARCH=mips CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc CXX=mips-linux-gnu-g++ GOOS=linux GOARCH=mips CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc-9 CXX=mips-linux-gnu-g++-9 GOOS=linux GOARCH=mips CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/mips CC=mips-linux-gnu-gcc CXX=mips-linux-gnu-g++ GOOS=linux GOARCH=mips CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mips$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "s390x" ]; }; then
     echo "Compiling for linux/s390x..."
     mkdir -p /gocache/linux/s390x
-    XGOOS="linux" XGOARCH="s390x" GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc-9 CXX=s390x-linux-gnu-g++-9 HOST=s390x-linux-gnu PREFIX=/usr/s390x-linux-gnu do_build
+    XGOOS="linux" XGOARCH="s390x" GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc CXX=s390x-linux-gnu-g++ HOST=s390x-linux-gnu PREFIX=/usr/s390x-linux-gnu do_build
     export PKG_CONFIG_PATH=/usr/s390x-linux-gnu/lib/pkgconfig
 
     if [[ "$USEMODULES" == false ]]; then
-      GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc-9 CXX=s390x-linux-gnu-g++-9 GOOS=linux GOARCH=s390x CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc CXX=s390x-linux-gnu-g++ GOOS=linux GOARCH=s390x CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc-9 CXX=s390x-linux-gnu-g++-9 GOOS=linux GOARCH=s390x CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-s390x$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/s390x CC=s390x-linux-gnu-gcc CXX=s390x-linux-gnu-g++ GOOS=linux GOARCH=s390x CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-s390x$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "riscv64" ]; }; then
     echo "Compiling for linux/riscv64..."
     mkdir -p /gocache/linux/riscv64
-    XGOOS="linux" XGOARCH="riscv64" GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc-9 CXX=riscv64-linux-gnu-g++-9 HOST=riscv64-linux-gnu PREFIX=/usr/riscv64-linux-gnu do_build
+    XGOOS="linux" XGOARCH="riscv64" GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc CXX=riscv64-linux-gnu-g++ HOST=riscv64-linux-gnu PREFIX=/usr/riscv64-linux-gnu do_build
     export PKG_CONFIG_PATH=/usr/riscv64-linux-gnu/lib/pkgconfig
 
     if [[ "$USEMODULES" == false ]]; then
-      GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc-9 CXX=riscv64-linux-gnu-g++-9 GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc CXX=riscv64-linux-gnu-g++ GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc-9 CXX=riscv64-linux-gnu-g++-9 GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-riscv64$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/riscv64 CC=riscv64-linux-gnu-gcc CXX=riscv64-linux-gnu-g++ GOOS=linux GOARCH=riscv64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-riscv64$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "ppc64le" ]; }; then
     echo "Compiling for linux/ppc64le..."
     mkdir -p /gocache/linux/ppc64le
-    XGOOS="linux" XGOARCH="ppc64le" GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc-9 CXX=powerpc64le-linux-gnu-g++-9 HOST=ppc64le-linux-gnu PREFIX=/usr/ppc64le-linux-gnu do_build
+    XGOOS="linux" XGOARCH="ppc64le" GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc CXX=powerpc64le-linux-gnu-g++ HOST=ppc64le-linux-gnu PREFIX=/usr/ppc64le-linux-gnu do_build
     export PKG_CONFIG_PATH=/usr/ppc64le-linux-gnu/lib/pkgconfig
 
     if [[ "$USEMODULES" == false ]]; then
-      GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc-9 CXX=powerpc64le-linux-gnu-g++-9 GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc CXX=powerpc64le-linux-gnu-g++ GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc-9 CXX=powerpc64le-linux-gnu-g++-9 GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-ppc64le$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/ppc64le CC=powerpc64le-linux-gnu-gcc CXX=powerpc64le-linux-gnu-g++ GOOS=linux GOARCH=ppc64le CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-ppc64le$(extension linux)" "$PACK_RELPATH"
   fi
   if { [ "$XGOOS" == "." ] || [ "$XGOOS" == "linux" ]; } && { [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "mipsle" ]; }; then
     echo "Compiling for linux/mipsle..."
     mkdir -p /gocache/linux/mipsle
-    XGOOS="linux" XGOARCH="mipsle" GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc-9 CXX=mipsel-linux-gnu-g++-9 HOST=mipsel-linux-gnu PREFIX=/usr/mipsel-linux-gnu do_build
+    XGOOS="linux" XGOARCH="mipsle" GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc CXX=mipsel-linux-gnu-g++ HOST=mipsel-linux-gnu PREFIX=/usr/mipsel-linux-gnu do_build
     export PKG_CONFIG_PATH=/usr/mipsle-linux-gnu/lib/pkgconfig
 
     if [[ "$USEMODULES" == false ]]; then
-      GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc-9 CXX=mipsel-linux-gnu-g++-9 GOOS=linux GOARCH=mipsle CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+      GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc CXX=mipsel-linux-gnu-g++ GOOS=linux GOARCH=mipsle CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
     fi
-    GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc-9 CXX=mipsel-linux-gnu-g++-9 GOOS=linux GOARCH=mipsle CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mipsle$(extension linux)" "$PACK_RELPATH"
+    GOCACHE=/gocache/linux/mipsle CC=mipsel-linux-gnu-gcc CXX=mipsel-linux-gnu-g++ GOOS=linux GOARCH=mipsle CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-linux-mipsle$(extension linux)" "$PACK_RELPATH"
   fi
   # Check and build for Windows targets
   if [ "$XGOOS" == "." ] || [[ "$XGOOS" == windows* ]]; then
