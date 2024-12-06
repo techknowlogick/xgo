@@ -25,7 +25,7 @@ def generate_image(image):
   f.write("## GENERATED. DO NOT EDIT DIRECTLY.\n")
   f.write("FROM toolchain\n\n")
   f.write("ARG TARGETPLATFORM\n")
-  f.write("ENV GO_VERSION "+version.replace("go-","").replace(".","")+"\n\n")
+  f.write("ENV GO_VERSION="+version.replace("go-","").replace(".","")+"\n\n")
   f.write("RUN \\\n")
   f.write('if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \\\n')
   f.write("  export ROOT_DIST=https://dl.google.com/go/"+image[0]["filename"]+" && \\\n")
