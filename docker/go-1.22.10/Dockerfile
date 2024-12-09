@@ -2,7 +2,7 @@
 FROM toolchain
 
 ARG TARGETPLATFORM
-ENV GO_VERSION 12210
+ENV GO_VERSION=12210
 
 RUN \
 if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
