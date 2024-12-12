@@ -49,8 +49,11 @@ RUN apt-get update -y && \
 
 # gcc-multilib has no arch-agnostic library but must be installed with arch-specific libraries
 RUN if [ $(arch) = "aarch64" ] ; then apt-get install --fix-broken -y gcc-multilib-x86-64-linux-gnu; fi
+
 # https://bugs.launchpad.net/ubuntu/+source/gcc-defaults/+bug/1300211/comments/31
-RUN if [ $(arch) = "x86_64" ] ; then apt install -y --fix-broken gcc-multilib-powerpc64-linux-gnu && \
+# second line of packages is to allow 32bit binaries to build on x86 arches
+RUN if [ $(arch) = "x86_64" ] ; then apt install -y --fix-broken gcc-multilib-powerpc64-linux-gnu \
+  libc6-dev-i386 gcc-9-mips-linux-gnu gcc-9-mips64-linux-gnuabi64 gcc-9-mips64el-linux-gnuabi64 gcc-9-mipsel-linux-gnu gcc-9-riscv64-linux-gnu lib32gcc-13-dev && \
   ln -s /usr/include/x86_64-linux-gnu/asm/ /usr/local/include/asm; fi
 
 RUN apt-get update -y && apt-get install -y automake autogen build-essential bzr \
