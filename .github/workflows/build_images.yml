@@ -105,7 +105,7 @@ jobs:
             VERSION=${{ steps.golang_version_1.outputs.value }}
           file: docker/build/Dockerfile
           build-contexts: |
-            ${{ steps.golang_version_1.outputs.value }}-base=docker-image://techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}-base
+            ${{ steps.golang_version_1.outputs.value }}-base=docker-image://ghcr.io/techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }}-base
       - name: build golang ${{ steps.golang_version_2.outputs.value }} image
         uses: docker/build-push-action@v6
         with:
@@ -133,4 +133,4 @@ jobs:
             VERSION=${{ steps.golang_version_2.outputs.value }}
           file: docker/build/Dockerfile
           build-contexts: |
-            ${{ steps.golang_version_2.outputs.value }}-base=docker-image://techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }}-base
+            ${{ steps.golang_version_2.outputs.value }}-base=docker-image://ghcr.io/techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }}-base
