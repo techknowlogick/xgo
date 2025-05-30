@@ -59,6 +59,7 @@ var (
 	dockerImage = flag.String("image", "", "Use custom docker image instead of official distribution")
 	dockerEnv   = flag.String("env", "", "Comma separated custom environments added to docker run -e")
 	dockerArgs  = flag.String("dockerargs", "", "Comma separated arguments added to docker run")
+	volumes     = flag.String("volumes", "", "Comma separated list of volume mounts in format source:target[:mode]")
 	hooksDir    = flag.String("hooksdir", "", "Directory with user hook scripts (setup.sh, build.sh)")
 	forwardSsh  = flag.Bool("ssh", false, "Enable ssh agent forwarding")
 )
@@ -75,6 +76,7 @@ type ConfigFlags struct {
 	Targets      []string // Targets to build for
 	DockerEnv    []string // Custom environments added to docker run -e
 	DockerArgs   []string // Custom options added to docker run
+	Volumes      []string // Volume mounts for docker run -v
 	ForwardSsh   bool     // Enable ssh agent forwarding
 }
 
@@ -194,6 +196,7 @@ func main() {
 		Targets:      strings.Split(*targets, ","),
 		DockerEnv:    strings.Split(*dockerEnv, ","),
 		DockerArgs:   strings.Split(*dockerArgs, ","),
+		Volumes:      strings.Split(*volumes, ","),
 		ForwardSsh:   *forwardSsh,
 	}
 	flags := &BuildFlags{
@@ -451,6 +454,12 @@ func toArgs(config *ConfigFlags, flags *BuildFlags, folder string) []string {
 	for _, s := range config.DockerArgs {
 		if s != "" {
 			args = append(args, s)
+		}
+	}
+	// Set custom volume mounts
+	for _, s := range config.Volumes {
+		if s != "" {
+			args = append(args, []string{"-v", s}...)
 		}
 	}
 
