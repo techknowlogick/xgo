@@ -128,18 +128,6 @@ func main() {
 		if len(flag.Args()) != 1 {
 			log.Fatalf("Usage: %s [options] <go import path>", os.Args[0])
 		}
-		if *obfuscate && *goVersion != "latest" {
-			re := regexp.MustCompile(`^go-(\d+)\.(\d+)\..+$`)
-			matches := re.FindStringSubmatch(*goVersion)
-			if len(matches) < 3 {
-				log.Fatalf("Invalid Go release: %s.", *goVersion)
-			}
-			versionMajor, _ := strconv.Atoi(matches[1])
-			versionMinor, _ := strconv.Atoi(matches[2])
-			if versionMajor < 1 || (versionMajor == 1 && versionMinor < 20) {
-				log.Fatalln("Obfuscated builds are only available for go 1.20+")
-			}
-		}
 		// Select the image to use, either official or custom
 		image = dockerDist + *goVersion
 		if *dockerImage != "" {

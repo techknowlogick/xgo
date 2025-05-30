@@ -26,11 +26,6 @@ if [ "$GOROOT" == "" ]; then
 fi
 export GOROOT_BOOTSTRAP=$GOROOT
 
-GO_VERSION_MAJOR=$(go version | sed -e 's/.*go\([0-9]\+\)\..*/\1/')
-GO_VERSION_MINOR=$(go version | sed -e 's/.*go[0-9]\+\.\([0-9]\+\)\..*/\1/')
-
-echo "Bootstrapping is no longer needed for go 1.20+"
-
 # Install garble (go1.20+) for obfuscated builds
 echo "Installing garble..."
 go install mvdan.cc/garble@latest
