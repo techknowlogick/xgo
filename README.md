@@ -1,279 +1,254 @@
-# xgo - Go CGO cross compiler
+# xgo - Go CGO Cross Compiler
 
-Although Go strives to be a cross platform language, cross compilation from one
-platform to another is not as simple as it could be, as you need the Go sources
-bootstrapped to each platform and architecture.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-The first step towards cross compiling was Dave Cheney's [golang-crosscompile](https://github.com/davecheney/golang-crosscompile)
-package, which automatically bootstrapped the necessary sources based on your
-existing Go installation. Although this was enough for a lot of cases, certain
-drawbacks became apparent where the official libraries used CGO internally: any
-dependency to third party platform code is unavailable, hence those parts don't
-cross compile nicely (native DNS resolution, system certificate access, etc).
+A Docker-based Go cross compiler that enables easy compilation of Go projects with CGO dependencies across multiple platforms and architectures.
 
-A step forward in enabling cross compilation was Alan Shreve's [gonative](https://github.com/inconshreveable/gonative)
-package, which instead of bootstrapping the different platforms based on the
-existing Go installation, downloaded the official pre-compiled binaries from the
-golang website and injected those into the local toolchain. Since the pre-built
-binaries already contained the necessary platform specific code, the few missing
-dependencies were resolved, and true cross compilation could commence... of pure
-Go code.
+## Table of Contents
 
-However, there was still one feature missing: cross compiling Go code that used
-CGO itself, which isn't trivial since you need access to OS specific headers and
-libraries. This becomes very annoying when you need access only to some trivial
-OS specific functionality (e.g. query the CPU load), but need to configure and
-maintain separate build environments to do it.
+- [xgo - Go CGO Cross Compiler](#xgo---go-cgo-cross-compiler)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Quick Start](#quick-start)
+  - [Installation](#installation)
+    - [Docker Image](#docker-image)
+    - [Go Wrapper](#go-wrapper)
+  - [Usage](#usage)
+    - [Basic Usage](#basic-usage)
+    - [Build Flags](#build-flags)
+    - [Go Releases](#go-releases)
+    - [Limit Build Targets](#limit-build-targets)
+    - [Platform Versions](#platform-versions)
+    - [CGO Dependencies](#cgo-dependencies)
+    - [Hooks](#hooks)
+  - [Supporters](#supporters)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Acknowledgments](#acknowledgments)
 
-## Enter xgo
+## Overview
 
-My solution to the challenge of cross compiling Go code with embedded C/C++ snippets
-(i.e. CGO_ENABLED=1) is based on the concept of [lightweight Linux containers](http://en.wikipedia.org/wiki/LXC).
-All the necessary Go tool-chains, C cross compilers and platform headers/libraries
-have been assembled into a single Docker container, which can then be called as if
-a single command to compile a Go package to various platforms and architectures.
+Although Go strives to be a cross-platform language, cross-compilation with CGO enabled isn't straightforward. You need Go sources bootstrapped to each platform and architecture, plus access to OS-specific headers and libraries.
 
-## Supporters
+xgo solves this by packaging all necessary Go toolchains, C cross compilers, and platform headers/libraries into a single Docker container. This enables seamless cross-compilation of Go code with embedded C/C++ snippets (`CGO_ENABLED=1`) to various platforms and architectures.
 
-Thanks to the following projects for supporting XGO
+## Quick Start
 
-* [Gitea](https://gitea.io/) - A painless self-hosted Git service.
-* [Offen](https://www.offen.dev/) - The fair and lightweight alternative to common web analytics tools.
-* [Vikunja](https://vikunja.io/) - The to-do app to organize your life.
-* [Woodpecker CI](https://woodpecker-ci.org/) - Woodpecker is a simple CI engine with great extensibility.
+1. Install Docker and pull the xgo image:
+   ```bash
+   docker pull techknowlogick/xgo:latest
+   ```
 
-You too can [sponsor](https://github.com/sponsors/techknowlogick/) this project to ensure its continued maintenance.
+2. Install the xgo wrapper:
+   ```bash
+   go install src.techknowlogick.com/xgo@latest
+   ```
+
+3. Cross-compile your project:
+   ```bash
+   cd your-project
+   xgo .
+   ```
+
+That's it! You'll get binaries for all supported platforms and architectures.
 
 ## Installation
 
-Although you could build the container manually, it is available as an automatic
-trusted build from Docker's container registry (not insignificant in size):
+### Docker Image
 
-    docker pull techknowlogick/xgo:latest
+Pull the pre-built Docker image:
 
-To prevent having to remember a potentially complex Docker command every time,
-a lightweight Go wrapper was written on top of it.
+```bash
+docker pull techknowlogick/xgo:latest
+```
 
-    go get src.techknowlogick.com/xgo
+### Go Wrapper
 
-For go >= 1.17, `go get` is deprecated, so you'll have to use this command:
-    
-    go install src.techknowlogick.com/xgo@latest
+Install the xgo command-line wrapper:
+
+```bash
+go install src.techknowlogick.com/xgo@latest
+```
 
 ## Usage
 
-Simply specify the import path you want to build, and xgo will do the rest:
+### Basic Usage
 
-    $ xgo github.com/project-iris/iris
-    ...
+Simply specify the import path you want to build:
 
-    $ ls -al
-    -rwxr-xr-x  1 root  root    6776500 Nov 24 16:44 iris-darwin-10.6-386
-    -rwxr-xr-x  1 root  root    8755532 Nov 24 16:44 iris-darwin-10.6-amd64
-    -rwxr-xr-x  1 root  root   10135248 Nov 24 16:44 iris-linux-386
-    -rwxr-xr-x  1 root  root   12598472 Nov 24 16:44 iris-linux-amd64
-    -rwxr-xr-x  1 root  root   10040464 Nov 24 16:44 iris-linux-arm
-    -rwxr-xr-x  1 root  root    7516368 Nov 24 16:44 iris-windows-4.0-386.exe
-    -rwxr-xr-x  1 root  root    9549416 Nov 24 16:44 iris-windows-4.0-amd64.exe
+```bash
+$ xgo -out iris-v0.3.2 github.com/project-iris/iris
+...
 
+$ ls -al
+-rwxr-xr-x  1 root  root   6776500 Nov 24 16:44 iris-v0.3.2-darwin-10.6-386
+-rwxr-xr-x  1 root  root   8755532 Nov 24 16:44 iris-v0.3.2-darwin-10.6-amd64
+-rwxr-xr-x  1 root  root  10135248 Nov 24 16:44 iris-v0.3.2-linux-386
+-rwxr-xr-x  1 root  root  12598472 Nov 24 16:44 iris-v0.3.2-linux-amd64
+-rwxr-xr-x  1 root  root  10040464 Nov 24 16:44 iris-v0.3.2-linux-arm
+-rwxr-xr-x  1 root  root   7516368 Nov 24 16:44 iris-v0.3.2-windows-4.0-386.exe
+-rwxr-xr-x  1 root  root   9549416 Nov 24 16:44 iris-v0.3.2-windows-4.0-amd64.exe
+```
 
-If the path is not a canonical import path, but rather a local path (starts with
-a dot `.` or a dash `/`), xgo will use the local GOPATH contents for the cross
-compilation.
+For local projects, use paths starting with `.` or `/`:
 
+```bash
+xgo .
+```
 
-### Build flags
+### CLI Flags
 
-A handful of flags can be passed to `go build`. The currently supported ones are
+xgo supports the following command-line flags:
 
-  - `-v`: prints the names of packages as they are compiled
-  - `-x`: prints the build commands as compilation progresses
-  - `-race`: enables data race detection (supported only on amd64, rest built without)
-  - `-tags='tag list'`: list of build tags to consider satisfied during the build
-  - `-ldflags='flag list'`: arguments to pass on each go tool link invocation
-  - `-gcflags='flag list'`: arguments to pass on each go tool compile invocation
-  - `-buildmode=mode`: binary type to produce by the compiler
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-go` | Go release to use for cross compilation | `latest` |
+| `-out` | Prefix to use for output naming | Package name |
+| `-dest` | Destination folder to put binaries in | Current directory |
+| `-pkg` | Sub-package to build if not root import | |
+| `-remote` | Version control remote repository to build | |
+| `-branch` | Version control branch to build | |
+| `-targets` | Comma separated targets to build for | `*/*` (all) |
+| `-deps` | CGO dependencies (configure/make based archives) | |
+| `-depsargs` | CGO dependency configure arguments | |
+| `-image` | Use custom docker image instead of official | |
+| `-env` | Comma separated custom environments for docker | |
+| `-dockerargs` | Comma separated arguments for docker run | |
+| `-volumes` | Volume mounts in format `source:target[:mode]` | |
+| `-hooksdir` | Directory with user hook scripts | |
+| `-ssh` | Enable ssh agent forwarding | `false` |
 
+### Build Flags
 
-### Go releases
+The following `go build` flags are supported:
 
-As newer versions of the language runtime, libraries and tools get released,
-these will get incorporated into xgo too as extensions layers to the base cross
-compilation image (only Go 1.13 and above will be supported).
+| Flag | Description |
+|------|-------------|
+| `-v` | Print package names as they are compiled |
+| `-x` | Print build commands as compilation progresses |
+| `-race` | Enable data race detection (amd64 only) |
+| `-tags='tag list'` | Build tags to consider satisfied |
+| `-ldflags='flag list'` | Arguments for go tool link |
+| `-gcflags='flag list'` | Arguments for go tool compile |
+| `-buildmode=mode` | Binary type to produce |
+| `-trimpath` | Remove all file system paths from the resulting executable |
+| `-buildvcs` | Whether to stamp binaries with version control information |
+| `-obfuscate` | Obfuscate build using garble |
+| `-garbleflags` | Arguments to pass to garble (e.g. `-seed=random`) |
 
-You can select which Go release to work with through the `-go` command line flag
-to xgo and if the specific release was already integrated, it will automatically
-be retrieved and installed.
+### Go Releases
 
-    $ xgo -go go-1.13.2 github.com/project-iris/iris
+Select specific Go versions using the `-go` flag:
 
-Additionally, a few wildcard release strings are also supported:
+```bash
+xgo -go go-1.24.x github.com/your-username/your-project
+```
 
-  - `latest` will use the latest Go release (this is the default)
-  - `go-1.13.x` will use the latest point release of a specific Go version
+Supported release strings:
+- `latest` - Latest Go release (default)
+- `go-1.24.x` - Latest point release of Go 1.24
+- `go-1.24.3` - Specific Go version
 
-### Output prefixing
+### Limit Build Targets
 
-xgo by default uses the name of the package being cross compiled as the output
-file prefix. This can be overridden with the `-out` flag.
+Restrict builds to specific platforms/architectures:
 
-    $ xgo -out iris-v0.3.2 github.com/project-iris/iris
-    ...
+```bash
+# Build only ARM Linux binaries
+xgo --targets=linux/arm github.com/your-username/your-project
 
-    $ ls -al
-    -rwxr-xr-x  1 root  root   6776500 Nov 24 16:44 iris-v0.3.2-darwin-10.6-386
-    -rwxr-xr-x  1 root  root   8755532 Nov 24 16:44 iris-v0.3.2-darwin-10.6-amd64
-    -rwxr-xr-x  1 root  root  10135248 Nov 24 16:44 iris-v0.3.2-linux-386
-    -rwxr-xr-x  1 root  root  12598472 Nov 24 16:44 iris-v0.3.2-linux-amd64
-    -rwxr-xr-x  1 root  root  10040464 Nov 24 16:44 iris-v0.3.2-linux-arm
-    -rwxr-xr-x  1 root  root   7516368 Nov 24 16:44 iris-v0.3.2-windows-4.0-386.exe
-    -rwxr-xr-x  1 root  root   9549416 Nov 24 16:44 iris-v0.3.2-windows-4.0-amd64.exe
+# Build all Windows and macOS binaries
+xgo --targets=windows/*,darwin/* github.com/your-username/your-project
 
+# Build ARM binaries for all platforms
+xgo --targets=*/arm github.com/your-username/your-project
+```
 
-### Branch selection
+**Supported targets:**
+- **Platforms:** `darwin`, `linux`, `windows`, `freebsd`
+- **Architectures:** `386`, `amd64`, `arm-5`, `arm-6`, `arm-7`, `arm64`, `mips`, `mipsle`, `mips64`, `mips64le`, `riscv64`
 
-Similarly to `go get`, xgo also uses the `master` branch of a repository during
-source code retrieval. To switch to a different branch before compilation pass
-the desired branch name through the `--branch` argument.
+### Platform Versions
 
-    $ xgo --branch release-branch.go1.4 golang.org/x/tools/cmd/goimports
-    ...
+Target specific platform versions:
 
-    $ ls -al
-    -rwxr-xr-x  1 root  root   4139868 Nov 24 16:40 goimports-darwin-10.6-386
-    -rwxr-xr-x  1 root  root   5186720 Nov 24 16:40 goimports-darwin-10.6-amd64
-    -rwxr-xr-x  1 root  root   4189456 Nov 24 16:40 goimports-linux-386
-    -rwxr-xr-x  1 root  root   5264136 Nov 24 16:40 goimports-linux-amd64
-    -rwxr-xr-x  1 root  root   4209416 Nov 24 16:40 goimports-linux-arm
-    -rwxr-xr-x  1 root  root   4348416 Nov 24 16:40 goimports-windows-4.0-386.exe
-    -rwxr-xr-x  1 root  root   5415424 Nov 24 16:40 goimports-windows-4.0-amd64.exe
+```bash
+# Cross-compile to macOS Monterey
+xgo --targets=darwin-12.0/* github.com/your-username/your-project
 
+# Cross-compile to Windows 10
+xgo --targets=windows-10.0/* github.com/your-username/your-project
+```
 
-### Remote selection
+**Supported platforms:**
+- **Windows:** All APIs up to Windows 11 (limited by mingw-w64)
+- **macOS:** APIs from 10.6 to latest
 
-Yet again similarly to `go get`, xgo uses the repository remote corresponding to
-the import path being built. To switch to a different remote while preserving the
-original import path, use the `--remote` argument.
+### CGO Dependencies
 
-    $ xgo --remote github.com/golang/tools golang.org/x/tools/cmd/goimports
-    ...
+Build projects with external C/C++ library dependencies using `--deps`:
 
-### Package selection
+```bash
+$ xgo --deps=https://gmplib.org/download/gmp/gmp-6.1.0.tar.bz2  \
+    --targets=windows/* github.com/ethereum/go-ethereum/cmd/geth
+...
 
-If you used the above *branch* or *remote* selection machanisms, it may happen
-that the path you are trying to build is only present in the specific branch and
-not the default repository, causing Go to fail at locating it. To circumvent this,
-you may specify only the repository root for xgo, and use an additional `--pkg`
-parameter to select the exact package within, honoring any prior *branch* and
-*remote* selections.
+$ ls -al
+-rwxr-xr-x 1 root root 16315679 Nov 24 16:39 geth-windows-4.0-386.exe
+-rwxr-xr-x 1 root root 19452036 Nov 24 16:38 geth-windows-4.0-amd64.exe
+```
 
-    $ xgo --pkg cmd/goimports golang.org/x/tools
-    ...
+Pass arguments to dependency configure scripts:
 
-    $ ls -al
-    -rwxr-xr-x  1 root  root   4164448 Nov 24 16:38 goimports-darwin-10.6-386
-    -rwxr-xr-x  1 root  root   5223584 Nov 24 16:38 goimports-darwin-10.6-amd64
-    -rwxr-xr-x  1 root  root   4217184 Nov 24 16:38 goimports-linux-386
-    -rwxr-xr-x  1 root  root   5295768 Nov 24 16:38 goimports-linux-amd64
-    -rwxr-xr-x  1 root  root   4233120 Nov 24 16:38 goimports-linux-arm
-    -rwxr-xr-x  1 root  root   4373504 Nov 24 16:38 goimports-windows-4.0-386.exe
-    -rwxr-xr-x  1 root  root   5450240 Nov 24 16:38 goimports-windows-4.0-amd64.exe
+```bash
+$ xgo --deps=https://gmplib.org/download/gmp/gmp-6.1.0.tar.bz2  \
+    --targets=ios/* --depsargs=--disable-assembly               \
+    github.com/ethereum/go-ethereum/cmd/geth
+...
 
-This argument may at some point be integrated into the import path itself, but for
-now it exists as an independent build parameter. Also, there is not possibility
-for now to build mulitple commands in one go.
+$ ls -al
+-rwxr-xr-x 1 root root 14804160 Nov 24 16:32 geth-ios-5.0-arm
+```
 
-### Limit build targets
-
-By default `xgo` will try and build the specified package to all platforms and
-architectures supported by the underlying Go runtime. If you wish to restrict
-the build to only a few target systems, use the comma separated `--targets` CLI
-argument:
-
-  * `--targets=linux/arm`: builds only the ARMv5 Linux binaries (`arm-6`/`arm-7` allowed)
-  * `--targets=windows/*,darwin/*`: builds all Windows and OSX binaries
-  * `--targets=*/arm`: builds ARM binaries for all platforms
-  * `--targets=*/*`: builds all suppoted targets (default)
-
-The supported targets are:
-
- * Platforms: `darwin`, `linux`, `windows`
- * Achitectures: `386`, `amd64`, `arm-5`, `arm-6`, `arm-7`, `arm64`, `mips`, `mipsle`, `mips64`, `mips64le`, `riscv64`
-
-### Platform versions
-
-By default `xgo` tries to cross compile to the lowest possible versions of every
-supported platform, in order to produce binaries that are portable among various
-versions of the same operating system. This however can lead to issues if a used
-dependency is only supported by more recent systems. As such, `xgo` supports the
-selection of specific platform versions by appending them to the OS target string.
-
- * `--targets=darwin-10.9/*`: cross compile to Mac OS X Mavericks
- * `--targets=windows-6.0/*`: cross compile to Windows Vista
-
-The supported platforms are:
-
- * All Windows APIs up to Windows 8.1 limited by `mingw-w64` ([API level ids](https://en.wikipedia.org/wiki/Windows_NT#Releases))
- * OSX APIs in the range of 10.6 - 10.14
-
-### CGO dependencies
-
-The main differentiator of xgo versus other cross compilers is support for basic
-embedded C/C++ code and target-platform specific OS SDK availability. The current
-xgo release introduces an experimental CGO *dependency* cross compilation, enabling
-building Go programs that require external C/C++ libraries.
-
-It is assumed that the dependent C/C++ library is `configure/make` based, was
-properly prepared for cross compilation and is available as a tarball download
-(`.tar`, `.tar.gz` or `.tar.bz2`). Further plans include extending this to cmake
-based projects, if need arises (please open an issue if it's important to you).
-
-Such dependencies can be added via the `--deps` argument. They will be retrieved
-prior to starting the cross compilation and the packages cached to save bandwidth
-on subsequent calls.
-
-A complex sample for such a scenario is building the Ethereum CLI node, which has
-the GNU Multiple Precision Arithmetic Library as it's dependency.
-
-    $ xgo --deps=https://gmplib.org/download/gmp/gmp-6.1.0.tar.bz2  \
-        --targets=windows/* github.com/ethereum/go-ethereum/cmd/geth
-    ...
-
-    $ ls -al
-    -rwxr-xr-x 1 root root 16315679 Nov 24 16:39 geth-windows-4.0-386.exe
-    -rwxr-xr-x 1 root root 19452036 Nov 24 16:38 geth-windows-4.0-amd64.exe
-
-Some trivial arguments may be passed to the dependencies' configure script via
-`--depsargs`.
-
-    $ xgo --deps=https://gmplib.org/download/gmp/gmp-6.1.0.tar.bz2  \
-        --targets=ios/* --depsargs=--disable-assembly               \
-        github.com/ethereum/go-ethereum/cmd/geth
-    ...
-
-    $ ls -al
-    -rwxr-xr-x 1 root root 14804160 Nov 24 16:32 geth-ios-5.0-arm
-
-Note, that since xgo needs to cross compile the dependencies for each platform
-and architecture separately, build time can increase significantly.
+Supported dependency formats: `.tar`, `.tar.gz`, `.tar.bz2`
 
 ### Hooks
 
-To give the user more power, xgo provides two hook scripts which will be sourced
-during the build if they are available in a provided hooks directory (provided
-by the `--hooksdir` argument, which mounts that directory into the container).
-The first one is `setup.sh` which will be sourced after everything is set up.
-This script can e.g. be used to install additional packages in the container.
-The second is `build.sh` which will be sourced for each target (before the
-actual build process).
+Use custom build hooks by providing a hooks directory:
 
-All environment variables set up by xgo are available in the scripts.
+```bash
+xgo --hooksdir ./hooks github.com/your-username/your-project
+```
 
-Within `build.sh` there are several target specific environment variables:
+Available hook scripts:
+- `setup.sh` - Sourced after environment setup (install additional packages)
+- `build.sh` - Sourced before each target build
 
-* `XGOOS` and `XGOARCH` are expanded to the actual value defined by the [build targets](#limit-build-targets).
-* `CC`: C cross compiler to use for the build
-* `HOST`: Target platform to build
-* `PREFIX`: File-system path where to install the built binaries.
+Environment variables in `build.sh`:
+- `XGOOS` and `XGOARCH` - Target OS and architecture
+- `CC` - C cross compiler for the target
+- `HOST` - Target platform identifier
+- `PREFIX` - Installation path for built binaries
 
-For further reference, see [build.sh](docker/base/build.sh)
+## Supporters
+
+Thanks to these projects for supporting xgo:
+
+- [Gitea](https://about.gitea.com/) - A painless self-hosted Git service
+- [Offen](https://www.offen.dev/) - Fair and lightweight web analytics
+- [Vikunja](https://vikunja.io/) - The to-do app to organize your life
+- [Woodpecker CI](https://woodpecker-ci.org/) - Simple CI engine with great extensibility
+
+You can [sponsor this project](https://github.com/sponsors/techknowlogick/) to ensure its continued maintenance.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues and enhancement requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+Special thanks to [@karalabe](https://github.com/karalabe) for starting this project and making Go cross-compilation with CGO seamless.
