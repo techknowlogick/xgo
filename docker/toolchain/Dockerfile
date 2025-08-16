@@ -78,8 +78,10 @@ COPY patches /patches
 ##########################
 
 # Configure the container for OSX cross compilation
-ENV OSX_SDK=MacOSX11.1.sdk
-ENV OSX_SDK_PATH=https://github.com/phracker/MacOSX-SDKs/releases/download/11.0-11.1/${OSX_SDK}.tar.xz
+ENV OSX_SDK_REPO=alexey-lysiuk/macos-sdk
+ENV OSX_SDK_VERSION=12.3
+ENV OSX_SDK=MacOSX${OSX_SDK_VERSION}.sdk
+ENV OSX_SDK_PATH=https://github.com/${OSX_SDK_REPO}/releases/download/${OSX_SDK_VERSION}/MacOSX${OSX_SDK_VERSION}.tar.xz
 
 # Make libxar known to the ld64 and cctools build
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
@@ -87,7 +89,7 @@ ENV LD_LIBRARY_PATH=/osxcross/target/lib
 # Download the osx sdk and build the osx toolchain
 # We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
 RUN \
-  $FETCH $OSX_SDK_PATH 9b86eab03176c56bb526de30daa50fa819937c54b280364784ce431885341bf6 && \
+  $FETCH $OSX_SDK_PATH 91c03be5399be04d8f6b773da13045525e01298c1dfff273b4e1f1e904ee5484 && \
   tar -xf "$(basename $OSX_SDK_PATH)" && rm -f "$(basename $OSX_SDK_PATH)"
 ADD patch.tar.xz $OSX_SDK/usr/include/c++
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -101,7 +103,7 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK && \
   # Move the SDK in to the cross compiler
   mv $OSX_SDK.tar.xz /osxcross/tarballs/ && \
   # Actually build the toolchain
-  OSX_VERSION_MIN=10.13 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
+  OSX_VERSION_MIN=12.0 UNATTENDED=1 LD_LIBRARY_PATH=/osxcross/target/lib /osxcross/build.sh
 
 ENV PATH=/osxcross/target/bin:$PATH
 
