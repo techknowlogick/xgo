@@ -98,7 +98,7 @@ RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK && \
   # Get a cross compiler
   mkdir osxcross && cd osxcross && git init && \
   git remote add origin https://github.com/tpoechtrager/osxcross.git && \
-  git fetch --depth 1 origin 0f87f567dfaf98460244471ad6c0f4311d62079c && \
+  git fetch --depth 1 origin aa4c5eac89df6ccaf2e28fbc6332ab6893047c3b && \
   git checkout FETCH_HEAD && cd ../ && \
   # Move the SDK in to the cross compiler
   mv $OSX_SDK.tar.xz /osxcross/tarballs/ && \
