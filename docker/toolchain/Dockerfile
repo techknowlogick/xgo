@@ -87,11 +87,9 @@ ENV OSX_SDK_PATH=https://github.com/${OSX_SDK_REPO}/releases/download/${OSX_SDK_
 ENV LD_LIBRARY_PATH=/osxcross/target/lib
 
 # Download the osx sdk and build the osx toolchain
-# We download the osx sdk, patch it and pack it again to be able to throw the patched version at osxcross
 RUN \
   $FETCH $OSX_SDK_PATH 91c03be5399be04d8f6b773da13045525e01298c1dfff273b4e1f1e904ee5484 && \
   tar -xf "$(basename $OSX_SDK_PATH)" && rm -f "$(basename $OSX_SDK_PATH)"
-ADD patch.tar.xz $OSX_SDK/usr/include/c++
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # trunk-ignore(hadolint/DL3003)
 RUN tar -cf - $OSX_SDK/ | xz -c - > $OSX_SDK.tar.xz && rm -rf $OSX_SDK && \
