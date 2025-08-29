@@ -442,6 +442,7 @@ func toArgs(config *ConfigFlags, flags *BuildFlags, folder string) []string {
 		"-e", "TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
 		"-e", fmt.Sprintf("GOPROXY=%s", os.Getenv("GOPROXY")),
 		"-e", fmt.Sprintf("GOPRIVATE=%s", os.Getenv("GOPRIVATE")),
+		"-e", fmt.Sprintf("GOEXPERIMENT=%s", os.Getenv("GOEXPERIMENT")),
 	}
 
 	// Set custom environment variables
