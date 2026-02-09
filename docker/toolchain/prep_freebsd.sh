@@ -76,7 +76,7 @@ cd /tmp/freebsdbuild && \
   cd gcc-${gcc_ver} && mkdir build && cd build && \
   ../configure --without-headers --with-gnu-as --with-gnu-ld --disable-nls \
       --enable-languages=c,c++ --enable-libssp --enable-gold --enable-ld \
-      --disable-libitm --disable-libquadmath --target=x86_64-pc-freebsd${freebsd_ver} \
+      --disable-libitm --disable-libquadmath --disable-multilib --target=x86_64-pc-freebsd${freebsd_ver} \
       --prefix=/freebsdcross/x86_64-pc-freebsd${freebsd_ver} --with-gmp=/freebsdcross/x86_64-pc-freebsd${freebsd_ver} \
       --with-mpc=/freebsdcross/x86_64-pc-freebsd${freebsd_ver} --with-mpfr=/freebsdcross/x86_64-pc-freebsd${freebsd_ver} --disable-libgomp \
       --with-sysroot=/freebsdcross/x86_64-pc-freebsd${freebsd_ver}  \
