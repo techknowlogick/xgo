@@ -53,6 +53,8 @@ jobs:
         uses: mig4/setup-bats@v1
         with:
           bats-version: 1.2.1
+      - name: use local buildx builder
+        run: docker buildx use default
       - name: build images and tests
         run: |
           echo "Build toolchain docker"
