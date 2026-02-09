@@ -65,8 +65,8 @@ jobs:
         name: build toolchain
         run: |
           echo "Build toolchain docker"
-          docker buildx build --file docker/toolchain/Dockerfile \
-            --tag toolchain --load docker/toolchain/
+          docker build --file docker/toolchain/Dockerfile \
+            --tag toolchain docker/toolchain/
           docker save -o /tmp/toolchain.tar toolchain
       - name: build images and tests
         run: |
@@ -74,27 +74,27 @@ jobs:
           docker load -i /tmp/toolchain.tar
 
           echo "Bootstrap go ${{ steps.golang_version_1.outputs.value }}"
-          docker buildx build --file docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile \
-            --tag ${{ steps.golang_version_1.outputs.value }}-base --load docker/${{ steps.golang_version_1.outputs.value }}/
+          docker build --file docker/${{ steps.golang_version_1.outputs.value }}/Dockerfile \
+            --tag ${{ steps.golang_version_1.outputs.value }}-base docker/${{ steps.golang_version_1.outputs.value }}/
 
           echo "Build xgo for go ${{ steps.golang_version_1.outputs.value }} "
-          docker buildx build --file docker/build/Dockerfile \
+          docker build --file docker/build/Dockerfile \
             --tag techknowlogick/xgo:${{ steps.golang_version_1.outputs.value }} \
             --tag techknowlogick/xgo:${{ steps.golang_version_1.outputs.wildcard }} \
             --tag techknowlogick/xgo:latest \
             --build-arg VERSION=${{ steps.golang_version_1.outputs.value }} \
-            --load .
+            .
 
           echo "Bootstrap go ${{ steps.golang_version_2.outputs.value }}"
-          docker buildx build --file docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile \
-            --tag ${{ steps.golang_version_2.outputs.value }}-base --load docker/${{ steps.golang_version_2.outputs.value }}/
+          docker build --file docker/${{ steps.golang_version_2.outputs.value }}/Dockerfile \
+            --tag ${{ steps.golang_version_2.outputs.value }}-base docker/${{ steps.golang_version_2.outputs.value }}/
 
           echo "Build xgo for go ${{ steps.golang_version_2.outputs.value }}"
-          docker buildx build --file docker/build/Dockerfile \
+          docker build --file docker/build/Dockerfile \
             --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.value }} \
             --tag techknowlogick/xgo:${{ steps.golang_version_2.outputs.wildcard }} \
             --build-arg VERSION=${{ steps.golang_version_2.outputs.value }} \
-            --load .
+            .
 
           mkdir -p .xgo-cache
           mkdir -p ~/go/src
