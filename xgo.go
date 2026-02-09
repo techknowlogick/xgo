@@ -9,6 +9,7 @@ package main // import "src.techknowlogick.com/xgo"
 
 import (
 	"bytes"
+	"context"
 	"flag"
 	"fmt"
 	"go/build"
@@ -17,6 +18,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"os/user"
 	"path/filepath"
 	"regexp"
@@ -114,6 +116,10 @@ func main() {
 	// Retrieve the CLI flags and the execution environment
 	flag.Parse()
 
+	// Cancel all container operations on Ctrl-C (SIGINT/SIGTERM).
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
 	xgoInXgo := os.Getenv("XGO_IN_XGO") == "1"
 	if xgoInXgo {
 		depsCache = "/deps-cache"
@@ -121,11 +127,21 @@ func main() {
 	// Only use docker images if we're not already inside out own image
 	image := ""
 
+	var rt ContainerRuntime
 	if !xgoInXgo {
-		// Ensure docker is available
-		if err := checkDocker(); err != nil {
-			log.Fatalf("Failed to check docker installation: %v.", err)
+		// Initialise the Docker container runtime
+		var err error
+		rt, err = newDockerAPIRuntime("")
+		if err != nil {
+			log.Fatalf("Failed to create Docker client: %v.", err)
 		}
+		defer rt.Close()
+		// Ensure the runtime is reachable
+		fmt.Println("Checking container runtime...")
+		if err := rt.Ping(ctx); err != nil {
+			log.Fatalf("Failed to reach container runtime: %v.", err)
+		}
+		fmt.Println()
 		// Validate the command line arguments
 		if len(flag.Args()) != 1 {
 			log.Fatalf("Usage: %s [options] <go import path>", os.Args[0])
@@ -136,13 +152,15 @@ func main() {
 			image = *dockerImage
 		}
 		// Check that all required images are available
-		found, err := checkDockerImage(image)
+		fmt.Printf("Checking for required docker image %s... ", image)
+		found, err := rt.ImageExists(ctx, image)
 		switch {
 		case err != nil:
 			log.Fatalf("Failed to check docker image availability: %v.", err)
 		case !found:
 			fmt.Println("not found!")
-			if err := pullDockerImage(image); err != nil {
+			fmt.Printf("Pulling %s from registry...\n", image)
+			if err := rt.PullImage(ctx, image); err != nil {
 				log.Fatalf("Failed to pull docker image from the registry: %v.", err)
 			}
 		default:
@@ -151,7 +169,7 @@ func main() {
 	}
 	// Cache all external dependencies to prevent always hitting the internet
 	if *crossDeps != "" {
-		if err := os.MkdirAll(depsCache, 0750); err != nil {
+		if err := os.MkdirAll(depsCache, 0o750); err != nil {
 			log.Fatalf("Failed to create dependency cache: %v.", err)
 		}
 		// Download all missing dependencies
@@ -236,7 +254,7 @@ func main() {
 	}
 	// Execute the cross compilation, either in a container or the current system
 	if !xgoInXgo {
-		err = compile(image, config, flags, folder)
+		err = compile(ctx, rt, image, config, flags, folder)
 	} else {
 		err = compileContained(config, flags, folder)
 	}
@@ -245,70 +263,23 @@ func main() {
 	}
 }
 
-// Checks whether a docker installation can be found and is functional.
-func checkDocker() error {
-	fmt.Println("Checking docker installation...")
-	if err := run(exec.Command("docker", "version")); err != nil {
-		return err
-	}
-	fmt.Println()
-	return nil
-}
-
-// Checks whether a required docker image is available locally.
-func checkDockerImage(image string) (bool, error) {
-	fmt.Printf("Checking for required docker image %s... ", image)
-	out, err := exec.Command("docker", "images", "--no-trunc").Output()
-	if err != nil {
-		return false, err
-	}
-	return compareOutAndImage(out, image)
-}
-
-// compare output of docker images and image name
-func compareOutAndImage(out []byte, image string) (bool, error) {
-	if strings.Contains(image, ":") {
-		// get repository and tag
-		res := strings.SplitN(image, ":", 2)
-		r, t := res[0], res[1]
-		match, _ := regexp.Match(fmt.Sprintf(`%s\s+%s`, r, t), out)
-		return match, nil
-	}
-
-	// default find repository without tag
-	return bytes.Contains(out, []byte(image)), nil
-}
-
-// Pulls an image from the docker registry.
-func pullDockerImage(image string) error {
-	fmt.Printf("Pulling %s from docker registry...\n", image)
-	return run(exec.Command("docker", "pull", image))
-}
-
 // compile cross builds a requested package according to the given build specs
 // using a specific docker cross compilation image.
-func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string) error {
+func compile(ctx context.Context, rt ContainerRuntime, image string, config *ConfigFlags, flags *BuildFlags, folder string) error {
 	// We need to consider our module-aware status
 	go111module := os.Getenv("GO111MODULE")
 	localBuild := strings.HasPrefix(config.Repository, string(filepath.Separator)) || strings.HasPrefix(config.Repository, ".")
 	if !localBuild {
 		fmt.Printf("Cross compiling non-local repository: %s...\n", config.Repository)
-		args := toArgs(config, flags, folder)
+		opts := toRunOptions(image, config, flags, folder)
 		if go111module == "" {
-			// We're going to be kind to our users and let an empty GO111MODULE  fall back to auto mode.
+			// We're going to be kind to our users and let an empty GO111MODULE fall back to auto mode.
 			go111module = "auto"
 		}
-		args = append(args, []string{
-			"-e", "GO111MODULE=" + go111module,
-		}...)
-		args = append(args, []string{image, config.Repository}...)
+		opts.Env = append(opts.Env, "GO111MODULE="+go111module)
+		opts.Cmd = []string{config.Repository}
 
-		cmd := exec.Command("docker", args...)
-		if config.ForwardSsh {
-			cmd.Stdin = os.Stdin
-		}
-
-		return run(cmd)
+		return rt.RunContainer(ctx, opts)
 	}
 
 	usesModules := true
@@ -362,13 +333,13 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 
 	// Assemble and run the cross compilation command
 	fmt.Printf("Cross compiling local repository: %s : %s...\n", config.Repository, config.Package)
-	args := toArgs(config, flags, folder)
+	opts := toRunOptions(image, config, flags, folder)
 
 	if usesModules {
-		args = append(args, []string{"-e", "GO111MODULE=on"}...)
+		opts.Env = append(opts.Env, "GO111MODULE=on")
 		gopathEnv := getGOPATH()
 		if gopathEnv != "" {
-			args = append(args, []string{"-v", gopathEnv + ":/go"}...)
+			opts.Binds = append(opts.Binds, gopathEnv+":/go")
 		}
 		// FIXME: consider GOMODCACHE?
 
@@ -380,102 +351,122 @@ func compile(image string, config *ConfigFlags, flags *BuildFlags, folder string
 			log.Fatalf("Failed to locate requested module repository: %v.", err)
 		}
 
-		args = append(args, []string{"-v", absRepository + ":/source"}...)
+		opts.Binds = append(opts.Binds, absRepository+":/source")
 
 		// Check if there is a vendor folder, and if so, use it
 		vendorPath := absRepository + "/vendor"
 		vendorfolder, err := os.Stat(vendorPath)
 		if !os.IsNotExist(err) && vendorfolder.Mode().IsDir() {
-			args = append(args, []string{"-e", "FLAG_MOD=vendor"}...)
+			opts.Env = append(opts.Env, "FLAG_MOD=vendor")
 			fmt.Printf("Using vendored Go module dependencies\n")
 		}
 	} else {
-		// If we're performing a local build and we're not using modules we need to map the gopath over to the docker
-		args = append(args, []string{"-e", "GO111MODULE=off"}...)
-		args = append(args, goPathExports()...)
+		// If we're performing a local build and we're not using modules we need to map the gopath over
+		opts.Env = append(opts.Env, "GO111MODULE=off")
+		binds, env := goPathExports()
+		opts.Binds = append(opts.Binds, binds...)
+		opts.Env = append(opts.Env, env...)
 	}
 
-	args = append(args, []string{image, config.Repository}...)
+	opts.Cmd = []string{config.Repository}
 
-	cmd := exec.Command("docker", args...)
-	if config.ForwardSsh {
-		cmd.Stdin = os.Stdin
-	}
-
-	return run(cmd)
+	return rt.RunContainer(ctx, opts)
 }
 
-func toArgs(config *ConfigFlags, flags *BuildFlags, folder string) []string {
+// toRunOptions builds a RunOptions from config, flags and folder.
+func toRunOptions(image string, config *ConfigFlags, flags *BuildFlags, folder string) RunOptions {
 	// Alter paths so they work for Windows
 	// Does not affect Linux paths
 	re := regexp.MustCompile("([A-Z]):")
-	folder_w := filepath.ToSlash(re.ReplaceAllString(folder, "/$1"))
-	depsCache_w := filepath.ToSlash(re.ReplaceAllString(depsCache, "/$1"))
+	folderW := filepath.ToSlash(re.ReplaceAllString(folder, "/$1"))
+	depsCacheW := filepath.ToSlash(re.ReplaceAllString(depsCache, "/$1"))
 	gocache := filepath.Join(depsCache, "gocache")
-	if err := os.MkdirAll(gocache, 0750); err != nil { // 0750 = rwxr-x---
+	if err := os.MkdirAll(gocache, 0o750); err != nil { // 0750 = rwxr-x---
 		log.Fatalf("Failed to create gocache dir: %v.", err)
 	}
-	gocache_w := filepath.ToSlash(re.ReplaceAllString(gocache, "/$1"))
+	gocacheW := filepath.ToSlash(re.ReplaceAllString(gocache, "/$1"))
 
-	args := []string{
-		"run", "--rm",
-		"-v", folder_w + ":/build",
-		"-v", depsCache_w + ":/deps-cache:ro",
-		"-v", gocache_w + ":/gocache:rw",
-		"-e", "REPO_REMOTE=" + config.Remote,
-		"-e", "REPO_BRANCH=" + config.Branch,
-		"-e", "PACK=" + config.Package,
-		"-e", "DEPS=" + config.Dependencies,
-		"-e", "ARGS=" + config.Arguments,
-		"-e", "OUT=" + config.Prefix,
-		"-e", fmt.Sprintf("FLAG_V=%v", flags.Verbose),
-		"-e", fmt.Sprintf("FLAG_X=%v", flags.Steps),
-		"-e", fmt.Sprintf("FLAG_RACE=%v", flags.Race),
-		"-e", fmt.Sprintf("FLAG_TAGS=%s", flags.Tags),
-		"-e", fmt.Sprintf("FLAG_LDFLAGS=%s", flags.LdFlags),
-		"-e", fmt.Sprintf("FLAG_GCFLAGS=%s", flags.GcFlags),
-		"-e", fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
-		"-e", fmt.Sprintf("FLAG_TRIMPATH=%v", flags.Trimpath),
-		"-e", fmt.Sprintf("FLAG_BUILDVCS=%v", flags.BuildVCS),
-		"-e", fmt.Sprintf("FLAG_OBFUSCATE=%v", flags.Obfuscate),
-		"-e", fmt.Sprintf("GARBLE_FLAGS=%s", flags.GarbleFlags),
-		"-e", "TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
-		"-e", fmt.Sprintf("GOPROXY=%s", os.Getenv("GOPROXY")),
-		"-e", fmt.Sprintf("GOPRIVATE=%s", os.Getenv("GOPRIVATE")),
-		"-e", fmt.Sprintf("GOEXPERIMENT=%s", os.Getenv("GOEXPERIMENT")),
+	opts := RunOptions{
+		Image: image,
+		Binds: []string{
+			folderW + ":/build",
+			depsCacheW + ":/deps-cache:ro",
+			gocacheW + ":/gocache:rw",
+		},
+		Env: []string{
+			"REPO_REMOTE=" + config.Remote,
+			"REPO_BRANCH=" + config.Branch,
+			"PACK=" + config.Package,
+			"DEPS=" + config.Dependencies,
+			"ARGS=" + config.Arguments,
+			"OUT=" + config.Prefix,
+			fmt.Sprintf("FLAG_V=%v", flags.Verbose),
+			fmt.Sprintf("FLAG_X=%v", flags.Steps),
+			fmt.Sprintf("FLAG_RACE=%v", flags.Race),
+			fmt.Sprintf("FLAG_TAGS=%s", flags.Tags),
+			fmt.Sprintf("FLAG_LDFLAGS=%s", flags.LdFlags),
+			fmt.Sprintf("FLAG_GCFLAGS=%s", flags.GcFlags),
+			fmt.Sprintf("FLAG_BUILDMODE=%s", flags.Mode),
+			fmt.Sprintf("FLAG_TRIMPATH=%v", flags.Trimpath),
+			fmt.Sprintf("FLAG_BUILDVCS=%v", flags.BuildVCS),
+			fmt.Sprintf("FLAG_OBFUSCATE=%v", flags.Obfuscate),
+			fmt.Sprintf("GARBLE_FLAGS=%s", flags.GarbleFlags),
+			"TARGETS=" + strings.Replace(strings.Join(config.Targets, " "), "*", ".", -1),
+			fmt.Sprintf("GOPROXY=%s", os.Getenv("GOPROXY")),
+			fmt.Sprintf("GOPRIVATE=%s", os.Getenv("GOPRIVATE")),
+			fmt.Sprintf("GOEXPERIMENT=%s", os.Getenv("GOEXPERIMENT")),
+		},
 	}
 
 	// Set custom environment variables
 	for _, s := range config.DockerEnv {
 		if s != "" {
-			args = append(args, []string{"-e", s}...)
+			opts.Env = append(opts.Env, s)
 		}
 	}
-	// Set custom args
-	for _, s := range config.DockerArgs {
-		if s != "" {
-			args = append(args, s)
-		}
-	}
+
 	// Set custom volume mounts
 	for _, s := range config.Volumes {
 		if s != "" {
-			args = append(args, []string{"-v", s}...)
+			opts.Binds = append(opts.Binds, s)
 		}
 	}
 
-	if config.ForwardSsh && os.Getenv("SSH_AUTH_SOCK") != "" {
-		// Keep stdin open and allocate pseudo tty
-		args = append(args, "-i", "-t")
-		// Mount ssh agent socket
-		args = append(args, "-v", fmt.Sprintf("%[1]s:%[1]s", os.Getenv("SSH_AUTH_SOCK")))
-		// Set ssh agent socket environment variable
-		args = append(args, "-e", fmt.Sprintf("SSH_AUTH_SOCK=%s", os.Getenv("SSH_AUTH_SOCK")))
+	// Separate --mount and --platform from other docker args so they can be
+	// handled as typed fields rather than raw CLI passthrough.
+	var extra []string
+	for i := 0; i < len(config.DockerArgs); i++ {
+		s := config.DockerArgs[i]
+		if s == "" {
+			continue
+		}
+		switch {
+		case s == "--mount" && i+1 < len(config.DockerArgs):
+			opts.Mounts = append(opts.Mounts, config.DockerArgs[i+1])
+			i++
+		case s == "--platform" && i+1 < len(config.DockerArgs):
+			opts.Platform = config.DockerArgs[i+1]
+			i++
+		case strings.HasPrefix(s, "--platform="):
+			opts.Platform = s[len("--platform="):]
+		default:
+			extra = append(extra, s)
+		}
 	}
-	return args
+	opts.Extra = extra
+
+	if config.ForwardSsh && os.Getenv("SSH_AUTH_SOCK") != "" {
+		// Mount ssh agent socket
+		opts.Binds = append(opts.Binds, fmt.Sprintf("%[1]s:%[1]s", os.Getenv("SSH_AUTH_SOCK")))
+		// Set ssh agent socket environment variable
+		opts.Env = append(opts.Env, fmt.Sprintf("SSH_AUTH_SOCK=%s", os.Getenv("SSH_AUTH_SOCK")))
+	}
+	return opts
 }
 
-func goPathExports() (args []string) {
+// goPathExports returns volume binds and environment variables needed to share
+// the host GOPATH with the container (for non-module builds).
+func goPathExports() (binds []string, env []string) {
 	var locals, mounts, paths []string
 	log.Printf("Preparing GOPATH src to be shared with xgo")
 
@@ -535,10 +526,10 @@ func goPathExports() (args []string) {
 	}
 
 	for i := 0; i < len(locals); i++ {
-		args = append(args, []string{"-v", fmt.Sprintf("%s:%s:ro", locals[i], mounts[i])}...)
+		binds = append(binds, fmt.Sprintf("%s:%s:ro", locals[i], mounts[i]))
 	}
-	args = append(args, []string{"-e", "EXT_GOPATH=" + strings.Join(paths, ":")}...)
-	return args
+	env = append(env, "EXT_GOPATH="+strings.Join(paths, ":"))
+	return binds, env
 }
 
 func getGOPATH() string {
@@ -614,6 +605,17 @@ func resolveImportPath(path string) string {
 		log.Fatalf("Failed to resolve import path: %v.", err)
 	}
 	return pack.ImportPath
+}
+
+// compare output of docker/container images and image name
+func compareOutAndImage(out []byte, image string) (bool, error) {
+	if strings.Contains(image, ":") {
+		res := strings.SplitN(image, ":", 2)
+		r, t := res[0], res[1]
+		match, _ := regexp.Match(fmt.Sprintf(`%s\s+%s`, r, t), out)
+		return match, nil
+	}
+	return bytes.Contains(out, []byte(image)), nil
 }
 
 // Executes a command synchronously, redirecting its output to stdout.
