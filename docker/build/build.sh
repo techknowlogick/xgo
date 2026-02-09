@@ -473,13 +473,13 @@ for TARGET in $TARGETS; do
     # Build the requested freebsd binaries
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "amd64" ]; then
       echo "Compiling for freebsd/amd64..."
-      XGOOS="freebsd" XGOARCH="amd64" CC=x86_64-pc-freebsd13-gcc HOST=x86_64-pc-freebsd13 PREFIX=/freebsdcross/x86_64-pc-freebsd13 do_build
-      export PKG_CONFIG_PATH=/freebsdcross/x86_64-pc-freebsd13/lib/pkgconfig
+      XGOOS="freebsd" XGOARCH="amd64" CC=x86_64-pc-freebsd14-gcc HOST=x86_64-pc-freebsd14 PREFIX=/freebsdcross/x86_64-pc-freebsd14 do_build
+      export PKG_CONFIG_PATH=/freebsdcross/x86_64-pc-freebsd14/lib/pkgconfig
 
        if [[ "$USEMODULES" == false ]]; then
-        CC=x86_64-pc-freebsd13-gcc CXX=x86_64-pc-freebsd13-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+        CC=x86_64-pc-freebsd14-gcc CXX=x86_64-pc-freebsd14-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 go get $V $X "${T[@]}" -d "$PACK_RELPATH"
       fi
-      CC=x86_64-pc-freebsd13-gcc CXX=x86_64-pc-freebsd13-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-freebsd13-amd64$(extension freebsd)" "$PACK_RELPATH"
+      CC=x86_64-pc-freebsd14-gcc CXX=x86_64-pc-freebsd14-g++ GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-freebsd14-amd64$(extension freebsd)" "$PACK_RELPATH"
     fi
     if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm64" ]; then
       echo "skipping freebsd/arm64... as it is not yet supported"

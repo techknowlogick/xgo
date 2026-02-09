@@ -113,7 +113,7 @@ COPY prep_freebsd.sh /prep_freebsd.sh
 RUN if [ $(arch) = "x86_64" ] ; then chmod +x /prep_freebsd.sh && \
   /prep_freebsd.sh; fi
 
-ENV PATH=/freebsdcross/x86_64-pc-freebsd13/bin:$PATH
+ENV PATH=/freebsdcross/x86_64-pc-freebsd14/bin:$PATH
 
 # Inject the new Go root distribution downloader and bootstrapper
 COPY bootstrap_pure.sh /bootstrap_pure.sh
