@@ -79,7 +79,7 @@ COPY patches /patches
 
 # Configure the container for OSX cross compilation
 ENV OSX_SDK_REPO=alexey-lysiuk/macos-sdk
-ENV OSX_SDK_VERSION=12.3
+ENV OSX_SDK_VERSION=15.5
 ENV OSX_SDK=MacOSX${OSX_SDK_VERSION}.sdk
 ENV OSX_SDK_PATH=https://github.com/${OSX_SDK_REPO}/releases/download/${OSX_SDK_VERSION}/MacOSX${OSX_SDK_VERSION}.tar.xz
 
@@ -88,7 +88,7 @@ ENV LD_LIBRARY_PATH=/osxcross/target/lib
 
 # Download the osx sdk and build the osx toolchain
 RUN \
-  $FETCH $OSX_SDK_PATH 91c03be5399be04d8f6b773da13045525e01298c1dfff273b4e1f1e904ee5484 && \
+  $FETCH $OSX_SDK_PATH 5096f730e9935adbd99d4bb082c3c6c01c077d966405ee4ae45705521476332e && \
   tar -xf "$(basename $OSX_SDK_PATH)" && rm -f "$(basename $OSX_SDK_PATH)"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # trunk-ignore(hadolint/DL3003)

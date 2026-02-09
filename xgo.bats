@@ -51,7 +51,7 @@
   git clone --depth 1 https://github.com/go-vikunja/vikunja $vikunja_path
   mkdir -p $vikunja_path/frontend/dist/
   touch $vikunja_path/frontend/dist/index.html
-  run go run . --image="${IMAGEID}" --targets "darwin-13/arm64" $vikunja_path
+  run go run . --image="${IMAGEID}" --targets "darwin-15/arm64" $vikunja_path
   echo "$output"
   [ "$status" -eq 0 ]
 }
