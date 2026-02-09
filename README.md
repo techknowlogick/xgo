@@ -141,13 +141,13 @@ The following `go build` flags are supported:
 Select specific Go versions using the `-go` flag:
 
 ```bash
-xgo -go go-1.24.x github.com/your-username/your-project
+xgo -go go-1.25.x github.com/your-username/your-project
 ```
 
 Supported release strings:
 - `latest` - Latest Go release (default)
-- `go-1.24.x` - Latest point release of Go 1.24
-- `go-1.24.3` - Specific Go version
+- `go-1.25.x` - Latest point release of Go 1.25
+- `go-1.25.7` - Specific Go version
 
 ### Limit Build Targets
 
