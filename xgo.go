@@ -137,6 +137,8 @@ func main() {
 			rt, err = newDockerAPIRuntime("")
 		case "apple":
 			rt, err = newAppleContainerRuntime()
+		default:
+			log.Fatalf("unknown container runtime: %q", *runtimeName)
 		}
 		if err != nil {
 			log.Fatalf("Failed to initialize %s container runtime: %v.", *runtimeName, err)
