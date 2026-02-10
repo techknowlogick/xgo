@@ -115,6 +115,31 @@ RUN if [ $(arch) = "x86_64" ] ; then chmod +x /prep_freebsd.sh && \
 
 ENV PATH=/freebsdcross/x86_64-pc-freebsd14/bin:$PATH
 
+##############################
+# LLVM-MINGW TOOLCHAIN BUILD #
+##############################
+
+# Install llvm-mingw for Windows ARM64 cross-compilation.
+# Standard mingw-w64 from Ubuntu repos does not support ARM64; llvm-mingw provides
+# Clang-based cross-compilers including aarch64-w64-mingw32.
+ENV LLVM_MINGW_VERSION=20251216
+ENV LLVM_MINGW_PREFIX=/llvm-mingw
+
+RUN \
+  if [ "$(arch)" = "x86_64" ]; then \
+    LLVM_MINGW_URL="https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VERSION}/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-x86_64.tar.xz" ; \
+  elif [ "$(arch)" = "aarch64" ]; then \
+    LLVM_MINGW_URL="https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VERSION}/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64.tar.xz" ; \
+  else \
+    echo "Unsupported architecture for llvm-mingw: $(arch)" && exit 1 ; \
+  fi && \
+  wget -q "$LLVM_MINGW_URL" -O /tmp/llvm-mingw.tar.xz && \
+  mkdir -p ${LLVM_MINGW_PREFIX} && \
+  tar -xf /tmp/llvm-mingw.tar.xz --strip-components=1 -C ${LLVM_MINGW_PREFIX} && \
+  rm /tmp/llvm-mingw.tar.xz
+
+ENV PATH=${LLVM_MINGW_PREFIX}/bin:$PATH
+
 # Inject the new Go root distribution downloader and bootstrapper
 COPY bootstrap_pure.sh /bootstrap_pure.sh
 ENV BOOTSTRAP_PURE=/bootstrap_pure.sh
