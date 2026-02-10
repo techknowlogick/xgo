@@ -8,7 +8,6 @@
 package main // import "src.techknowlogick.com/xgo"
 
 import (
-	"bytes"
 	"context"
 	"flag"
 	"fmt"
@@ -64,6 +63,7 @@ var (
 	volumes     = flag.String("volumes", "", "Comma separated list of volume mounts in format source:target[:mode]")
 	hooksDir    = flag.String("hooksdir", "", "Directory with user hook scripts (setup.sh, build.sh)")
 	forwardSsh  = flag.Bool("ssh", false, "Enable ssh agent forwarding")
+	runtimeFlag = flag.String("runtime", "auto", "Container runtime to use (auto, docker, podman, apple)")
 )
 
 // ConfigFlags is a simple set of flags to define the environment and dependencies.
@@ -129,19 +129,14 @@ func main() {
 
 	var rt ContainerRuntime
 	if !xgoInXgo {
-		// Initialise the Docker container runtime
+		var name string
 		var err error
-		rt, err = newDockerAPIRuntime("")
+		rt, name, err = detectRuntime(ctx, *runtimeFlag)
 		if err != nil {
-			log.Fatalf("Failed to create Docker client: %v.", err)
+			log.Fatalf("Failed to detect container runtime: %v.", err)
 		}
 		defer rt.Close()
-		// Ensure the runtime is reachable
-		fmt.Println("Checking container runtime...")
-		if err := rt.Ping(ctx); err != nil {
-			log.Fatalf("Failed to reach container runtime: %v.", err)
-		}
-		fmt.Println()
+		fmt.Printf("Using container runtime: %s\n\n", name)
 		// Validate the command line arguments
 		if len(flag.Args()) != 1 {
 			log.Fatalf("Usage: %s [options] <go import path>", os.Args[0])
@@ -605,17 +600,6 @@ func resolveImportPath(path string) string {
 		log.Fatalf("Failed to resolve import path: %v.", err)
 	}
 	return pack.ImportPath
-}
-
-// compare output of docker/container images and image name
-func compareOutAndImage(out []byte, image string) (bool, error) {
-	if strings.Contains(image, ":") {
-		res := strings.SplitN(image, ":", 2)
-		r, t := res[0], res[1]
-		match, _ := regexp.Match(fmt.Sprintf(`%s\s+%s`, r, t), out)
-		return match, nil
-	}
-	return bytes.Contains(out, []byte(image)), nil
 }
 
 // Executes a command synchronously, redirecting its output to stdout.
