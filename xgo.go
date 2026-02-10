@@ -63,6 +63,7 @@ var (
 	dockerArgs  = flag.String("dockerargs", "", "Comma separated arguments added to docker run")
 	volumes     = flag.String("volumes", "", "Comma separated list of volume mounts in format source:target[:mode]")
 	hooksDir    = flag.String("hooksdir", "", "Directory with user hook scripts (setup.sh, build.sh)")
+	runtimeName = flag.String("container", "docker", "Select the container runtime (docker, apple)")
 	forwardSsh  = flag.Bool("ssh", false, "Enable ssh agent forwarding")
 )
 
@@ -131,10 +132,16 @@ func main() {
 	if !xgoInXgo {
 		// Initialise the Docker container runtime
 		var err error
-		rt, err = newDockerAPIRuntime("")
-		if err != nil {
-			log.Fatalf("Failed to create Docker client: %v.", err)
+		switch *runtimeName {
+		case "docker":
+			rt, err = newDockerAPIRuntime("")
+		case "apple":
+			rt, err = newAppleContainerRuntime()
 		}
+		if err != nil {
+			log.Fatalf("Failed to initialize %s container runtime: %v.", *runtimeName, err)
+		}
+
 		defer rt.Close()
 		// Ensure the runtime is reachable
 		fmt.Println("Checking container runtime...")
