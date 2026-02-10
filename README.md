@@ -181,7 +181,7 @@ xgo --targets=windows-10.0/* github.com/your-username/your-project
 ```
 
 **Supported platforms:**
-- **Windows:** All APIs up to Windows 11 (limited by mingw-w64)
+- **Windows:** All APIs up to Windows 11 (amd64/386 via mingw-w64, arm64 via llvm-mingw)
 - **macOS:** APIs from 10.6 to latest
 
 ### CGO Dependencies

@@ -424,6 +424,23 @@ for TARGET in $TARGETS; do
       fi
       GOCACHE=/gocache/windows-$PLATFORM/386 CC=i686-w64-mingw32-gcc-posix CXX=i686-w64-mingw32-g++-posix GOOS=windows GOARCH=386 CGO_ENABLED=1 CGO_CFLAGS="$CGO_NTDEF" CGO_CXXFLAGS="$CGO_NTDEF" $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-windows-$PLATFORM-386$(extension windows)" "$PACK_RELPATH"
     fi
+    if [ "$XGOARCH" == "." ] || [ "$XGOARCH" == "arm64" ]; then
+      if [ "$GO_VERSION_MAJOR" -lt 1 ] || { [ "$GO_VERSION_MAJOR" == 1 ] && [ "$GO_VERSION_MINOR" -lt 17 ]; }; then
+        echo "Go version too low, skipping windows-$PLATFORM/arm64..."
+      else
+        # Windows ARM64 requires at least Windows 10
+        CGO_NTDEF_ARM64="-D_WIN32_WINNT=0x0A00"
+        echo "Compiling for windows-$PLATFORM/arm64..."
+        mkdir -p /gocache/windows-$PLATFORM/arm64
+        XGOOS="windows-$PLATFORM" XGOARCH="arm64" GOCACHE=/gocache/windows-$PLATFORM/arm64 CC=aarch64-w64-mingw32-clang CXX=aarch64-w64-mingw32-clang++ HOST=aarch64-w64-mingw32 PREFIX=/llvm-mingw/aarch64-w64-mingw32 do_build
+        export PKG_CONFIG_PATH=/llvm-mingw/aarch64-w64-mingw32/lib/pkgconfig
+
+        if [[ "$USEMODULES" == false ]]; then
+          GOCACHE=/gocache/windows-$PLATFORM/arm64 CC=aarch64-w64-mingw32-clang CXX=aarch64-w64-mingw32-clang++ GOOS=windows GOARCH=arm64 CGO_ENABLED=1 CGO_CFLAGS="$CGO_NTDEF_ARM64" CGO_CXXFLAGS="$CGO_NTDEF_ARM64" go get $V $X "${T[@]}" -d "$PACK_RELPATH"
+        fi
+        GOCACHE=/gocache/windows-$PLATFORM/arm64 CC=aarch64-w64-mingw32-clang CXX=aarch64-w64-mingw32-clang++ GOOS=windows GOARCH=arm64 CGO_ENABLED=1 CGO_CFLAGS="$CGO_NTDEF_ARM64" CGO_CXXFLAGS="$CGO_NTDEF_ARM64" $GOBIN build $V $X $TP $BV "${MOD[@]}" "${T[@]}" "${LDF[@]}" "${GC[@]}" "${BM[@]}" -o "/build/$NAME-windows-$PLATFORM-arm64$(extension windows)" "$PACK_RELPATH"
+      fi
+    fi
   fi
   # Check and build for OSX targets
   if [ "$XGOOS" == "." ] || [[ "$XGOOS" == darwin* ]]; then
