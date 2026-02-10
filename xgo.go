@@ -351,7 +351,7 @@ func compile(ctx context.Context, rt ContainerRuntime, image string, config *Con
 		// Check if there is a vendor folder, and if so, use it
 		vendorPath := absRepository + "/vendor"
 		vendorfolder, err := os.Stat(vendorPath)
-		if !os.IsNotExist(err) && vendorfolder.Mode().IsDir() {
+		if err == nil && vendorfolder.Mode().IsDir() {
 			opts.Env = append(opts.Env, "FLAG_MOD=vendor")
 			fmt.Printf("Using vendored Go module dependencies\n")
 		}
