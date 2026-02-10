@@ -263,7 +263,7 @@ func main() {
 func compile(ctx context.Context, rt ContainerRuntime, image string, config *ConfigFlags, flags *BuildFlags, folder string) error {
 	// We need to consider our module-aware status
 	go111module := os.Getenv("GO111MODULE")
-	localBuild := strings.HasPrefix(config.Repository, string(filepath.Separator)) || strings.HasPrefix(config.Repository, ".")
+	localBuild := strings.HasPrefix(filepath.FromSlash(config.Repository), string(filepath.Separator)) || strings.HasPrefix(config.Repository, ".") || filepath.IsAbs(config.Repository)
 	if !localBuild {
 		fmt.Printf("Cross compiling non-local repository: %s...\n", config.Repository)
 		opts := toRunOptions(image, config, flags, folder)
@@ -283,7 +283,7 @@ func compile(ctx context.Context, rt ContainerRuntime, image string, config *Con
 	} else if go111module != "on" {
 		usesModules = false
 		// we need to look at the current config and determine if we should use modules...
-		if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
+		if _, err := os.Stat(filepath.Join(config.Repository, "go.mod")); err == nil {
 			usesModules = true
 		}
 		if !usesModules {
@@ -320,7 +320,7 @@ func compile(ctx context.Context, rt ContainerRuntime, image string, config *Con
 			// Resolve the repository import path from the file path
 			config.Repository = resolveImportPath(config.Repository)
 
-			if _, err := os.Stat(config.Repository + "/go.mod"); err == nil {
+			if _, err := os.Stat(filepath.Join(config.Repository, "go.mod")); err == nil {
 				usesModules = true
 			}
 		}
@@ -334,7 +334,7 @@ func compile(ctx context.Context, rt ContainerRuntime, image string, config *Con
 		opts.Env = append(opts.Env, "GO111MODULE=on")
 		gopathEnv := getGOPATH()
 		if gopathEnv != "" {
-			opts.Binds = append(opts.Binds, gopathEnv+":/go")
+			opts.Binds = append(opts.Binds, toDockerPath(gopathEnv)+":/go")
 		}
 		// FIXME: consider GOMODCACHE?
 
@@ -346,10 +346,10 @@ func compile(ctx context.Context, rt ContainerRuntime, image string, config *Con
 			log.Fatalf("Failed to locate requested module repository: %v.", err)
 		}
 
-		opts.Binds = append(opts.Binds, absRepository+":/source")
+		opts.Binds = append(opts.Binds, toDockerPath(absRepository)+":/source")
 
 		// Check if there is a vendor folder, and if so, use it
-		vendorPath := absRepository + "/vendor"
+		vendorPath := filepath.Join(absRepository, "vendor")
 		vendorfolder, err := os.Stat(vendorPath)
 		if !os.IsNotExist(err) && vendorfolder.Mode().IsDir() {
 			opts.Env = append(opts.Env, "FLAG_MOD=vendor")
@@ -370,28 +370,22 @@ func compile(ctx context.Context, rt ContainerRuntime, image string, config *Con
 
 // toRunOptions builds a RunOptions from config, flags and folder.
 func toRunOptions(image string, config *ConfigFlags, flags *BuildFlags, folder string) RunOptions {
-	// Alter paths so they work for Windows
-	// Does not affect Linux paths
-	re := regexp.MustCompile("([A-Z]):")
-	folderW := filepath.ToSlash(re.ReplaceAllString(folder, "/$1"))
-	depsCacheW := filepath.ToSlash(re.ReplaceAllString(depsCache, "/$1"))
 	gocache := filepath.Join(depsCache, "gocache")
 	if err := os.MkdirAll(gocache, 0o750); err != nil { // 0750 = rwxr-x---
 		log.Fatalf("Failed to create gocache dir: %v.", err)
 	}
-	gocacheW := filepath.ToSlash(re.ReplaceAllString(gocache, "/$1"))
 
 	opts := RunOptions{
 		Image: image,
 		Binds: []string{
-			folderW + ":/build",
-			depsCacheW + ":/deps-cache:ro",
-			gocacheW + ":/gocache:rw",
+			toDockerPath(folder) + ":/build",
+			toDockerPath(depsCache) + ":/deps-cache:ro",
+			toDockerPath(gocache) + ":/gocache:rw",
 		},
 		Env: []string{
 			"REPO_REMOTE=" + config.Remote,
 			"REPO_BRANCH=" + config.Branch,
-			"PACK=" + config.Package,
+			"PACK=" + filepath.ToSlash(config.Package),
 			"DEPS=" + config.Dependencies,
 			"ARGS=" + config.Arguments,
 			"OUT=" + config.Prefix,
@@ -521,7 +515,7 @@ func goPathExports() (binds []string, env []string) {
 	}
 
 	for i := 0; i < len(locals); i++ {
-		binds = append(binds, fmt.Sprintf("%s:%s:ro", locals[i], mounts[i]))
+		binds = append(binds, fmt.Sprintf("%s:%s:ro", toDockerPath(locals[i]), mounts[i]))
 	}
 	env = append(env, "EXT_GOPATH="+strings.Join(paths, ":"))
 	return binds, env
@@ -600,6 +594,14 @@ func resolveImportPath(path string) string {
 		log.Fatalf("Failed to resolve import path: %v.", err)
 	}
 	return pack.ImportPath
+}
+
+// toDockerPath converts a host path so it works as a Docker volume source on
+// Windows. On Linux/macOS this is a no-op. On Windows it turns "C:\foo" into
+// "/C/foo" with forward slashes.
+func toDockerPath(path string) string {
+	re := regexp.MustCompile("([A-Z]):")
+	return filepath.ToSlash(re.ReplaceAllString(path, "/$1"))
 }
 
 // Executes a command synchronously, redirecting its output to stdout.
