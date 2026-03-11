@@ -8,9 +8,14 @@ import (
 	"strconv"
 	"strings"
 
+	dockerconfig "github.com/docker/cli/cli/config"
+	"github.com/docker/cli/cli/config/configfile"
+	"github.com/distribution/reference"
+	mobyauthconfig "github.com/moby/moby/api/pkg/authconfig"
 	"github.com/moby/moby/api/pkg/stdcopy"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/mount"
+	registrytypes "github.com/moby/moby/api/types/registry"
 	"github.com/moby/moby/client"
 	"github.com/moby/moby/client/pkg/jsonmessage"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
@@ -57,7 +62,12 @@ func (d *DockerAPIRuntime) ImageExists(ctx context.Context, ref string) (bool, e
 }
 
 func (d *DockerAPIRuntime) PullImage(ctx context.Context, ref string) error {
-	resp, err := d.cli.ImagePull(ctx, ref, client.ImagePullOptions{})
+	registryAuth, err := registryAuthTokenForImage(ref)
+	if err != nil {
+		return fmt.Errorf("loading registry auth: %w", err)
+	}
+
+	resp, err := d.cli.ImagePull(ctx, ref, client.ImagePullOptions{RegistryAuth: registryAuth})
 	if err != nil {
 		return err
 	}
@@ -66,6 +76,38 @@ func (d *DockerAPIRuntime) PullImage(ctx context.Context, ref string) error {
 	fd := os.Stdout.Fd()
 	isTerminal := term.IsTerminal(int(fd))
 	return jsonmessage.DisplayJSONMessagesStream(resp, os.Stdout, fd, isTerminal, nil)
+}
+
+func registryAuthTokenForImage(ref string) (string, error) {
+	return registryAuthTokenForImageFromConfig(dockerconfig.LoadDefaultConfigFile(os.Stderr), ref)
+}
+
+func registryAuthTokenForImageFromConfig(cfg *configfile.ConfigFile, ref string) (string, error) {
+	registryRef, err := reference.ParseNormalizedNamed(ref)
+	if err != nil {
+		return "", err
+	}
+
+	authConfig, err := cfg.GetAuthConfig(registryAuthConfigKey(reference.Domain(registryRef)))
+	if err != nil {
+		return "", err
+	}
+
+	return mobyauthconfig.Encode(registrytypes.AuthConfig{
+		Username:      authConfig.Username,
+		Password:      authConfig.Password,
+		ServerAddress: authConfig.ServerAddress,
+		Auth:          authConfig.Auth,
+		IdentityToken: authConfig.IdentityToken,
+		RegistryToken: authConfig.RegistryToken,
+	})
+}
+
+func registryAuthConfigKey(domainName string) string {
+	if domainName == "docker.io" || domainName == "index.docker.io" {
+		return "https://index.docker.io/v1/"
+	}
+	return domainName
 }
 
 func (d *DockerAPIRuntime) RunContainer(ctx context.Context, opts RunOptions) error {
