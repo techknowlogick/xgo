@@ -104,7 +104,7 @@ xgo supports the following command-line flags:
 |------|-------------|---------|
 | `-go` | Go release to use for cross compilation | `latest` |
 | `-out` | Prefix to use for output naming | Package name |
-| `-dest` | Destination folder to put binaries in | Current directory |
+| `-dest` | Destination folder to put binaries in (created if missing) | Current directory |
 | `-pkg` | Sub-package to build if not root import | |
 | `-remote` | Version control remote repository to build | |
 | `-branch` | Version control branch to build | |

@@ -53,7 +53,7 @@ var (
 	srcRemote   = flag.String("remote", "", "Version control remote repository to build")
 	srcBranch   = flag.String("branch", "", "Version control branch to build")
 	outPrefix   = flag.String("out", "", "Prefix to use for output naming (empty = package name)")
-	outFolder   = flag.String("dest", "", "Destination folder to put binaries in (empty = current)")
+	outFolder   = flag.String("dest", "", "Destination folder to put binaries in (created if missing, empty = current)")
 	crossDeps   = flag.String("deps", "", "CGO dependencies (configure/make based archives)")
 	crossArgs   = flag.String("depsargs", "", "CGO dependency configure arguments")
 	targets     = flag.String("targets", "*/*", "Comma separated targets to build for")
@@ -110,6 +110,37 @@ type BuildFlags struct {
 	BuildVCS    bool   // Whether to stamp binaries with version control information
 	Obfuscate   bool   // Obfuscate build using garble
 	GarbleFlags string // Arguments to pass to garble
+}
+
+func prepareOutputFolder(dest string) (string, error) {
+	folder := dest
+	var err error
+	if folder == "" {
+		folder, err = os.Getwd()
+		if err != nil {
+			return "", fmt.Errorf("failed to retrieve the working directory: %w", err)
+		}
+	} else {
+		folder, err = filepath.Abs(folder)
+		if err != nil {
+			return "", fmt.Errorf("failed to resolve destination path (%s): %w", dest, err)
+		}
+	}
+
+	info, err := os.Stat(folder)
+	switch {
+	case err == nil:
+		if !info.IsDir() {
+			return "", fmt.Errorf("destination path (%s) is not a directory", folder)
+		}
+	case os.IsNotExist(err):
+		if err := os.MkdirAll(folder, 0o750); err != nil {
+			return "", fmt.Errorf("failed to create destination path (%s): %w", folder, err)
+		}
+	case err != nil:
+		return "", fmt.Errorf("failed to access destination path (%s): %w", folder, err)
+	}
+	return folder, nil
 }
 
 func main() {
@@ -225,15 +256,9 @@ func main() {
 		Obfuscate:   *obfuscate,
 		GarbleFlags: *garbleFlags,
 	}
-	folder, err := os.Getwd()
+	folder, err := prepareOutputFolder(*outFolder)
 	if err != nil {
-		log.Fatalf("Failed to retrieve the working directory: %v.", err)
-	}
-	if *outFolder != "" {
-		folder, err = filepath.Abs(*outFolder)
-		if err != nil {
-			log.Fatalf("Failed to resolve destination path (%s): %v.", *outFolder, err)
-		}
+		log.Fatalf("%v.", err)
 	}
 	if *hooksDir != "" {
 		dir, err := filepath.Abs(*hooksDir)
