@@ -1,6 +1,7 @@
 # xgo - Go CGO Cross Compiler
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![gitcgr](https://gitcgr.com/badge/techknowlogick/xgo.svg)](https://gitcgr.com/techknowlogick/xgo)
 
 A Docker-based Go cross compiler that enables easy compilation of Go projects with CGO dependencies across multiple platforms and architectures.
 
