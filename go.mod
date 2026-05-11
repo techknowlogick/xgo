@@ -4,7 +4,7 @@ go 1.25.7
 
 require (
 	github.com/distribution/reference v0.6.0
-	github.com/docker/cli v28.5.2+incompatible
+	github.com/docker/cli v29.2.0+incompatible
 	github.com/moby/moby/api v1.53.0
 	github.com/moby/moby/client v0.2.2
 	github.com/opencontainers/image-spec v1.1.1
@@ -26,7 +26,6 @@ require (
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/moby/term v0.5.2 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.65.0 // indirect
