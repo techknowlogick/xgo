@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -11,6 +12,10 @@ import (
 // AppleContainersCLIRuntime shells out to Apple's `container` CLI.
 type AppleContainersCLIRuntime struct {
 	binary string
+}
+
+type appleContainerSystemStatus struct {
+	Status string `json:"status"`
 }
 
 func newAppleContainersCLIRuntime() (*AppleContainersCLIRuntime, error) {
@@ -26,13 +31,19 @@ func (a *AppleContainersCLIRuntime) Close() error {
 }
 
 func (a *AppleContainersCLIRuntime) Ping(ctx context.Context) error {
-	out, err := exec.CommandContext(ctx, a.binary, "system", "status").Output()
+	out, err := exec.CommandContext(ctx, a.binary, "system", "status", "--format", "json").Output()
 	if err != nil {
-		return fmt.Errorf("apple container service not reachable: %w", err)
+		return fmt.Errorf("apple container service not reachable (start with: container system start): %w", err)
 	}
-	if !strings.Contains(string(out), "is running") {
-		return fmt.Errorf("apple container service is not running (start with: container system start)")
+
+	var status appleContainerSystemStatus
+	if err := json.Unmarshal(out, &status); err != nil {
+		return fmt.Errorf("parsing apple container system status: %w", err)
 	}
+	if status.Status != "running" {
+		return fmt.Errorf("apple container service is %q, not running (start with: container system start)", status.Status)
+	}
+
 	return nil
 }
 
