@@ -2,6 +2,9 @@ name: Test PR
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ${{ github.event.pull_request.user.login == 'techknowlogick' && 'namespace-profile-xgo' || 'ubuntu-24.04' }}
