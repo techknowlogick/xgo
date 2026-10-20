@@ -11,7 +11,7 @@ set -euo pipefail
 # I have been able to expand upon for cgo/golang
 
 freebsd_ver=14
-freebsd_full_ver=14.3
+freebsd_full_ver=14.5
 binutils_ver=2.42
 gmp_ver=6.3.0
 mpfr_ver=4.2.1
